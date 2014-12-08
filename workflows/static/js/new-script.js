@@ -998,6 +998,14 @@ function updateWidgetListeners() {
                         showDocumentation(thisWidgetId);
                     }
 
+                    if (action=='recommendinp') {
+                        recommendInp(thisWidgetId);
+                    }
+
+                    if (action=='recommendout') {
+                        recommendOut(thisWidgetId);
+                    }
+
 
 				});
 				$(this).data('contextMenu',true);
@@ -1974,4 +1982,32 @@ function resizeSvg() {
         $(this).css('height',$(this).parent()[0].scrollHeight-40+'px');
         $(this).css('width',$(this).parent()[0].scrollWidth-40+'px');
     });
+}
+
+function recommendInp(widgetId) {
+    var str = $('#my-recomm-inp'+widgetId).html();
+    showRecommendations(str);
+}
+function recommendOut(widgetId) {
+    var str = $('#my-recomm-out'+widgetId).html();
+    showRecommendations(str);
+}
+function showRecommendations(recomm_arr) {
+    var str = recomm_arr;   //$('#my-recomm-inp'+widgetId).html();
+
+    var res = str.split(":::");
+    if (str.length>0 && res.length > 0) {
+        // hides all tree nodes
+        $('#widgetsTree li').hide();
+
+        for (i = 0; i < res.length; i++) {
+            w=res[i];
+            // finds all tree nodes which contain w (all 'li' elements)
+            // would show() the terminal node + all nodes on the way to the root
+            $('#widgetsTree li:Contains(' + w + ')').show();
+        }
+        // expands the (+) : all tree nodes become visible
+        $('#widgetsTree').find("div[class*=expandable-hitarea]").click();        
+    }
+
 }

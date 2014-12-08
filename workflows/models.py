@@ -506,6 +506,61 @@ class Widget(models.Model):
 
     progress = models.IntegerField(default=0)
 
+    # ========================================================================
+    def calc_recomm_inp(self):
+        num_recomm = 10
+
+        # Self[Widget] has FK to abstract_widget [AbstractWidget]
+        # [AbstractInput] has FK to [AbstractWidget]
+
+        aw = self.abstract_widget
+        
+        """ Get abswidg.inputs for this widget """
+        ainputs = AbstractInput.objects.filter(widget=aw)
+
+        recomm_i=[]
+
+        for ainp in ainputs:
+            if not ainp.parameter:
+                """ Get recomm for all inputs of this abswidg """
+                print "Recommendations for widget: " + str(aw.name)  + ", input:" + str(ainp.variable)
+                rarr = Recommender.objects.filter(inp=ainp)
+                rarr = sorted(rarr, key=lambda r: r.count, reverse=True)[:num_recomm]
+                for r in rarr:
+                    print "  widget:" + str( r.out.widget.name ) + " (out:" + str( r.out.name ) + ")  count: " + str( r.count )
+                    recomm_i.append(r.out.widget.name)                    
+        
+        recomm_i = set( recomm_i ) # remove duplicates
+        res = list(recomm_i)
+        print 'Res calc_recomm_inp : ' + str(res)
+        res = str( ":::".join(res) )        
+        return res
+
+    def calc_recomm_out(self):
+        num_recomm = 10
+        aw = self.abstract_widget
+        
+        """ Get abswidg.inputs for this widget """
+        aoutputs = AbstractOutput.objects.filter(widget=aw)
+
+        recomm_i=[]
+
+        for aout in aoutputs:
+            """ Get recomm for all outputs of this abswidg """
+            print "Recommendations for widget: " + str(aw.name)  + ", output:" + str(aout.variable)
+            rarr = Recommender.objects.filter(out=aout)
+            rarr = sorted(rarr, key=lambda r: r.count, reverse=True)[:num_recomm]
+            for r in rarr:
+                print "  widget:" + str( r.inp.widget.name ) + " (out:" + str( r.inp.name ) + ")  count: " + str( r.count )
+                recomm_i.append(r.inp.widget.name)                    
+        
+        recomm_o = set( recomm_i ) # remove duplicates
+        res = list(recomm_o)
+        print 'Res calc_recomm_out : ' + str(res)
+        res = str( ":::".join(res) )        
+        return res
+    # ========================================================================
+
     def is_visualization(self):
         try:
             if self.abstract_widget.visualization_view != '':
@@ -973,6 +1028,11 @@ class Output(models.Model):
 
     def __unicode__(self):
         return unicode(self.name)
+
+class Recommender(models.Model):
+    inp = models.ForeignKey(AbstractInput, related_name='input')
+    out = models.ForeignKey(AbstractOutput, related_name='output')
+    count = models.IntegerField()
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User,related_name="userprofile")
