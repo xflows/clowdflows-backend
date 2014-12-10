@@ -1993,7 +1993,10 @@ function recommendOut(widgetId) {
     showRecommendations(str);
 }
 function showRecommendations(recomm_arr) {
-    var str = recomm_arr;   //$('#my-recomm-inp'+widgetId).html();
+    var str = recomm_arr;   
+
+    var sb = $('#searchBox');
+    sb[0].value = '';       // clear searchBox text
 
     var res = str.split(":::");
     if (str.length>0 && res.length > 0) {
@@ -2008,6 +2011,8 @@ function showRecommendations(recomm_arr) {
         }
         // expands the (+) : all tree nodes become visible
         $('#widgetsTree').find("div[class*=expandable-hitarea]").click();        
+    } else {
+        reportOk('No recommendations have been found.');
     }
 
 }
