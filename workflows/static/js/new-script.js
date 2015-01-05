@@ -1985,13 +1985,27 @@ function resizeSvg() {
 }
 
 function recommendInp(widgetId) {
-    var str = $('#my-recomm-inp'+widgetId).html();
-    showRecommendations(str);
+    $(".ajax-loader").show();
+    $.post(url['get-recomm'], { 'widget_id' : widgetId, "inp":1 }, function(data,status) {
+        $(".ajax-loader").hide();
+        showRecommendations(data.recomm_arr)
+
+        updateWidgetListeners();
+        resizeWidgets();
+    },'json');
 }
+
 function recommendOut(widgetId) {
-    var str = $('#my-recomm-out'+widgetId).html();
-    showRecommendations(str);
+    $(".ajax-loader").show();
+    $.post(url['get-recomm'], { 'widget_id' : widgetId, "out":1 }, function(data,status) {
+        $(".ajax-loader").hide();
+        showRecommendations(data.recomm_arr)
+
+        updateWidgetListeners();
+        resizeWidgets();
+    },'json');
 }
+
 function showRecommendations(recomm_arr) {
     var str = recomm_arr;   
 

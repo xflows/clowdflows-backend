@@ -1522,3 +1522,18 @@ def widget_iframe(request, widget_id):
     else:
         return HttpResponse(status=400)    
     return HttpResponse("OK")
+
+@login_required
+def get_recomm(request):
+    if request.POST.has_key("widget_id"):
+        widget = get_object_or_404(Widget, pk=request.POST['widget_id'])
+        if request.POST.has_key("inp"):
+            data = simplejson.dumps({'recomm_arr':widget.calc_recomm_inp()})
+        else:
+            data = simplejson.dumps({'recomm_arr':widget.calc_recomm_out()})
+        mimetype = 'application/javascript'
+        return HttpResponse(data,mimetype)
+    else:
+        data = simplejson.dumps({'status':'error','message':'Error in the request parameters.'})
+        mimetype = 'application/javascript'
+        return HttpResponse(data,mimetype)

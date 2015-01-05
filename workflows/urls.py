@@ -75,4 +75,5 @@ urlpatterns += patterns('',
 
     url(r'^workflow_results/(?P<workflow_id>[0-9]+)/$', 'workflows.views.workflow_results', name='workflow_results'),
 
+    url(r'^get_recomm/$', 'workflows.views.get_recomm', name='get recomm'),
 )

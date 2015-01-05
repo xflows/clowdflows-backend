@@ -29,9 +29,5 @@
         <div style="display:none;" class="outer-widget-workflow" rel="{{ widget.workflow.widget.workflow.pk }}"></div>{% endif %}
         {% if widget.workflow_link %}<div class="workflow_link" style="display:none;" rel="{{ widget.workflow_link.pk }}"></div>{% endif %}
 
-        <!-- darko recomm -->
-        <div style="display:none;" id="my-recomm-inp{{ widget.pk }}" rel="">{{ widget.calc_recomm_inp }}</div>
-        <div style="display:none;" id="my-recomm-out{{ widget.pk }}" rel="">{{ widget.calc_recomm_out }}</div>
-
     </div>
 {% endfor %}
