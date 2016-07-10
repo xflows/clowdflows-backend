@@ -1,8 +1,4 @@
-from rest_framework import viewsets, mixins
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import filters
-from workflows.models import *
+from rest_framework import viewsets
 from workflows.serializers import *
 
 
@@ -22,7 +18,8 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        return Workflow.objects.filter(user=self.request.user).prefetch_related('widgets','widgets__inputs','widgets__outputs')
+        return Workflow.objects.filter(user=self.request.user).prefetch_related('widgets', 'widgets__inputs',
+                                                                                'widgets__outputs')
 
 
 class WidgetViewSet(viewsets.ModelViewSet):
@@ -38,7 +35,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
         return WidgetSerializer
 
     def get_queryset(self):
-        return Widget.objects.filter(workflow__user=self.request.user).prefetch_related('inputs','outputs')
+        return Widget.objects.filter(workflow__user=self.request.user).prefetch_related('inputs', 'outputs')
 
 
 class ConnectionViewSet(viewsets.ModelViewSet):
