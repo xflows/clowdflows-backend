@@ -2,9 +2,12 @@ from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from rest_framework import viewsets, permissions
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, detail_route
 from django.contrib.auth import logout
+from rest_framework.generics import get_object_or_404
+
 from workflows.serializers import *
+from workflows.permissions import IsAdminOrSelf
 
 
 def login_response(request, user):
@@ -70,6 +73,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows workflows to be viewed or edited.
     """
+    permission_classes = (IsAdminOrSelf,)
     model = Workflow
     filter_fields = ('public',)
 
@@ -82,14 +86,38 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        return Workflow.objects.filter(user=self.request.user).prefetch_related('widgets', 'widgets__inputs',
-                                                                                'widgets__outputs')
+        public = self.request.GET.get('public', '0') == '1'
+        if public:
+            workflows = Workflow.objects.filter(public=True)
+        else:
+            workflows = Workflow.objects.filter(user=self.request.user)
+        return workflows.prefetch_related('widgets', 'widgets__inputs', 'widgets__outputs')
+
+    @detail_route(methods=['post'], url_path='run')
+    def run_workflow(self, request, pk=None):
+        workflow = get_object_or_404(Workflow, pk=pk)
+        # TODO: run workflow on a worker
+        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
+
+    @detail_route(methods=['post'], url_path='stop')
+    def stop_workflow(self, request, pk=None):
+        workflow = get_object_or_404(Workflow, pk=pk)
+        # TODO: stop workflow execution
+        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
+
+
+    @detail_route(methods=['post'], url_path='subprocess')
+    def add_subprocess(self, request, pk=None):
+        workflow = get_object_or_404(Workflow, pk=pk)
+        # TODO: add subprocess widget to workflow
+        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
 
 
 class WidgetViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows widgets to be viewed or edited.
     """
+    permission_classes = (IsAdminOrSelf,)
     model = Widget
     filter_fields = ('workflow',)
 
@@ -106,6 +134,7 @@ class ConnectionViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows connections to be viewed or edited.
     """
+    permission_classes = (IsAdminOrSelf,)
     serializer_class = ConnectionSerializer
     model = Connection
 
@@ -117,6 +146,7 @@ class InputViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows widget inputs to be viewed or edited.
     """
+    permission_classes = (IsAdminOrSelf,)
     serializer_class = InputSerializer
     model = Input
 
@@ -128,6 +158,7 @@ class OutputViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows widget outputs to be viewed or edited.
     """
+    permission_classes = (IsAdminOrSelf,)
     serializer_class = OutputSerializer
     model = Output
 
