@@ -1,7 +1,13 @@
+import json
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from workflows.models import *
 
-import json
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username',)
 
 
 class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
