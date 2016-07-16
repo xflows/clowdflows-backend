@@ -96,7 +96,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'], url_path='run')
     def run_workflow(self, request, pk=None):
         workflow = get_object_or_404(Workflow, pk=pk)
-        # TODO: run workflow on a worker
+        workflow.run()
         return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
 
     @detail_route(methods=['post'], url_path='stop')
@@ -105,11 +105,34 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         # TODO: stop workflow execution
         return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
 
-
     @detail_route(methods=['post'], url_path='subprocess')
     def add_subprocess(self, request, pk=None):
         workflow = get_object_or_404(Workflow, pk=pk)
-        # TODO: add subprocess widget to workflow
+        subprocess_type = request.POST.get('type', 'normal')
+        start_x = request.POST.get('start_x', 0)
+        start_y = request.POST.get('start_y', 0)
+
+        subprocess_workflow, subprocess_widget = None, None
+        if subprocess_type == 'normal':
+            subprocess_workflow, subprocess_widget = workflow.add_normal_subprocess(start_x=start_x, start_y=start_y)
+        elif subprocess_type == 'for-loop':
+            subprocess_workflow, subprocess_widget = workflow.add_normal_subprocess(start_x=start_x, start_y=start_y)
+        elif subprocess_type == 'x-validation':
+            subprocess_workflow, subprocess_widget = workflow.add_normal_subprocess(start_x=start_x, start_y=start_y)
+
+        if subprocess_workflow and subprocess_widget:
+            return HttpResponse(json.dumps({
+                'subprocess_workflow': WorkflowSerializer(subprocess_workflow).data,
+                'subprocess_widget': WidgetSerializer(subprocess_widget).data
+            }))
+        else:
+            return HttpResponse(status=400)
+
+    @detail_route(methods=['post'], url_path='reset')
+    def reset(self, request, pk=None):
+        workflow = get_object_or_404(Workflow, pk=pk)
+        for widget in workflow.widgets.filter():
+            widget.reset()
         return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
 
 
@@ -118,6 +141,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
     API endpoint that allows widgets to be viewed or edited.
     """
     permission_classes = (IsAdminOrSelf,)
+    serializer_class = WidgetSerializer
     model = Widget
     filter_fields = ('workflow',)
 
@@ -128,6 +152,12 @@ class WidgetViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Widget.objects.filter(workflow__user=self.request.user).prefetch_related('inputs', 'outputs')
+
+    @detail_route(methods=['post'], url_path='reset')
+    def reset(self, request, pk=None):
+        widget = get_object_or_404(Widget, pk=pk)
+        widget.reset()
+        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
 
 
 class ConnectionViewSet(viewsets.ModelViewSet):

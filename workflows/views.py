@@ -98,9 +98,9 @@ def add_widget(request):
             if (workflow.user==request.user):
                 w = Widget()
                 w.workflow = workflow
-                w.x = int(request.POST['scrollLeft'].split(".")[0])+50
-                y = int(request.POST['scrollTop'].split(".")[0])+50
-                while workflow.widgets.filter(y=y,x=w.x).count()>0:
+                w.x = int(request.POST['scrollLeft'].split(".")[0]) + 50
+                y = int(request.POST['scrollTop'].split(".")[0]) + 50
+                while workflow.widgets.filter(y=y, x=w.x).count() > 0:
                     y = y + 100
                 w.y = y
                 w.name = aw.name
@@ -110,8 +110,6 @@ def add_widget(request):
                 inputOrder = 0
                 paramOrder = 0
                 for i in aw.inputs.all():
-                    print(i.short_name)
-                    print(aw.inputs.all())
                     j = Input()
                     j.name = i.name
                     j.short_name = i.short_name
@@ -404,24 +402,9 @@ def add_subprocess(request):
     if request.is_ajax() or DEBUG:
         workflow = get_object_or_404(Workflow, pk=request.POST['active_workflow'])
         if (workflow.user==request.user):
-            new_w = Workflow()
-            new_w.name = "Untitled widget"
-            new_w.user = request.user
-            w = Widget()
-            w.workflow = workflow
-            w.workflow_link = new_w
-            w.x = int(request.POST['scrollLeft'])+50
+            x = int(request.POST['scrollLeft'])+50
             y = int(request.POST['scrollTop'])+50
-            while workflow.widgets.filter(y=y,x=w.x).count()>0:
-                y = y + 100
-            w.y=y
-            w.name = "Untitled widget"
-            w.type = 'subprocess'
-            w.save()
-            new_w.widget = w
-            new_w.save()
-            w.defered_outputs = w.outputs.defer("value").all()
-            w.defered_inputs = w.inputs.defer("value").all()
+            subprocess_workflow, w = workflow.add_normal_subprocess(start_x=x, start_y=y)
             return render(request, 'widgets.html', {'widgets':[w,]})
         else:
             return HttpResponse(status=400)

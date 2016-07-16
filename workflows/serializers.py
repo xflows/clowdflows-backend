@@ -48,9 +48,11 @@ class OutputSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WidgetListSerializer(serializers.HyperlinkedModelSerializer):
+    abstract_widget = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Widget
-        exclude = ('abstract_widget',)
+        #exclude = ('abstract_widget',)
 
 
 class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
@@ -74,10 +76,11 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True,
         view_name='workflow-detail'
     )
+    abstract_widget = serializers.PrimaryKeyRelatedField(queryset=AbstractWidget.objects.all())
 
     class Meta:
         model = Widget
-        exclude = ('abstract_widget',)
+        # exclude = ('abstract_widget',)
 
 
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
