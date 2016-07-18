@@ -10,6 +10,40 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('username',)
 
 
+class AbstractInputSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = AbstractInput
+        fields = (
+        'name', 'short_name', 'description', 'variable', 'required', 'parameter', 'multi', 'default', 'parameter_type',
+        'order')
+
+
+class AbstractOutputSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = AbstractOutput
+        fields = ('name', 'short_name', 'description', 'variable', 'order')
+
+
+class AbstractWidgetSerializer(serializers.HyperlinkedModelSerializer):
+    #inputs = AbstractInputSerializer(many=True, read_only=True)
+    #outputs = AbstractOutputSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AbstractWidget
+        fields = ('name', 'interactive', 'static_image', 'order',) #'inputs', 'outputs')
+
+
+class CategorySerializer(serializers.HyperlinkedModelSerializer):
+    widgets = AbstractWidgetSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ('name', 'user', 'order', 'children', 'widgets')
+
+
+CategorySerializer._declared_fields['children'] = CategorySerializer(many=True, read_only=True)
+
+
 class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Connection
@@ -52,7 +86,7 @@ class WidgetListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Widget
-        #exclude = ('abstract_widget',)
+        # exclude = ('abstract_widget',)
 
 
 class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):

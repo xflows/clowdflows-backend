@@ -69,6 +69,15 @@ def user_logout(request):
     return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
 
 
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows connections to be viewed or edited.
+    """
+    permission_classes = (IsAdminOrSelf,)
+    serializer_class = UserSerializer
+    model = User
+
+
 class WorkflowViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows workflows to be viewed or edited.
@@ -194,3 +203,34 @@ class OutputViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Output.objects.filter(widget__workflow__user=self.request.user)
+
+
+class AbstractInputViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminOrSelf,)
+    serializer_class = AbstractInputSerializer
+    model = AbstractInput
+
+
+class AbstractOutputViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminOrSelf,)
+    serializer_class = AbstractOutputSerializer
+    model = AbstractOutput
+
+
+class AbstractWidgetViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminOrSelf,)
+    serializer_class = AbstractWidgetSerializer
+    model = AbstractWidget
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows the widget library to be read.
+    """
+    permission_classes = (IsAdminOrSelf,)
+    serializer_class = CategorySerializer
+    model = Category
+
+    def get_queryset(self):
+        return Category.objects.filter(parent__isnull=True)#\
+                    #.prefetch_related('widgets', 'widgets__inputs', 'widgets__outputs')
