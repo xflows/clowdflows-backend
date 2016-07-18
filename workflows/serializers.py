@@ -10,12 +10,19 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('username',)
 
 
+class AbstractOptionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = AbstractOption
+        fields = ('name', 'value')
+
+
 class AbstractInputSerializer(serializers.HyperlinkedModelSerializer):
+    options = AbstractOptionSerializer(many=True, read_only=True)
     class Meta:
         model = AbstractInput
         fields = (
         'name', 'short_name', 'description', 'variable', 'required', 'parameter', 'multi', 'default', 'parameter_type',
-        'order')
+        'order', 'options')
 
 
 class AbstractOutputSerializer(serializers.HyperlinkedModelSerializer):

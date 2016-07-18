@@ -4,6 +4,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes, detail_route
 from django.contrib.auth import logout
+from django.db.models import Q
 from rest_framework.generics import get_object_or_404
 
 from workflows.serializers import *
@@ -205,10 +206,20 @@ class OutputViewSet(viewsets.ModelViewSet):
         return Output.objects.filter(widget__workflow__user=self.request.user)
 
 
+class AbstractOptionViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminOrSelf,)
+    serializer_class = AbstractOptionSerializer
+    model = AbstractOption
+    queryset = AbstractOption.objects.all()
+
+
 class AbstractInputViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSelf,)
     serializer_class = AbstractInputSerializer
     model = AbstractInput
+
+    def get_queryset(self):
+        return AbstractInput.objects.filter(Q(widget__user=self.request.user) | Q(widget__user__isnull=True))
 
 
 class AbstractOutputViewSet(viewsets.ModelViewSet):
@@ -216,11 +227,17 @@ class AbstractOutputViewSet(viewsets.ModelViewSet):
     serializer_class = AbstractOutputSerializer
     model = AbstractOutput
 
+    def get_queryset(self):
+        return AbstractOutput.objects.filter(Q(widget__user=self.request.user) | Q(widget__user__isnull=True))
+
 
 class AbstractWidgetViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSelf,)
     serializer_class = AbstractWidgetSerializer
     model = AbstractWidget
+
+    def get_queryset(self):
+        return AbstractWidget.objects.filter(Q(user=self.request.user) | Q(user__isnull=True))
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
