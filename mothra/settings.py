@@ -83,6 +83,7 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.cache.UpdateCacheMiddleware', # must be first
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -174,7 +175,8 @@ INSTALLED_APPS_DEFAULT = (
     #'kombu.transport.django',
     'discover_runner',
     'rest_framework',
-    'south',    
+    'south',
+    'corsheaders',
     )
 
 INSTALLED_APPS_WORKFLOWS_SUB = ()
@@ -197,6 +199,9 @@ REST_FRAMEWORK = {
     'PAGINATE_BY': None,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_URLS_REGEX = r'^/api/.*$'
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS
 
