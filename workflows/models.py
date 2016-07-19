@@ -632,6 +632,7 @@ class AbstractInput(models.Model):
         ('select', 'Select box'),
         ('checkbox', 'Checkbox'),
         ('file', 'File'),
+        ('bigfile', 'File'),
     )
     parameter_type = models.CharField(max_length=50, choices=PARAMETER_CHOICES, blank=True, null=True)
 

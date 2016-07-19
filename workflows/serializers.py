@@ -14,30 +14,38 @@ class AbstractOptionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = AbstractOption
         fields = ('name', 'value')
+        read_only_fields = ('name', 'value')
 
 
 class AbstractInputSerializer(serializers.HyperlinkedModelSerializer):
-    options = AbstractOptionSerializer(many=True, read_only=True)
+    # options = AbstractOptionSerializer(many=True, read_only=True)
     class Meta:
         model = AbstractInput
         fields = (
-        'name', 'short_name', 'description', 'variable', 'required', 'parameter', 'multi', 'default', 'parameter_type',
-        'order', 'options')
+            'name', 'short_name', 'description', 'variable', 'required', 'parameter', 'multi', 'default',
+            'parameter_type',
+            'order',)  # 'options')
+        read_only_fields = (
+            'name', 'short_name', 'description', 'variable', 'required', 'parameter', 'multi', 'default',
+            'parameter_type',
+            'order',)  # 'options')
 
 
 class AbstractOutputSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = AbstractOutput
         fields = ('name', 'short_name', 'description', 'variable', 'order')
+        read_only_fields = ('name', 'short_name', 'description', 'variable', 'order')
 
 
 class AbstractWidgetSerializer(serializers.HyperlinkedModelSerializer):
-    #inputs = AbstractInputSerializer(many=True, read_only=True)
-    #outputs = AbstractOutputSerializer(many=True, read_only=True)
+    inputs = AbstractInputSerializer(many=True, read_only=True)
+    outputs = AbstractOutputSerializer(many=True, read_only=True)
 
     class Meta:
         model = AbstractWidget
-        fields = ('name', 'interactive', 'static_image', 'order',) #'inputs', 'outputs')
+        fields = ('name', 'interactive', 'static_image', 'order', 'outputs', 'inputs')
+        read_only_fields = ('name', 'interactive', 'static_image', 'order', 'outputs', 'inputs')
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
@@ -46,6 +54,7 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
         fields = ('name', 'user', 'order', 'children', 'widgets')
+        read_only_fields = ('name', 'user', 'order', 'children', 'widgets')
 
 
 CategorySerializer._declared_fields['children'] = CategorySerializer(many=True, read_only=True)

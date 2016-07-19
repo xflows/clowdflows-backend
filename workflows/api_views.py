@@ -77,6 +77,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSelf,)
     serializer_class = UserSerializer
     model = User
+    queryset = User.objects.all()
 
 
 class WorkflowViewSet(viewsets.ModelViewSet):
@@ -240,7 +241,7 @@ class AbstractWidgetViewSet(viewsets.ModelViewSet):
         return AbstractWidget.objects.filter(Q(user=self.request.user) | Q(user__isnull=True))
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows the widget library to be read.
     """
@@ -249,5 +250,4 @@ class CategoryViewSet(viewsets.ModelViewSet):
     model = Category
 
     def get_queryset(self):
-        return Category.objects.filter(parent__isnull=True)#\
-                    #.prefetch_related('widgets', 'widgets__inputs', 'widgets__outputs')
+        return Category.objects.filter(parent__isnull=True)
