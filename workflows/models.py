@@ -1,11 +1,13 @@
+import time
+import random
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.conf import settings
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 import workflows.library
 
-import time
-import random
 
 from picklefield.fields import PickledObjectField
 
@@ -21,6 +23,12 @@ from workflows.tasks import executeWidgetFunction, executeWidgetProgressBar, exe
     executeWidgetWithRequest, runWidget, executeWidgetPostInteract
 
 from workflows.engine import WidgetRunner, WorkflowRunner
+
+
+@receiver(post_save, sender=User)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
 
 
 class WidgetException(Exception):

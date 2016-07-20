@@ -170,11 +170,11 @@ INSTALLED_APPS_DEFAULT = (
     'workflows',
     'picklefield',
     'streams',
-    #'rest_framework',
     'djcelery',
     #'kombu.transport.django',
     'discover_runner',
     'rest_framework',
+    'rest_framework.authtoken',
     'south',
     'corsheaders',
     )

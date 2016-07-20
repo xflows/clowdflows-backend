@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from rest_framework import routers
+from rest_framework.authtoken import views
 from workflows import api_views
 
 router = routers.DefaultRouter()
@@ -20,5 +21,6 @@ urlpatterns = patterns('',
    url(r'^login/$', api_views.user_login),
    url(r'^logout/$', api_views.user_logout),
    url(r'^', include(router.urls)),
-   url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+   url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+   url(r'^api-token-auth/', views.obtain_auth_token)
 )
