@@ -18,17 +18,17 @@ class AbstractOptionSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class AbstractInputSerializer(serializers.HyperlinkedModelSerializer):
-    # options = AbstractOptionSerializer(many=True, read_only=True)
+    options = AbstractOptionSerializer(many=True, read_only=True)
     class Meta:
         model = AbstractInput
         fields = (
             'name', 'short_name', 'description', 'variable', 'required', 'parameter', 'multi', 'default',
             'parameter_type',
-            'order',)  # 'options')
+            'order', 'options')
         read_only_fields = (
             'name', 'short_name', 'description', 'variable', 'required', 'parameter', 'multi', 'default',
             'parameter_type',
-            'order',)  # 'options')
+            'order', 'options')
 
 
 class AbstractOutputSerializer(serializers.HyperlinkedModelSerializer):
