@@ -97,11 +97,11 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        public = self.request.GET.get('public', '0') == '1'
-        if public:
-            workflows = Workflow.objects.filter(public=True)
-        else:
-            workflows = Workflow.objects.filter(user=self.request.user)
+        # public = self.request.GET.get('public', '0') == '1'
+        # if public:
+        #     workflows = Workflow.objects.filter(public=True)
+        # else:
+        workflows = Workflow.objects.filter(Q(user=self.request.user) | Q(public=True))
         return workflows.prefetch_related('widgets', 'widgets__inputs', 'widgets__outputs')
 
     @detail_route(methods=['post'], url_path='run')
@@ -162,7 +162,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
         return WidgetSerializer
 
     def get_queryset(self):
-        return Widget.objects.filter(workflow__user=self.request.user).prefetch_related('inputs', 'outputs')
+        return Widget.objects.filter(Q(workflow__user=self.request.user) | Q(workflow__public=True)).prefetch_related('inputs', 'outputs')
 
     @detail_route(methods=['post'], url_path='reset')
     def reset(self, request, pk=None):
@@ -180,7 +180,7 @@ class ConnectionViewSet(viewsets.ModelViewSet):
     model = Connection
 
     def get_queryset(self):
-        return Connection.objects.filter(workflow__user=self.request.user)
+        return Connection.objects.filter(Q(workflow__user=self.request.user) | Q(workflow__public=True))
 
 
 class InputViewSet(viewsets.ModelViewSet):
@@ -192,7 +192,7 @@ class InputViewSet(viewsets.ModelViewSet):
     model = Input
 
     def get_queryset(self):
-        return Input.objects.filter(widget__workflow__user=self.request.user)
+        return Input.objects.filter(Q(widget__workflow__user=self.request.user) | Q(widget__workflow__public=True))
 
 
 class OutputViewSet(viewsets.ModelViewSet):
@@ -204,7 +204,7 @@ class OutputViewSet(viewsets.ModelViewSet):
     model = Output
 
     def get_queryset(self):
-        return Output.objects.filter(widget__workflow__user=self.request.user)
+        return Output.objects.filter(Q(widget__workflow__user=self.request.user) | Q(widget__workflow__public=True))
 
 
 class AbstractOptionViewSet(viewsets.ModelViewSet):

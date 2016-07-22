@@ -1164,6 +1164,7 @@ class Input(models.Model):
         ('textarea', 'Multi line text'),
         ('select', 'Select box'),
         ('file', 'File field'),
+        ('bigfile', 'Big file field'),
         ('checkbox', 'Checkbox'),
     )
     parameter_type = models.CharField(max_length=50, choices=PARAMETER_CHOICES, blank=True, null=True)
