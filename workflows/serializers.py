@@ -41,11 +41,15 @@ class AbstractOutputSerializer(serializers.HyperlinkedModelSerializer):
 class AbstractWidgetSerializer(serializers.HyperlinkedModelSerializer):
     inputs = AbstractInputSerializer(many=True, read_only=True)
     outputs = AbstractOutputSerializer(many=True, read_only=True)
+    cfpackage = serializers.SerializerMethodField()
+
+    def get_cfpackage(self, obj):
+        return obj.package
 
     class Meta:
         model = AbstractWidget
-        fields = ('name', 'interactive', 'static_image', 'order', 'outputs', 'inputs')
-        read_only_fields = ('name', 'interactive', 'static_image', 'order', 'outputs', 'inputs')
+        fields = ('name', 'interactive', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage')
+        read_only_fields = ('name', 'interactive', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage')
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
