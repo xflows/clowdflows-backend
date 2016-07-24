@@ -19,6 +19,7 @@ class AbstractOptionSerializer(serializers.HyperlinkedModelSerializer):
 
 class AbstractInputSerializer(serializers.HyperlinkedModelSerializer):
     options = AbstractOptionSerializer(many=True, read_only=True)
+
     class Meta:
         model = AbstractInput
         fields = (
@@ -65,6 +66,15 @@ CategorySerializer._declared_fields['children'] = CategorySerializer(many=True, 
 
 
 class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
+    output_widget = serializers.SerializerMethodField()
+    input_widget = serializers.SerializerMethodField()
+
+    def get_output_widget(self, obj):
+        return WidgetListSerializer(obj.output.widget, context=self.context).data["url"]
+
+    def get_input_widget(self, obj):
+        return WidgetListSerializer(obj.input.widget, context=self.context).data["url"]
+
     class Meta:
         model = Connection
 
@@ -124,17 +134,33 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WidgetSerializer(serializers.HyperlinkedModelSerializer):
-    inputs = InputSerializer(many=True, read_only=True)
     outputs = OutputSerializer(many=True, read_only=True)
+    inputs = serializers.SerializerMethodField()
+    parameters = serializers.SerializerMethodField()
+
     workflow_link = serializers.HyperlinkedRelatedField(
         read_only=True,
         view_name='workflow-detail'
     )
     abstract_widget = serializers.PrimaryKeyRelatedField(queryset=AbstractWidget.objects.all())
 
+    def get_inputs(self, obj):
+        return InputSerializer(instance=obj.inputs.filter(parameter=False), many=True, context=self.context).data
+
+    def get_parameters(self, obj):
+        return InputSerializer(instance=obj.inputs.filter(parameter=True), many=True, context=self.context).data
+
     class Meta:
         model = Widget
-        # exclude = ('abstract_widget',)
+        fields = (
+        'url', 'workflow', 'x', 'y', 'name', 'abstract_widget', 'finished', 'error', 'running', 'interaction_waiting',
+        'type', 'progress', 'inputs', 'parameters', 'outputs', 'workflow_link')
+
+
+class WidgetPositionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Widget
+        fields = ('x', 'y')
 
 
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
