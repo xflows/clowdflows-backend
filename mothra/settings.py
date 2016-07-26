@@ -175,14 +175,13 @@ INSTALLED_APPS_DEFAULT = (
     'discover_runner',
     'rest_framework',
     'rest_framework.authtoken',
-    'south',
     'corsheaders',
-    )
+)
 
 INSTALLED_APPS_WORKFLOWS_SUB = ()
 INSTALLED_APPS_EXTERNAL_PACKAGES = ()
 
-TEST_RUNNER = 'discover_runner.DiscoverRunner'
+# TEST_RUNNER = 'discover_runner.DiscoverRunner'
 
 USE_WINDOWS_QUEUE = True
 
@@ -200,8 +199,16 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
 }
 
+
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS
 
