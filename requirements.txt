@@ -15,6 +15,6 @@ django-discover-runner==1.0
 liac-arff==2.0.1
 networkx==1.9.1
 djangorestframework==3.4.0
-django-filter==0.9.1
+django-filter==0.13
 django-cors-headers==1.1.0
 drfdocs==0.0.11
