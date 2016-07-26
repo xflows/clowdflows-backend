@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^api/', include('workflows.api_urls')),
+    url(r'^docs/', include('rest_framework_docs.urls')),
 
     url('^' + LOGIN_URL[1:] + '$', 'django.contrib.auth.views.login', name='login'),
     url(r'^logout/$', 'django.contrib.auth.views.logout', name='logout'),

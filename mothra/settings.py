@@ -175,6 +175,7 @@ INSTALLED_APPS_DEFAULT = (
     'discover_runner',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_docs',
     'corsheaders',
 )
 
