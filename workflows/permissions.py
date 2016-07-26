@@ -16,12 +16,12 @@ class IsAdminOrSelf(permissions.BasePermission):
         if isinstance(obj, Workflow):
             return obj.user == request.user
         if isinstance(obj, Widget):
-            obj.workflow.user == request.user
+            return obj.workflow.user == request.user
         if isinstance(obj, Connection):
-            obj.workflow.user == request.user
+            return obj.workflow.user == request.user
         if isinstance(obj, Input):
-            obj.widget.workflow.user == request.user
+            return obj.widget.workflow.user == request.user
         if isinstance(obj, Output):
-            obj.widget.workflow.user == request.user
+            return obj.widget.workflow.user == request.user
         else:
             return False
