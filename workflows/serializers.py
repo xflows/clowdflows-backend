@@ -79,8 +79,15 @@ class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
         model = Connection
 
 
+class OptionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Option
+        fields = ('name', 'value')
+
+
 class InputSerializer(serializers.HyperlinkedModelSerializer):
     deserialized_value = serializers.SerializerMethodField()
+    options = OptionSerializer(many=True, read_only=True)
 
     def get_deserialized_value(self, obj):
         try:
@@ -153,8 +160,9 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Widget
         fields = (
-        'url', 'workflow', 'x', 'y', 'name', 'abstract_widget', 'finished', 'error', 'running', 'interaction_waiting',
-        'type', 'progress', 'inputs', 'parameters', 'outputs', 'workflow_link')
+            'url', 'workflow', 'x', 'y', 'name', 'abstract_widget', 'finished', 'error', 'running',
+            'interaction_waiting',
+            'type', 'progress', 'inputs', 'parameters', 'outputs', 'workflow_link')
 
 
 class WidgetPositionSerializer(serializers.HyperlinkedModelSerializer):
