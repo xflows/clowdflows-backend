@@ -170,6 +170,20 @@ class WidgetViewSet(viewsets.ModelViewSet):
         widget.reset()
         return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
 
+    @detail_route(methods=['patch'], url_path='save-parameters')
+    def save_parameters(self, request, pk=None):
+        widget = get_object_or_404(Widget, pk=pk)
+        parameter_data = request.data
+        for parameter in parameter_data:
+            inputs = widget.inputs.filter(id=parameter['id'])
+            if inputs.count() != 1:
+                return HttpResponse(code=400)
+            input = inputs[0]
+            input.value = parameter['value']
+            input.save()
+        widget.unfinish()
+        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
+
 
 class ConnectionViewSet(viewsets.ModelViewSet):
     """

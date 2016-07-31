@@ -86,6 +86,7 @@ class OptionSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class InputSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField()
     deserialized_value = serializers.SerializerMethodField()
     options = OptionSerializer(many=True, read_only=True)
 
