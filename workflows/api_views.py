@@ -13,9 +13,9 @@ from workflows.permissions import IsAdminOrSelf
 
 def login_response(request, user):
     request.user = user
-    user = UserSerializer(user, context={'request': request})
+    user = UserSerializer(request.user, context={'request': request})
     return json.dumps({
-        'token': user.auth_token.key,
+        'token': request.user.auth_token.key,
         'user': user.data
     })
 
@@ -23,9 +23,9 @@ def login_response(request, user):
 @api_view(['POST', ])
 @permission_classes((permissions.AllowAny,))
 def user_register(request):
-    username = request.POST.get('username', None)
-    password = request.POST.get('password', None)
-    email = request.POST.get('email', None)
+    username = request.data.get('username', None)
+    password = request.data.get('password', None)
+    email = request.data.get('email', None)
 
     if username and email and password:
         try:
@@ -46,8 +46,8 @@ def user_register(request):
 @api_view(['POST', ])
 @permission_classes((permissions.AllowAny,))
 def user_login(request):
-    username = request.POST.get('username', None)
-    password = request.POST.get('password', None)
+    username = request.data.get('username', None)
+    password = request.data.get('password', None)
 
     user = authenticate(username=username, password=password)
     if user:
