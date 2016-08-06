@@ -1,3 +1,4 @@
+import json
 import time
 import random
 from django.db import models
@@ -6,10 +7,12 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+from channels import Group
+
 import workflows.library
 
-
 from picklefield.fields import PickledObjectField
+# from workflows.serializers import WorkflowSerializer
 
 from workflows.thumbs import ThumbnailField
 
@@ -1145,6 +1148,19 @@ class Widget(models.Model):
 
     def __unicode__(self):
         return unicode(self.name)
+
+
+@receiver(post_save, sender=Widget)
+def send_finished_notification(sender, instance, **kwargs):
+    status = {
+        'finished': instance.finished,
+        'error': instance.error,
+        'running': instance.running,
+        'interaction_waiting': instance.interaction_waiting
+    }
+    Group("workflow-{}".format(instance.workflow.pk)).send({
+        'text': json.dumps({'status': status, 'widget_pk': instance.pk})
+    })
 
 
 class Input(models.Model):

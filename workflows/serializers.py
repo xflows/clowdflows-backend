@@ -142,6 +142,7 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WidgetSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField()
     outputs = OutputSerializer(many=True, read_only=True)
     inputs = serializers.SerializerMethodField()
     parameters = serializers.SerializerMethodField()
@@ -161,7 +162,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Widget
         fields = (
-            'url', 'workflow', 'x', 'y', 'name', 'abstract_widget', 'finished', 'error', 'running',
+            'id', 'url', 'workflow', 'x', 'y', 'name', 'abstract_widget', 'finished', 'error', 'running',
             'interaction_waiting',
             'type', 'progress', 'inputs', 'parameters', 'outputs', 'workflow_link')
 
@@ -173,6 +174,7 @@ class WidgetPositionSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField()
     widgets = WidgetSerializer(many=True, read_only=True)
     connections = ConnectionSerializer(many=True, read_only=True)
     is_subprocess = serializers.SerializerMethodField()

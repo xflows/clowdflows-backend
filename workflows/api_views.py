@@ -108,6 +108,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     def run_workflow(self, request, pk=None):
         workflow = get_object_or_404(Workflow, pk=pk)
         workflow.run()
+        #Group("workflow-{}".format(pk)).send({'text': })
         return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
 
     @detail_route(methods=['post'], url_path='stop')
@@ -162,7 +163,8 @@ class WidgetViewSet(viewsets.ModelViewSet):
         return WidgetSerializer
 
     def get_queryset(self):
-        return Widget.objects.filter(Q(workflow__user=self.request.user) | Q(workflow__public=True)).prefetch_related('inputs', 'outputs')
+        return Widget.objects.filter(Q(workflow__user=self.request.user) | Q(workflow__public=True)).prefetch_related(
+            'inputs', 'outputs')
 
     @detail_route(methods=['post'], url_path='reset')
     def reset(self, request, pk=None):
