@@ -179,7 +179,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
         for parameter in parameter_data:
             inputs = widget.inputs.filter(id=parameter['id'])
             if inputs.count() != 1:
-                return HttpResponse(code=400)
+                return HttpResponse(status=400)
             input = inputs[0]
             input.value = parameter['value']
             input.save()

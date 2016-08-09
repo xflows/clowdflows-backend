@@ -40,6 +40,7 @@ class AbstractOutputSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class AbstractWidgetSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField()
     inputs = AbstractInputSerializer(many=True, read_only=True)
     outputs = AbstractOutputSerializer(many=True, read_only=True)
     cfpackage = serializers.SerializerMethodField()
@@ -49,8 +50,8 @@ class AbstractWidgetSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = AbstractWidget
-        fields = ('name', 'interactive', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage')
-        read_only_fields = ('name', 'interactive', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage')
+        fields = ('id', 'name', 'interactive', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage')
+        read_only_fields = ('id', 'name', 'interactive', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage')
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
@@ -86,7 +87,7 @@ class OptionSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class InputSerializer(serializers.HyperlinkedModelSerializer):
-    id = serializers.IntegerField()
+    id = serializers.IntegerField(read_only=True)
     deserialized_value = serializers.SerializerMethodField()
     options = OptionSerializer(many=True, read_only=True)
 
@@ -101,6 +102,7 @@ class InputSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Input
         exclude = ('value',)
+        read_only_fields = ('id', 'url')
 
 
 class OutputSerializer(serializers.HyperlinkedModelSerializer):
@@ -142,7 +144,7 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WidgetSerializer(serializers.HyperlinkedModelSerializer):
-    id = serializers.IntegerField()
+    id = serializers.IntegerField(read_only=True)
     outputs = OutputSerializer(many=True, read_only=True)
     inputs = serializers.SerializerMethodField()
     parameters = serializers.SerializerMethodField()
