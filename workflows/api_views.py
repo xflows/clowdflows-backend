@@ -97,10 +97,6 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        # public = self.request.GET.get('public', '0') == '1'
-        # if public:
-        #     workflows = Workflow.objects.filter(public=True)
-        # else:
         workflows = Workflow.objects.filter(Q(user=self.request.user) | Q(public=True))
         return workflows.prefetch_related('widgets', 'widgets__inputs', 'widgets__outputs')
 
@@ -108,7 +104,6 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     def run_workflow(self, request, pk=None):
         workflow = get_object_or_404(Workflow, pk=pk)
         workflow.run()
-        #Group("workflow-{}".format(pk)).send({'text': })
         return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
 
     @detail_route(methods=['post'], url_path='stop')
@@ -222,6 +217,19 @@ class OutputViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Output.objects.filter(Q(widget__workflow__user=self.request.user) | Q(widget__workflow__public=True))
 
+    @detail_route(methods=['get'], url_path='value')
+    def fetch_value(self, request, pk=None):
+        '''
+        Route for explicitly fetching output values
+        '''
+        output = get_object_or_404(Output, pk=pk)
+        try:
+            json.dumps(output.value)
+        except:
+            serialized_value = repr(output.value)
+        else:
+            serialized_value = output.value
+        return HttpResponse(json.dumps({'value': serialized_value}), content_type="application/json")
 
 class AbstractOptionViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSelf,)

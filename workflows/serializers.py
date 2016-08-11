@@ -92,33 +92,28 @@ class InputSerializer(serializers.HyperlinkedModelSerializer):
     options = OptionSerializer(many=True, read_only=True)
 
     def get_deserialized_value(self, obj):
-        try:
-            json.dumps(obj.value)
-        except:
-            return repr(obj.value)
+        if obj.parameter:
+            try:
+                json.dumps(obj.value)
+            except:
+                return repr(obj.value)
+            else:
+                return obj.value
         else:
-            return obj.value
+            return ''
 
     class Meta:
         model = Input
         exclude = ('value',)
-        read_only_fields = ('id', 'url')
+        read_only_fields = ('id', 'url', 'widget')
 
 
 class OutputSerializer(serializers.HyperlinkedModelSerializer):
-    deserialized_value = serializers.SerializerMethodField()
-
-    def get_deserialized_value(self, obj):
-        try:
-            json.dumps(obj.value)
-        except:
-            return repr(obj.value)
-        else:
-            return obj.value
 
     class Meta:
         model = Output
         exclude = ('value',)
+        read_only_fields = ('id', 'url', 'widget')
 
 
 class WidgetListSerializer(serializers.HyperlinkedModelSerializer):
@@ -145,9 +140,8 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 
 class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    outputs = OutputSerializer(many=True, read_only=True)
-    inputs = serializers.SerializerMethodField()
-    parameters = serializers.SerializerMethodField()
+    inputs = InputSerializer(many=True)
+    outputs = OutputSerializer(many=True)
 
     workflow_link = serializers.HyperlinkedRelatedField(
         read_only=True,
@@ -155,18 +149,25 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     )
     abstract_widget = serializers.PrimaryKeyRelatedField(queryset=AbstractWidget.objects.all())
 
-    def get_inputs(self, obj):
-        return InputSerializer(instance=obj.inputs.filter(parameter=False), many=True, context=self.context).data
-
-    def get_parameters(self, obj):
-        return InputSerializer(instance=obj.inputs.filter(parameter=True), many=True, context=self.context).data
+    def create(self, validated_data):
+        '''
+        Overrides the default create method to support nested creates
+        '''
+        inputs = validated_data.pop('inputs')
+        outputs = validated_data.pop('outputs')
+        widget = Widget.objects.create(**validated_data)
+        for input in inputs:
+            Input.objects.create(widget=widget, **input)
+        for output in outputs:
+            Output.objects.create(widget=widget, **output)
+        return widget
 
     class Meta:
         model = Widget
         fields = (
             'id', 'url', 'workflow', 'x', 'y', 'name', 'abstract_widget', 'finished', 'error', 'running',
             'interaction_waiting',
-            'type', 'progress', 'inputs', 'parameters', 'outputs', 'workflow_link')
+            'type', 'progress', 'inputs', 'outputs', 'workflow_link')
 
 
 class WidgetPositionSerializer(serializers.HyperlinkedModelSerializer):
