@@ -1021,7 +1021,7 @@ class Widget(models.Model):
             self.save()
         return None
 
-    def reset(self, offline):
+    def reset(self):
         # for i in self.inputs.all():
         #    if not i.parameter:
         #        i.value = None
