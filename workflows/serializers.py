@@ -1,5 +1,6 @@
 import json
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from workflows.models import *
 
@@ -109,7 +110,6 @@ class InputSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class OutputSerializer(serializers.HyperlinkedModelSerializer):
-
     class Meta:
         model = Output
         exclude = ('value',)
@@ -142,6 +142,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     inputs = InputSerializer(many=True)
     outputs = OutputSerializer(many=True)
+    description = serializers.CharField(source='abstract_widget.description', read_only=True)
 
     workflow_link = serializers.HyperlinkedRelatedField(
         read_only=True,
@@ -162,11 +163,23 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
             Output.objects.create(widget=widget, **output)
         return widget
 
+    def update(self, widget, validated_data):
+        '''
+        Overrides the default update method to support nested creates
+        '''
+        # Ignore inputs and outputs on patch - we allow only nested creates
+        if 'inputs' in validated_data:
+            validated_data.pop('inputs')
+        if 'outputs' in validated_data:
+            validated_data.pop('outputs')
+        widget, _ = Widget.objects.update_or_create(pk=widget.pk, defaults=validated_data)
+        return widget
+
     class Meta:
         model = Widget
         fields = (
             'id', 'url', 'workflow', 'x', 'y', 'name', 'abstract_widget', 'finished', 'error', 'running',
-            'interaction_waiting',
+            'interaction_waiting', 'description',
             'type', 'progress', 'inputs', 'outputs', 'workflow_link')
 
 
