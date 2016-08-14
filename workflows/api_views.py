@@ -181,6 +181,11 @@ class WidgetViewSet(viewsets.ModelViewSet):
         widget.unfinish()
         return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
 
+    @detail_route(methods=['post'], url_path='run')
+    def run(self, request, pk=None):
+        widget = get_object_or_404(Widget, pk=pk)
+        widget.run(False)
+        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
 
 class ConnectionViewSet(viewsets.ModelViewSet):
     """

@@ -140,8 +140,8 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 
 class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    inputs = InputSerializer(many=True)
-    outputs = OutputSerializer(many=True)
+    inputs = InputSerializer(many=True, read_only=True)
+    outputs = OutputSerializer(many=True, read_only=True)
     description = serializers.CharField(source='abstract_widget.description', read_only=True)
 
     workflow_link = serializers.HyperlinkedRelatedField(
@@ -154,14 +154,51 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         '''
         Overrides the default create method to support nested creates
         '''
-        inputs = validated_data.pop('inputs')
-        outputs = validated_data.pop('outputs')
-        widget = Widget.objects.create(**validated_data)
-        for input in inputs:
-            Input.objects.create(widget=widget, **input)
-        for output in outputs:
-            Output.objects.create(widget=widget, **output)
-        return widget
+        w = Widget.objects.create(**validated_data)
+        aw = w.abstract_widget
+        input_order, param_order = 0, 0
+        for i in aw.inputs.all():
+            j = Input()
+            j.name = i.name
+            j.short_name = i.short_name
+            j.description = i.description
+            j.variable = i.variable
+            j.widget = w
+            j.required = i.required
+            j.parameter = i.parameter
+            j.value = None
+            if (i.parameter):
+                param_order += 1
+                j.order = param_order
+            else:
+                input_order += 1
+                j.order = input_order
+            if not i.multi:
+                j.value = i.default
+            j.parameter_type = i.parameter_type
+            if i.multi:
+                j.multi_id = i.id
+            j.save()
+            for k in i.options.all():
+                o = Option()
+                o.name = k.name
+                o.value = k.value
+                o.input = j
+                o.save()
+        outputOrder = 0
+        for i in aw.outputs.all():
+            j = Output()
+            j.name = i.name
+            j.short_name = i.short_name
+            j.description = i.description
+            j.variable = i.variable
+            j.widget = w
+            outputOrder += 1
+            j.order = outputOrder
+            j.save()
+        w.defered_outputs = w.outputs.defer("value").all()
+        w.defered_inputs = w.inputs.defer("value").all()
+        return w
 
     def update(self, widget, validated_data):
         '''
