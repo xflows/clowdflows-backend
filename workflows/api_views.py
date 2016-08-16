@@ -153,8 +153,6 @@ class WidgetViewSet(viewsets.ModelViewSet):
     filter_fields = ('workflow',)
 
     def get_serializer_class(self):
-        if self.action == 'list':
-            return WidgetListSerializer
         return WidgetSerializer
 
     def get_queryset(self):
