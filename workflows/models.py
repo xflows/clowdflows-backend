@@ -838,6 +838,8 @@ class Widget(models.Model):
         # print("proper_run_widget")
         if not self.ready_to_run():
             raise WidgetException("The prerequisites for running this widget have not been met.")
+        self.finished = False
+        self.error = False
         self.running = True
         self.save()
         if self.type == 'regular' or self.type == 'subprocess':
