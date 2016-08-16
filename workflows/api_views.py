@@ -1,7 +1,6 @@
 from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from rest_framework import viewsets, permissions
-from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes, detail_route
 from django.contrib.auth import logout
 from django.db.models import Q
@@ -15,6 +14,7 @@ def login_response(request, user):
     request.user = user
     user = UserSerializer(request.user, context={'request': request})
     return json.dumps({
+        'status': 'ok',
         'token': request.user.auth_token.key,
         'user': user.data
     })
@@ -31,14 +31,13 @@ def user_register(request):
         try:
             user = User.objects.create_user(username, password=password, email=email)
         except:
-            return HttpResponse(json.dumps({'error': 'Username or email already registered'}),
-                                content_type="application/json", status=400)
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'Username or email already registered'}),
+                                content_type="application/json")
 
         authenticate(username=username, password=password)
         token, _ = Token.objects.get_or_create(user=user)
     else:
-        return HttpResponse(json.dumps({'error': 'All fields are required'}), content_type="application/json",
-                            status=400)
+        return HttpResponse(json.dumps({'status': 'error', 'message': 'All fields are required'}), content_type="application/json")
 
     return HttpResponse(login_response(request, user), content_type="application/json")
 
@@ -55,11 +54,9 @@ def user_login(request):
             token, _ = Token.objects.get_or_create(user=user)
             return HttpResponse(login_response(request, user), content_type="application/json")
         else:
-            return HttpResponse(json.dumps({'error': 'Disabled user'}), content_type="application/json",
-                                status=400)
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'Disabled user'}), content_type="application/json")
     else:
-        return HttpResponse(json.dumps({'error': 'Incorrect username or password'}), content_type="application/json",
-                            status=400)
+        return HttpResponse(json.dumps({'status': 'error', 'message': 'Incorrect username or password'}), content_type="application/json")
 
 
 @api_view(['POST', ])
@@ -67,7 +64,7 @@ def user_login(request):
 def user_logout(request):
     request.user.auth_token.delete()
     logout(request)
-    return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
+    return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -103,14 +100,17 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'], url_path='run')
     def run_workflow(self, request, pk=None):
         workflow = get_object_or_404(Workflow, pk=pk)
-        workflow.run()
-        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
+        try:
+            workflow.run()
+        except:
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem running workflow'}), content_type="application/json")
+        return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
     @detail_route(methods=['post'], url_path='stop')
     def stop_workflow(self, request, pk=None):
         workflow = get_object_or_404(Workflow, pk=pk)
         # TODO: stop workflow execution
-        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
+        return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
     @detail_route(methods=['post'], url_path='subprocess')
     def add_subprocess(self, request, pk=None):
@@ -140,7 +140,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         workflow = get_object_or_404(Workflow, pk=pk)
         for widget in workflow.widgets.filter():
             widget.reset()
-        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
+        return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
 
 class WidgetViewSet(viewsets.ModelViewSet):
@@ -164,28 +164,84 @@ class WidgetViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'], url_path='reset')
     def reset(self, request, pk=None):
         widget = get_object_or_404(Widget, pk=pk)
-        widget.reset()
-        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
+        try:
+            widget.reset()
+        except:
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem resetting the widget'}),
+                                content_type="application/json")
+        return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
     @detail_route(methods=['patch'], url_path='save-parameters')
     def save_parameters(self, request, pk=None):
         widget = get_object_or_404(Widget, pk=pk)
-        parameter_data = request.data
-        for parameter in parameter_data:
-            inputs = widget.inputs.filter(id=parameter['id'])
-            if inputs.count() != 1:
-                return HttpResponse(status=400)
-            input = inputs[0]
-            input.value = parameter['value']
-            input.save()
-        widget.unfinish()
-        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
+        try:
+            parameter_data = request.data
+            for parameter in parameter_data:
+                inputs = widget.inputs.filter(id=parameter['id'])
+                if inputs.count() != 1:
+                    return HttpResponse(status=400)
+                input = inputs[0]
+                input.value = parameter['value']
+                input.save()
+            widget.unfinish()
+        except:
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem saving parameters'}),
+                                content_type="application/json")
+        return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
     @detail_route(methods=['post'], url_path='run')
     def run(self, request, pk=None):
-        widget = get_object_or_404(Widget, pk=pk)
-        widget.run(False)
-        return HttpResponse(json.dumps({'status': 'success'}), content_type="application/json")
+        w = get_object_or_404(Widget, pk=pk)
+        data = ''
+        try:
+            # find all required inputs
+            multi_satisfied = {}
+            for inp in w.inputs.filter(required=True, parameter=False):
+                if inp.connections.count() == 0:
+                    if inp.multi_id == 0:
+                        raise Exception(
+                            "The input '{}' must have something connected to it in order to run.".format(str(inp)))
+                    else:
+                        multi_satisfied[inp.multi_id] = (str(inp), multi_satisfied.get(inp.multi_id, False))
+                elif inp.multi_id != 0:
+                    multi_satisfied[inp.multi_id] = (str(inp), True)
+            for mid in multi_satisfied.keys():
+                if multi_satisfied[mid][1] == False:
+                    raise Exception("The input '{}' must have something connected to it in order to run.".format(
+                        multi_satisfied[mid][0]))
+            if w.type == 'for_input' or w.type == 'for_output':
+                raise Exception("You can't run for loops like this. Please run the containing widget.")
+            output_dict = w.run(False)
+            if not w.abstract_widget is None:
+                if w.abstract_widget.interactive:
+                    w.interaction_waiting = True
+                    w.save()
+                    data = json.dumps(
+                        {'status': 'interactive', 'message': 'Widget \'{}\' needs your attention.'.format(w.name),
+                         'widget_id': w.id})
+                elif w.abstract_widget.visualization_view != '':
+                    data = json.dumps(
+                        {'status': 'visualize', 'message': 'Visualizing widget \'{}\'.'.format(w.name), 'widget_id': w.id})
+                else:
+                    data = json.dumps(
+                        {'status': 'ok', 'message': 'Widget \'{}\' executed successfully.'.format(w.name)})
+            else:
+                data = json.dumps({'status': 'ok', 'message': 'Widget \'{}\' executed successfully.'.format(w.name)})
+        except Exception, e:
+            mimetype = 'application/javascript'
+            w.error = True
+            w.running = False
+            w.finished = False
+            w.save()
+
+            # raise
+            for o in w.outputs.all():
+                o.value = None
+                o.save()
+            data = json.dumps({'status': 'error',
+                               'message': 'Error occurred when trying to execute widget \'{}\': {}'.format(w.name, str(e))})
+        return HttpResponse(data, 'application/javascript')
+
 
 class ConnectionViewSet(viewsets.ModelViewSet):
     """
@@ -235,6 +291,7 @@ class OutputViewSet(viewsets.ModelViewSet):
         else:
             serialized_value = output.value
         return HttpResponse(json.dumps({'value': serialized_value}), content_type="application/json")
+
 
 class AbstractOptionViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSelf,)
