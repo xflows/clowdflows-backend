@@ -1158,7 +1158,7 @@ def reset_workflow(request):
         workflow = get_object_or_404(Workflow, pk=request.POST['workflow_id'])
         resetWidget = []
         for w in workflow.widgets.all():
-            w.reset(False)
+            w.reset()
             resetWidget.append(w.pk)
         mimetype = 'application/javascript'
         data = simplejson.dumps({'resetWidget': resetWidget})
