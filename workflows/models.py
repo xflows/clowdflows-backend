@@ -777,6 +777,13 @@ class Widget(models.Model):
         except:
             return False
 
+    def is_interaction(self):
+        try:
+            if self.abstract_widget.interactive:
+                return True
+        except:
+            return False
+
     def ready_to_run(self):
         cons = Connection.objects.filter(input__widget=self)
         for c in cons:
@@ -1158,7 +1165,9 @@ def send_finished_notification(sender, instance, **kwargs):
         'finished': instance.finished,
         'error': instance.error,
         'running': instance.running,
-        'interaction_waiting': instance.interaction_waiting
+        'interaction_waiting': instance.interaction_waiting,
+        'is_visualization': instance.is_visualization(),
+        'is_interaction': instance.is_interaction()
     }
     Group("workflow-{}".format(instance.workflow.pk)).send({
         'text': json.dumps({'status': status, 'widget_pk': instance.pk})

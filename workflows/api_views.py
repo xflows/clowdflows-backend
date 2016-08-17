@@ -240,6 +240,34 @@ class WidgetViewSet(viewsets.ModelViewSet):
                                'message': 'Error occurred when trying to execute widget \'{}\': {}'.format(w.name, str(e))})
         return HttpResponse(data, 'application/javascript')
 
+    @detail_route(methods=['get'], url_path='visualize')
+    def visualize(self, request, pk=None):
+        w = get_object_or_404(Widget, pk=pk)
+        if w.is_visualization():
+            output_dict = {}
+            for o in w.outputs.all():
+                output_dict[o.variable] = o.value
+            input_dict = {}
+            for i in w.inputs.all():
+                if not i.parameter:
+                    if i.connections.count() > 0:
+                        i.value = i.connections.all()[0].output.value
+                        i.save()
+                    else:
+                        i.value = None
+                        i.save()
+                if i.multi_id == 0:
+                    input_dict[i.variable] = i.value
+                else:
+                    if not i.variable in input_dict:
+                        input_dict[i.variable] = []
+                    if not i.value == None:
+                        input_dict[i.variable].append(i.value)
+            view_to_call = getattr(workflows.visualization_views, w.abstract_widget.visualization_view)
+            return view_to_call(request, input_dict, output_dict, w)
+        else:
+            data = json.dumps({'status': 'error', 'message': 'Widget {} is not a visualization widget.'.format(w.name)})
+            return HttpResponse(data, 'application/javascript')
 
 class ConnectionViewSet(viewsets.ModelViewSet):
     """
