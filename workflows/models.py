@@ -1103,6 +1103,7 @@ class Widget(models.Model):
     def run_post(self, request):
         if not self.ready_to_run():
             raise WidgetException("The prerequisites for running this widget have not been met.")
+        self.interaction_waiting = False
         self.running = True
         self.save()
         function_to_call = getattr(workflows.library, self.abstract_widget.post_interact_action)

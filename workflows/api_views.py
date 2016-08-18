@@ -1,3 +1,5 @@
+import traceback
+
 from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from rest_framework import viewsets, permissions
@@ -37,7 +39,8 @@ def user_register(request):
         authenticate(username=username, password=password)
         token, _ = Token.objects.get_or_create(user=user)
     else:
-        return HttpResponse(json.dumps({'status': 'error', 'message': 'All fields are required'}), content_type="application/json")
+        return HttpResponse(json.dumps({'status': 'error', 'message': 'All fields are required'}),
+                            content_type="application/json")
 
     return HttpResponse(login_response(request, user), content_type="application/json")
 
@@ -54,9 +57,11 @@ def user_login(request):
             token, _ = Token.objects.get_or_create(user=user)
             return HttpResponse(login_response(request, user), content_type="application/json")
         else:
-            return HttpResponse(json.dumps({'status': 'error', 'message': 'Disabled user'}), content_type="application/json")
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'Disabled user'}),
+                                content_type="application/json")
     else:
-        return HttpResponse(json.dumps({'status': 'error', 'message': 'Incorrect username or password'}), content_type="application/json")
+        return HttpResponse(json.dumps({'status': 'error', 'message': 'Incorrect username or password'}),
+                            content_type="application/json")
 
 
 @api_view(['POST', ])
@@ -103,7 +108,8 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         try:
             workflow.run()
         except:
-            return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem running workflow'}), content_type="application/json")
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem running workflow'}),
+                                content_type="application/json")
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
     @detail_route(methods=['post'], url_path='stop')
@@ -219,7 +225,8 @@ class WidgetViewSet(viewsets.ModelViewSet):
                          'widget_id': w.id})
                 elif w.abstract_widget.visualization_view != '':
                     data = json.dumps(
-                        {'status': 'visualize', 'message': 'Visualizing widget \'{}\'.'.format(w.name), 'widget_id': w.id})
+                        {'status': 'visualize', 'message': 'Visualizing widget \'{}\'.'.format(w.name),
+                         'widget_id': w.id})
                 else:
                     data = json.dumps(
                         {'status': 'ok', 'message': 'Widget \'{}\' executed successfully.'.format(w.name)})
@@ -237,7 +244,8 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 o.value = None
                 o.save()
             data = json.dumps({'status': 'error',
-                               'message': 'Error occurred when trying to execute widget \'{}\': {}'.format(w.name, str(e))})
+                               'message': 'Error occurred when trying to execute widget \'{}\': {}'.format(w.name,
+                                                                                                           str(e))})
         return HttpResponse(data, 'application/javascript')
 
     @detail_route(methods=['get'], url_path='visualize')
@@ -268,6 +276,63 @@ class WidgetViewSet(viewsets.ModelViewSet):
         else:
             data = json.dumps({'status': 'error', 'message': 'Widget {} is not a visualization widget.'.format(w.name)})
             return HttpResponse(data, 'application/javascript')
+
+    @detail_route(methods=['get', 'post'], url_path='interact')
+    def interact(self, request, pk=None):
+        w = get_object_or_404(Widget, pk=pk)
+        if request.method == 'GET':
+            input_dict = {}
+            output_dict = {}
+            for i in w.inputs.all():
+                if not i.parameter:
+                    if i.connections.count() > 0:
+                        i.value = i.connections.all()[0].output.value
+                        i.save()
+                    else:
+                        i.value = None
+                        i.save()
+                if i.multi_id == 0:
+                    input_dict[i.variable] = i.value
+                else:
+                    if not i.variable in input_dict:
+                        input_dict[i.variable] = []
+                    if not i.value == None:
+                        input_dict[i.variable].append(i.value)
+            for o in w.outputs.all():
+                output_dict[o.variable] = o.value
+            view_to_call = getattr(workflows.interaction_views, w.abstract_widget.interaction_view)
+            return view_to_call(request, input_dict, output_dict, w)
+        else:  # POST
+            try:
+                data = dict(request.POST) if request.POST else request.data
+                output_dict = w.run_post(data)
+                #w.interaction_waiting = False
+                #w.save()
+                mimetype = 'application/javascript'
+                if w.abstract_widget.visualization_view != '':
+                    data = json.dumps(
+                        {'status': 'visualize', 'message': 'Visualizing widget {}.'.format(w.name), 'widget_id': w.id})
+                else:
+                    data = json.dumps(
+                        {'status': 'ok', 'message': 'Widget {} executed successfully.'.format(w.name),
+                         'widget_id': w.id})
+            except Exception, e:
+                mimetype = 'application/javascript'
+                w.error = True
+                w.running = False
+                w.finished = False
+                w.interaction_waiting = False
+                w.save()
+                print traceback.format_exc(e)
+                # raise
+                for o in w.outputs.all():
+                    o.value = None
+                    o.save()
+                data = json.dumps({'status': 'error',
+                                   'message': 'Error occurred when trying to execute widget \'{}\': {}'.format(w.name,
+                                                                                                               str(e))})
+            return HttpResponse(data, mimetype)
+
 
 class ConnectionViewSet(viewsets.ModelViewSet):
     """
