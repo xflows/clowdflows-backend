@@ -1,8 +1,10 @@
 import json
 from django.contrib.auth.models import User
+from django.db.models import Max
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from workflows.models import *
+from workflows.utils import checkForCycles
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -76,6 +78,52 @@ class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_input_widget(self, obj):
         return WidgetListSerializer(obj.input.widget, context=self.context).data["url"]
+
+    def create(self, validated_data):
+        deleted = -1
+        previousExists = False
+        i = validated_data['input']
+        o = validated_data['output']
+        if i.widget.workflow == o.widget.workflow:
+            if Connection.objects.filter(input=i).exists():
+                previousExists = True
+                new_c = Connection.objects.get(input=i)
+                oldOutput = Output.objects.defer("value").get(pk=new_c.output_id)
+                deleted = new_c.id
+            else:
+                new_c = Connection()
+            new_c.input = i
+            new_c.output = o
+            new_c.workflow = i.widget.workflow
+            new_c.save()
+            if not checkForCycles(i.widget, i.widget):
+                if previousExists:
+                    new_c.output = oldOutput
+                    new_c.save()
+                else:
+                    new_c.delete()
+                raise Exception("Adding this connection would result in a cycle in the workflow.")
+            new_c.input.widget.unfinish()
+            if deleted == -1:
+                if new_c.input.multi_id != 0:
+                    i = new_c.input
+                    j = Input()
+                    m = i.widget.inputs.aggregate(Max('order'))
+                    j.name = i.name
+                    j.short_name = i.short_name
+                    j.description = i.description
+                    j.variable = i.variable
+                    j.widget = i.widget
+                    j.required = i.required
+                    j.parameter = i.parameter
+                    j.value = None
+                    j.parameter_type = i.parameter_type
+                    j.multi_id = i.multi_id
+                    j.order = m['order__max'] + 1
+                    j.save()
+            return new_c
+        else:
+            raise Exception("Cannot connect widgets from different workflows.")
 
     class Meta:
         model = Connection
