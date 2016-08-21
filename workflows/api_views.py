@@ -348,7 +348,7 @@ class ConnectionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Connection.objects.filter(Q(workflow__user=self.request.user) | Q(workflow__public=True))
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         i = serializer.validated_data['input']
@@ -415,6 +415,33 @@ class ConnectionViewSet(viewsets.ModelViewSet):
             message = "Cannot connect widgets from different workflows."
             data = json.dumps({'message': message, 'status': 'error'})
             return HttpResponse(data, mimetype)
+
+    def destroy(self, request, pk=None):
+        #serializer = self.get_serializer(data=request.data)
+        #serializer.is_valid(raise_exception=True)
+        #c = serializer.validated_data['instance']
+        c = get_object_or_404(Connection, pk=pk)
+        c.input.widget.unfinish()
+        mimetype = 'application/javascript'
+        refresh = -1
+        refreshworkflow = -1
+        already_deleted = False
+        if c.input.multi_id != 0:
+            # pogledamo kok jih je s tem idjem, ce je vec k en, tega pobrisemo
+            inputs = c.input.widget.inputs.filter(multi_id=c.input.multi_id)
+            if inputs.count() > 1:
+                refresh = c.input.widget.id
+                refreshworkflow = c.input.widget.workflow.id
+                deleted_order = c.input.order
+                c.input.delete()
+                already_deleted = True
+                for input in inputs.filter(order__gt=deleted_order):
+                    input.order -= 1
+                    input.save()
+        if not already_deleted:
+            c.delete()
+        data = json.dumps({'refresh': refresh, 'refreshworkflow': refreshworkflow})
+        return HttpResponse(data, mimetype)
 
 
 class InputViewSet(viewsets.ModelViewSet):
