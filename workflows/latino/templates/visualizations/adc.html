@@ -5,7 +5,7 @@
         <a target="_blank" style="color: gray;" href="{% url 'get adc index' widget_id=widget.pk narrow_doc=''%}">Open corpus view in new window</a>
     </div>
 
-    <iframe src="{% url 'get adc index' widget_id=widget.pk %}" width="100%"height="100%">
+    <iframe src="{{ base_url }}{% url 'get adc index' widget_id=widget.pk %}" width="100%"height="100%">
             </iframe>
 
 </div>

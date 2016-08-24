@@ -107,7 +107,7 @@ function mouseout() {
 {% else %}
 <div id="widgetvisualization-{{widget.pk}}" rel="{{widget.pk}}" class="widgetvisualizationdialog" title="{{widget.name}} visualization" width="750px" height="700px">
 
-<iframe src="./widget-iframe/{{widget.pk}}/" width="700px" height="550px">
+<iframe src="{{ base_workflows_url }}/widget-iframe/{{widget.pk}}/" width="700px" height="550px"></iframe>
 
 </div>
 {% endif %}

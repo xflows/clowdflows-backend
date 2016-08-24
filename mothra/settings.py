@@ -7,7 +7,6 @@ PUBLIC_DIR = os.path.join(PROJECT_DIR, 'public')
 BACKUP_DIR = os.path.join(PROJECT_DIR, 'backup')
 
 DEBUG = False
-TEMPLATE_DEBUG = True
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -82,15 +81,15 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.cache.UpdateCacheMiddleware', # must be first
+    'django.middleware.cache.UpdateCacheMiddleware',  # must be first
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware', # must be last
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',  # must be last
 )
 
 CACHE_MIDDLEWARE_ALIAS = 'default'
@@ -107,16 +106,6 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     os.path.join(PROJECT_DIR, 'templates'),
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.request',
 )
 
 FIXTURE_DIRS = (
@@ -152,7 +141,7 @@ LOGGING = {
     }
 }
 
-USE_CONCURRENCY = False   
+USE_CONCURRENCY = False
 
 INSTALLED_APPS_DEFAULT = (
     'django.contrib.auth',
@@ -171,7 +160,7 @@ INSTALLED_APPS_DEFAULT = (
     'picklefield',
     'streams',
     'djcelery',
-    #'kombu.transport.django',
+    # 'kombu.transport.django',
     'discover_runner',
     'rest_framework',
     'rest_framework.authtoken',
@@ -188,6 +177,7 @@ INSTALLED_APPS_EXTERNAL_PACKAGES = ()
 USE_WINDOWS_QUEUE = True
 
 import djcelery
+
 djcelery.setup_loader()
 
 REST_FRAMEWORK = {
@@ -201,7 +191,6 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
 }
 
-
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
 
@@ -212,7 +201,18 @@ CACHES = {
     }
 }
 
-TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.request',
+    'django.template.context_processors.tz',
+    'workflows.context_processor.base_workflows_url'
+)
 
 TEMPLATES_FOLDER = os.path.join(PROJECT_DIR, 'templates')
 
@@ -233,10 +233,10 @@ CELERY_TASK_RESULT_EXPIRES = 18000
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "asgiref.inmemory.ChannelLayer",
-        #"BACKEND": "asgi_redis.RedisChannelLayer",
-        #"CONFIG": {
+        # "BACKEND": "asgi_redis.RedisChannelLayer",
+        # "CONFIG": {
         #    "hosts": [("localhost", 6379)],
-        #},
+        # },
         "ROUTING": "mothra.routing.channel_routing",
     },
 }
@@ -247,9 +247,9 @@ except NameError:
     try:
         from local_settings import *
     except ImportError:
-        pass     
+        pass
 
 INSTALLED_APPS = \
-    INSTALLED_APPS_DEFAULT +\
-    INSTALLED_APPS_WORKFLOWS_SUB +\
+    INSTALLED_APPS_DEFAULT + \
+    INSTALLED_APPS_WORKFLOWS_SUB + \
     INSTALLED_APPS_EXTERNAL_PACKAGES
