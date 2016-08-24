@@ -1,10 +1,5 @@
-import json
-from django.contrib.auth.models import User
-from django.db.models import Max
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from workflows.models import *
-from workflows.utils import checkForCycles
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -119,7 +114,9 @@ class OutputSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
     is_subprocess = serializers.SerializerMethodField()
+    is_public = serializers.BooleanField(source='public')
 
     def get_is_subprocess(self, obj):
         if obj.widget == None:
@@ -129,7 +126,7 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Workflow
-        exclude = ('user',)
+        exclude = ('user', 'public')
 
 
 class WidgetSerializer(serializers.HyperlinkedModelSerializer):
@@ -255,10 +252,11 @@ class WidgetListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
-    id = serializers.IntegerField()
+    id = serializers.IntegerField(read_only=True)
     widgets = WidgetSerializer(many=True, read_only=True)
     connections = ConnectionSerializer(many=True, read_only=True)
     is_subprocess = serializers.SerializerMethodField()
+    is_public = serializers.BooleanField(source='public')
 
     def get_is_subprocess(self, obj):
         if obj.widget == None:
@@ -268,4 +266,4 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Workflow
-        exclude = ('user',)
+        exclude = ('user', 'public',)

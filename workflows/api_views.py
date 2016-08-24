@@ -1,18 +1,17 @@
 import traceback
 
-from django.core.urlresolvers import resolve
 from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import api_view, permission_classes, detail_route
 from django.contrib.auth import logout
-from django.db.models import Q
+from django.db.models import Q, Max
 from rest_framework.generics import get_object_or_404
-from rest_framework.relations import HyperlinkedRelatedField
 from rest_framework.renderers import JSONRenderer
 
 from workflows.serializers import *
 from workflows.permissions import IsAdminOrSelf
+from workflows.utils import checkForCycles
 
 
 def login_response(request, user):
@@ -102,7 +101,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        workflows = Workflow.objects.filter(Q(user=self.request.user) | Q(public=True))
+        workflows = Workflow.objects.filter(Q(user=self.request.user))
         return workflows.prefetch_related('widgets', 'widgets__inputs', 'widgets__outputs')
 
     @detail_route(methods=['post'], url_path='run')
