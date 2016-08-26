@@ -126,7 +126,7 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Workflow
-        exclude = ('user', 'public')
+        exclude = ('public',)
 
 
 class WidgetSerializer(serializers.HyperlinkedModelSerializer):
@@ -140,7 +140,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True,
         view_name='workflow-detail'
     )
-    abstract_widget = serializers.PrimaryKeyRelatedField(queryset=AbstractWidget.objects.all())
+    abstract_widget = serializers.PrimaryKeyRelatedField(queryset=AbstractWidget.objects.all(), allow_null=True)
 
     def create(self, validated_data):
         '''

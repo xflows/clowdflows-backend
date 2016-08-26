@@ -101,7 +101,12 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        workflows = Workflow.objects.filter(Q(user=self.request.user) & Q(widget__isnull=True))
+        user_only = self.request.GET.get('user', '0') == '1'
+        if user_only:
+            filters = Q(user=self.request.user)
+        else:
+            filters = Q(user=self.request.user) | Q(public=True)
+        workflows = Workflow.objects.filter(filters)
         return workflows.prefetch_related('widgets', 'widgets__inputs', 'widgets__outputs')
 
     @detail_route(methods=['post'], url_path='run')
@@ -123,23 +128,14 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'], url_path='subprocess')
     def add_subprocess(self, request, pk=None):
         workflow = get_object_or_404(Workflow, pk=pk)
-        subprocess_type = request.POST.get('type', 'normal')
         start_x = request.POST.get('start_x', 0)
         start_y = request.POST.get('start_y', 0)
 
-        subprocess_workflow, subprocess_widget = None, None
-        if subprocess_type == 'normal':
-            subprocess_workflow, subprocess_widget = workflow.add_normal_subprocess(start_x=start_x, start_y=start_y)
-        elif subprocess_type == 'for-loop':
-            subprocess_workflow, subprocess_widget = workflow.add_normal_subprocess(start_x=start_x, start_y=start_y)
-        elif subprocess_type == 'x-validation':
-            subprocess_workflow, subprocess_widget = workflow.add_normal_subprocess(start_x=start_x, start_y=start_y)
+        subprocess_workflow, subprocess_widget = workflow.add_normal_subprocess(start_x=start_x, start_y=start_y)
 
         if subprocess_workflow and subprocess_widget:
-            return HttpResponse(json.dumps({
-                'subprocess_workflow': WorkflowSerializer(subprocess_workflow).data,
-                'subprocess_widget': WidgetSerializer(subprocess_widget).data
-            }))
+            widget_data = WidgetSerializer(subprocess_widget, context={'request': request}).data
+            return HttpResponse(json.dumps(widget_data), content_type="application/json")
         else:
             return HttpResponse(status=400)
 
