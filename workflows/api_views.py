@@ -101,7 +101,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        workflows = Workflow.objects.filter(Q(user=self.request.user))
+        workflows = Workflow.objects.filter(Q(user=self.request.user) & Q(widget__isnull=True))
         return workflows.prefetch_related('widgets', 'widgets__inputs', 'widgets__outputs')
 
     @detail_route(methods=['post'], url_path='run')
