@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
@@ -90,10 +90,12 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             output.save()
             input = Input()
             input.widget = workflow.widget
+            m = workflow.widget.inputs.aggregate(Max('order'))
             input.name = 'Input'
             input.short_name = 'inp'
             input.variable = variable_name
             input.inner_output = output
+            input.order = m['order__max'] + 1 if m['order__max'] else 1
             input.save()
             output.outer_input = input
             output.save()
@@ -129,10 +131,12 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             input.save()
             output = Output()
             output.widget = workflow.widget
+            m = workflow.widget.outputs.aggregate(Max('order'))
             output.name = 'Output'
             output.short_name = 'out'
             output.variable = variable_name
             output.inner_input = input
+            output.order = m['order__max'] + 1 if m['order__max'] else 1
             output.save()
             input.outer_output = output
             input.save()

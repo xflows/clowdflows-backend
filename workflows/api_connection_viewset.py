@@ -88,10 +88,7 @@ class ConnectionViewSet(viewsets.ModelViewSet):
             data = json.dumps({'message': message, 'status': 'error'})
             return HttpResponse(data, mimetype)
 
-    def destroy(self, request, pk=None):
-        #serializer = self.get_serializer(data=request.data)
-        #serializer.is_valid(raise_exception=True)
-        #c = serializer.validated_data['instance']
+    def destroy(self, request, pk=None, **kwargs):
         c = get_object_or_404(Connection, pk=pk)
         c.input.widget.unfinish()
         mimetype = 'application/javascript'

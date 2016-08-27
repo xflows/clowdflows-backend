@@ -719,6 +719,10 @@ class Widget(models.Model):
     type = models.CharField(max_length=50, choices=WIDGET_CHOICES, default='regular')
 
     progress = models.IntegerField(default=0)
+    #
+    # def is_special_subprocess_type(self):
+    #     return self.type in ['input', 'output', 'for_input', 'for_output', 'cv_input', 'cv_output', 'cv_input2',
+    #                          'cv_input3']
 
     def import_from_json(self, json_data, input_conversion, output_conversion):
         self.x = json_data['x']
@@ -1170,8 +1174,12 @@ def send_finished_notification(sender, instance, **kwargs):
         'is_visualization': instance.is_visualization(),
         'is_interaction': instance.is_interaction()
     }
+    position = {
+        'x': instance.x,
+        'y': instance.y
+    }
     Group("workflow-{}".format(instance.workflow.pk)).send({
-        'text': json.dumps({'status': status, 'widget_pk': instance.pk})
+        'text': json.dumps({'status': status, 'position': position, 'widget_pk': instance.pk})
     })
 
 
@@ -1256,51 +1264,6 @@ class Input(models.Model):
 
     def __unicode__(self):
         return unicode(self.name)
-
-
-"""class InputCrossValidation(models.Model):
-    name = models.CharField(max_length=200)
-    short_name = models.CharField(max_length=3)
-    description = models.TextField(blank=True,null=True)
-    variable = models.CharField(max_length=50)
-    widget = models.ForeignKey(Widget,related_name="inputs2")
-    required = models.BooleanField()
-    parameter = models.BooleanField()
-    value = PickledObjectField(null=True)
-    multi_id = models.IntegerField(default=0)
-    inner_output1 = models.ForeignKey('OutputCrossValidation',related_name="outer_input_rel",blank=True,null=True) #za subprocess
-    #inner_output2 = models.ForeignKey('OutputCrossValidation',related_name="outer_input_rel",blank=True,null=True) #za subprocess
-    outer_output = models.ForeignKey('OutputCrossValidation',related_name="inner_input_rel",blank=True,null=True) #za subprocess
-    PARAMETER_CHOICES = (
-        ('text','Single line'),
-        ('textarea','Multi line text'),
-        ('select', 'Select box'),
-    )
-    parameter_type = models.CharField(max_length=50,choices=PARAMETER_CHOICES,blank=True,null=True)
-    order = models.PositiveIntegerField(default=1)
-
-    class Meta:
-        ordering = ('order',)
-
-    def __unicode__(self):
-        return unicode(self.name)
-
-class OutputCrossValidation(models.Model):
-    name = models.CharField(max_length=200)
-    short_name = models.CharField(max_length=5)
-    description = models.TextField(blank=True)
-    variable = models.CharField(max_length=50)
-    widget = models.ForeignKey(Widget,related_name="outputs")
-    value = PickledObjectField(null=True)
-    inner_input = models.ForeignKey(InputCrossValidation,related_name="outer_output_rel",blank=True,null=True) #za subprocess
-    outer_input = models.ForeignKey(InputCrossValidation,related_name="inner_output_rel",blank=True,null=True) #za subprocess
-    order = models.PositiveIntegerField(default=1)
-
-    class Meta:
-        ordering = ('order',)
-
-    def __unicode__(self):
-        return unicode(self.name)"""
 
 
 class Option(models.Model):
