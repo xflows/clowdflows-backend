@@ -719,10 +719,19 @@ class Widget(models.Model):
     type = models.CharField(max_length=50, choices=WIDGET_CHOICES, default='regular')
 
     progress = models.IntegerField(default=0)
-    #
-    # def is_special_subprocess_type(self):
-    #     return self.type in ['input', 'output', 'for_input', 'for_output', 'cv_input', 'cv_output', 'cv_input2',
-    #                          'cv_input3']
+
+    def is_special_subprocess_type(self):
+        return self.type in ['input', 'output', 'for_input', 'for_output', 'cv_input', 'cv_output', 'cv_input2',
+                             'cv_input3']
+
+    def update_input_output_order(self):
+        for i, input in enumerate(self.inputs.all()):
+            input.order = i + 1
+            input.save()
+
+        for i, output in enumerate(self.outputs.all()):
+            output.order = i + 1
+            output.save()
 
     def import_from_json(self, json_data, input_conversion, output_conversion):
         self.x = json_data['x']

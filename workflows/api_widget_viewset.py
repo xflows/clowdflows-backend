@@ -194,28 +194,11 @@ class WidgetViewSet(viewsets.ModelViewSet):
                                                                                                                str(e))})
             return HttpResponse(data, mimetype)
 
-    # def destroy(self, request, pk=None, **kwargs):
-    #     c = get_object_or_404(Widget, pk=pk)
-    #
-    #
-    #     c.input.widget.unfinish()
-    #     mimetype = 'application/javascript'
-    #     refresh = -1
-    #     refreshworkflow = -1
-    #     already_deleted = False
-    #     if c.input.multi_id != 0:
-    #         # pogledamo kok jih je s tem idjem, ce je vec k en, tega pobrisemo
-    #         inputs = c.input.widget.inputs.filter(multi_id=c.input.multi_id)
-    #         if inputs.count() > 1:
-    #             refresh = c.input.widget.id
-    #             refreshworkflow = c.input.widget.workflow.id
-    #             deleted_order = c.input.order
-    #             c.input.delete()
-    #             already_deleted = True
-    #             for input in inputs.filter(order__gt=deleted_order):
-    #                 input.order -= 1
-    #                 input.save()
-    #     if not already_deleted:
-    #         c.delete()
-    #     data = json.dumps({'refresh': refresh, 'refreshworkflow': refreshworkflow})
-    #     return HttpResponse(data, mimetype)
+    def destroy(self, request, pk=None, **kwargs):
+        widget = get_object_or_404(Widget, pk=pk)
+        widget.delete()
+        if widget.is_special_subprocess_type():
+            subprocess_widget = widget.workflow.widget
+            subprocess_widget.update_input_output_order()
+        data = json.dumps({'status': 'ok'})
+        return HttpResponse(data, 'application/json')

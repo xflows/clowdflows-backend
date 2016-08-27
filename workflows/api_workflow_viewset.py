@@ -8,6 +8,11 @@ from workflows.permissions import IsAdminOrSelf
 from workflows.serializers import *
 
 
+def next_order(inputs_or_outputs):
+    m = inputs_or_outputs.aggregate(Max('order'))
+    return m['order__max'] + 1 if m['order__max'] else 1
+
+
 class WorkflowViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows workflows to be viewed or edited.
@@ -90,12 +95,11 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             output.save()
             input = Input()
             input.widget = workflow.widget
-            m = workflow.widget.inputs.aggregate(Max('order'))
             input.name = 'Input'
             input.short_name = 'inp'
             input.variable = variable_name
             input.inner_output = output
-            input.order = m['order__max'] + 1 if m['order__max'] else 1
+            input.order = next_order(workflow.widget.inputs)
             input.save()
             output.outer_input = input
             output.save()
@@ -131,12 +135,11 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             input.save()
             output = Output()
             output.widget = workflow.widget
-            m = workflow.widget.outputs.aggregate(Max('order'))
             output.name = 'Output'
             output.short_name = 'out'
             output.variable = variable_name
             output.inner_input = input
-            output.order = m['order__max'] + 1 if m['order__max'] else 1
+            output.order = next_order(workflow.widget.outputs)
             output.save()
             input.outer_output = output
             input.save()
@@ -179,6 +182,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             input.short_name = 'for'
             input.variable = 'For'
             input.inner_output = output
+            input.order = next_order(workflow.widget.inputs)
             input.save()
             output.outer_input = input
             output.save()
@@ -201,6 +205,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             output.name = 'For output'
             output.short_name = 'for'
             output.variable = 'For'
+            output.order = next_order(workflow.widget.outputs)
             output.inner_input = input
             output.save()
             input.outer_output = output
@@ -254,7 +259,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             input.short_name = 'dat'  # subproces input
             input.variable = 'CVD'
             input.inner_output = output
-            input.order = 1
+            input.order = next_order(workflow.widget.inputs)
             input.save()
             output.outer_input = input
             output.save()
@@ -272,7 +277,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             input.short_name = 'cvf'
             input.variable = 'CVF'
             input.inner_output = output
-            input.order = 2
+            input.order = next_order(workflow.widget.inputs)
             input.save()
             output.outer_input = input
             output.save()
@@ -289,7 +294,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             input.name = 'cv input seed'
             input.short_name = 'sed'
             input.variable = 'CVS'
-            input.order = 3
+            input.order = next_order(workflow.widget.inputs)
             input.inner_output = output
             input.save()
             output.outer_input = input
@@ -314,6 +319,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             output.name = 'cv output'
             output.short_name = 'res'
             output.variable = 'Res'
+            output.order = next_order(workflow.widget.outputs)
             output.inner_input = input
             output.save()
             input.outer_output = output
