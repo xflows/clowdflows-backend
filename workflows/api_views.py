@@ -102,7 +102,7 @@ class OutputViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Output.objects.filter(Q(widget__workflow__user=self.request.user) | Q(widget__workflow__public=True))
 
-    @detail_route(methods=['get'], url_path='value', permission_classes=[IsAdminOrSelf,])
+    @detail_route(methods=['get'], url_path='value')
     def fetch_value(self, request, pk=None):
         '''
         Route for explicitly fetching output values

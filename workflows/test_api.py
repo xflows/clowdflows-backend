@@ -10,6 +10,7 @@ TEST_PASSWORD = '123'
 TEST_WORKFLOW_USERS_PK = 2
 TEST_WORKFLOW_OTHER_USER_PRIVATE_PK = 4
 TEST_WORKFLOW_OTHER_USER_PUBLIC_PK = 6
+TEST_OUTPUT_PK = 9
 
 
 class BaseAPITestCase(APITestCase):
@@ -28,7 +29,6 @@ class BaseAPITestCase(APITestCase):
 
 
 class SupportingAPITests(BaseAPITestCase):
-
     def test_register(self):
         url = reverse('api-user-register')
         response = self.client.post(url, {
@@ -70,18 +70,6 @@ class SupportingAPITests(BaseAPITestCase):
 
 
 class WorkflowAPITests(BaseAPITestCase):
-    def test_widget_library(self):
-        url = reverse('widget-library-list')
-
-        # Test without authentication - this should fail
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-        self._login()
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self._logout()
-
     def test_create_workflow(self):
         url = reverse('workflow-list')
 
@@ -292,5 +280,54 @@ class WorkflowAPITests(BaseAPITestCase):
         widget_types = {w['type'] for w in widgets}
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertSetEqual(widget_types, {'cv_input', 'cv_output'})
+
+        self._logout()
+
+
+class WidgetAPITests(BaseAPITestCase):
+    def test_fetch_value(self):
+        url = reverse('output-value', kwargs={'pk': TEST_OUTPUT_PK})
+        self._login()
+        response = self.client.get(url)
+        data = response.json()
+        self.assertEqual(data['value'], '5')
+
+    def test_create_widget(self):
+        url = reverse('widget-list')
+        workflow_url = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_USERS_PK})
+        workflow_url_private = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PRIVATE_PK})
+        workflow_url_public = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PUBLIC_PK})
+
+        widget_data = {
+            'workflow': workflow_url,
+            'x': 50,
+            'y': 50,
+            'name': 'Test widget',
+            'abstract_widget': 3,  # Multiply integers abstract widget
+            'finished': False,
+            'error': False,
+            'running': False,
+            'interaction_waiting': False,
+            'type': 'regular',
+            'progress': 0
+        }
+
+        # Test without authentication - this should not be allowed
+        response = self.client.post(url, widget_data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self._login()
+        response = self.client.post(url, widget_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Test on other user's workflows
+        # TODO: The following must not fail!
+        # widget_data['workflow'] = workflow_url_private
+        # self.client.post(url, widget_data)
+        # self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        #
+        # widget_data['workflow'] = workflow_url_public
+        # self.client.post(url, widget_data)
+        # self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self._logout()
