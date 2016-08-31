@@ -1,8 +1,7 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
+from django.contrib.auth import views as auth_views
+import signuplogin.views as signuplogin_views
 
-urlpatterns = patterns('',
-
-    url(r'^signuplogin/$', 'signuplogin.views.signuplogin', name='signuplogin'),
-    
-    
-)
+urlpatterns = [
+    url(r'^signuplogin/$', signuplogin_views.signuplogin, name='signuplogin'),
+]

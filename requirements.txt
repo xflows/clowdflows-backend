@@ -1,10 +1,9 @@
-Django==1.9.8
+Django==1.10
 Pillow==2.2.1
 PySimpleSOAP==1.05a
 Werkzeug==0.8.3
 django-extensions==1.6.7
 django-orderable-inlines==0.0.6
-django-picklefield==0.2.1
 httplib2==0.7.5
 wsgiref==0.1.2
 unidecode==0.04.13

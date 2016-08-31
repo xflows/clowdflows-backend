@@ -74,12 +74,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
-
 MIDDLEWARE_CLASSES = (
     'django.middleware.cache.UpdateCacheMiddleware',  # must be first
     'corsheaders.middleware.CorsMiddleware',
@@ -100,13 +94,6 @@ ROOT_URLCONF = 'mothra.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'mothra.wsgi.application'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    os.path.join(PROJECT_DIR, 'templates'),
-)
 
 FIXTURE_DIRS = (
     os.path.join(PROJECT_DIR, 'fixtures'),
@@ -189,6 +176,7 @@ REST_FRAMEWORK = {
     ),
     'PAGINATE_BY': None,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -201,24 +189,32 @@ CACHES = {
     }
 }
 
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.request',
-    'django.template.context_processors.tz',
-    'workflows.context_processor.base_workflows_url'
-)
-
-TEMPLATES_FOLDER = os.path.join(PROJECT_DIR, 'templates')
-
 PROJECT_FOLDER = PROJECT_DIR
 
-TEMPLATE_DIRS = (TEMPLATES_FOLDER,)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': (os.path.join(PROJECT_DIR, 'templates'),),
+        'OPTIONS': {
+            'context_processors': (
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'workflows.context_processor.base_workflows_url'
+            ),
+            'debug': False,
+            'loaders': (
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ),
+        },
+    },
+]
 
 AUTH_PROFILE_MODULE = 'workflows.UserProfile'
 

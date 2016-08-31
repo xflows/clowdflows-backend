@@ -1,5 +1,6 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
+import streams.views as streams_views
 
-urlpatterns = patterns('',
-    url(r'^data/(?P<stream_id>[0-9]+)/(?P<widget_id>[0-9]+)/$', 'streams.views.stream_widget_visualization', name='stream widget visualization'),
-)
+urlpatterns = [
+    url(r'^data/(?P<stream_id>[0-9]+)/(?P<widget_id>[0-9]+)/$', streams_views.stream_widget_visualization, name='stream widget visualization'),
+]
