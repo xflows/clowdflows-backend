@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -27,6 +28,34 @@ class BaseAPITestCase(APITestCase):
 
 
 class SupportingAPITests(BaseAPITestCase):
+
+    def test_register(self):
+        url = reverse('api-user-register')
+        response = self.client.post(url, {
+            'username': 'testuser3',
+            'password': '123',
+            'email': 'testuser3@testdomain.com'
+        })
+        data = response.json()
+        self.assertEqual(data['status'], 'ok')
+        self.assertEqual(User.objects.filter(username='testuser3').count(), 1)
+
+    def test_login(self):
+        url = reverse('api-user-login')
+        response = self.client.post(url, {
+            'username': 'testuser',
+            'password': '123'
+        })
+        data = response.json()
+        self.assertEqual(data['status'], 'ok')
+
+    def test_logout(self):
+        url = reverse('api-user-logout')
+        self._login()
+        response = self.client.post(url)
+        data = response.json()
+        self.assertEqual(data['status'], 'ok')
+
     def test_widget_library(self):
         url = reverse('widget-library-list')
 
