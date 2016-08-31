@@ -51,13 +51,13 @@ def dynamic_import_globals(name, package, localSetAttrFunc):
         m = __import__(name, globals(), locals(), ['*'])
     except ImportError:
         import sys, traceback
-        print "Exception in user code:"
+        print "Exception in user code (module: '{}'):".format(package)
         print '-'*60
         traceback.print_exc(file=sys.stdout)
         print '-'*60
     except:
         import sys, traceback
-        print "Exception in user code:"
+        print "Exception in user code (module: '{}'):".format(package)
         print '-'*60
         traceback.print_exc(file=sys.stdout)
         print '-'*60
