@@ -3,7 +3,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from workflows.models import Workflow, Widget
-from workflows.serializers import WidgetSerializer
 
 TEST_USERNAME = 'testuser'
 TEST_PASSWORD = '123'
@@ -12,7 +11,7 @@ TEST_WORKFLOW_OTHER_USER_PRIVATE_PK = 4
 TEST_WORKFLOW_OTHER_USER_PUBLIC_PK = 6
 
 
-class APITests(APITestCase):
+class BaseAPITestCase(APITestCase):
     fixtures = ['test_data_api', ]
 
     def _login(self):
@@ -26,6 +25,22 @@ class APITests(APITestCase):
             response = verb(url, data) if data else verb(url)
             self.assertEqual(response.status_code, code)
 
+
+class SupportingAPITests(BaseAPITestCase):
+    def test_widget_library(self):
+        url = reverse('widget-library-list')
+
+        # Test without authentication - this should fail
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self._login()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self._logout()
+
+
+class WorkflowAPITests(BaseAPITestCase):
     def test_widget_library(self):
         url = reverse('widget-library-list')
 
