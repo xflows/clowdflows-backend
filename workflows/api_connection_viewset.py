@@ -89,7 +89,7 @@ class ConnectionViewSet(viewsets.ModelViewSet):
             return HttpResponse(data, mimetype)
 
     def destroy(self, request, pk=None, **kwargs):
-        c = get_object_or_404(Connection, pk=pk)
+        c = self.get_object()
         c.input.widget.unfinish()
         mimetype = 'application/javascript'
         refresh = -1

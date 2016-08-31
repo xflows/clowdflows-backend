@@ -2,6 +2,8 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from workflows.models import Workflow
+
 TEST_USERNAME = 'testuser'
 TEST_PASSWORD = '123'
 TEST_WORKFLOW_USERS_PK = 3
@@ -30,11 +32,11 @@ class APITests(APITestCase):
         url = reverse('widget-library-list')
 
         # Test without authentication - this should fail
-        response = self.client.get(url, format='json')
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         self._login()
-        response = self.client.get(url, format='json')
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self._logout()
 
@@ -50,11 +52,11 @@ class APITests(APITestCase):
         }
 
         # Test without authentication - this should not be allowed
-        response = self.client.post(url, workflow_data, format='json')
+        response = self.client.post(url, workflow_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         self._login()
-        response = self.client.post(url, workflow_data, format='json')
+        response = self.client.post(url, workflow_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self._logout()
 
@@ -70,11 +72,11 @@ class APITests(APITestCase):
         }
 
         # Test without authentication - this should not be allowed
-        response = self.client.patch(url, workflowData, format='json')
+        response = self.client.patch(url, workflowData)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         self._login()
-        response = self.client.patch(url, workflowData, format='json')
+        response = self.client.patch(url, workflowData)
         updated_workflow = response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(updated_workflow['name'], 'Test workflow')
@@ -97,7 +99,7 @@ class APITests(APITestCase):
         url_other_user_public = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PUBLIC_PK})
 
         # Test without authentication - this should not be allowed
-        response = self.client.delete(url, format='json')
+        response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         self._login()
@@ -110,5 +112,32 @@ class APITests(APITestCase):
 
         self._logout()
 
-    def test_create_widget(self):
-        pass
+    def test_reset_workflow(self):
+        url = reverse('workflow-reset', kwargs={'pk': TEST_WORKFLOW_USERS_PK})
+        url_other_user_private = reverse('workflow-reset', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PRIVATE_PK})
+        url_other_user_public = reverse('workflow-reset', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PUBLIC_PK})
+
+        # Test without authentication - this should not be allowed
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self._login()
+
+        response = self.client.post(url, format="json")
+        data = response.json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data['status'], 'ok')
+
+        workflow = Workflow.objects.get(pk=TEST_WORKFLOW_USERS_PK)
+        for widget in workflow.widgets.all():
+            self.assertEqual(widget.finished, False)
+            self.assertEqual(widget.error, False)
+            self.assertEqual(widget.running, False)
+
+        self._test_multiple_response_codes(
+            self.client.post,
+            [url_other_user_private, url_other_user_public],
+            [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN]
+        )
+
+        self._logout()

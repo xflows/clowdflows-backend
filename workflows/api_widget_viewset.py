@@ -4,7 +4,6 @@ from django.db.models import Q
 from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
-from rest_framework.generics import get_object_or_404
 
 from workflows.permissions import IsAdminOrSelf
 from workflows.serializers import *
@@ -26,9 +25,9 @@ class WidgetViewSet(viewsets.ModelViewSet):
         return Widget.objects.filter(Q(workflow__user=self.request.user) | Q(workflow__public=True)).prefetch_related(
             'inputs', 'outputs')
 
-    @detail_route(methods=['post'], url_path='reset')
+    @detail_route(methods=['post'], url_path='reset', permission_classes=[IsAdminOrSelf,])
     def reset(self, request, pk=None):
-        widget = get_object_or_404(Widget, pk=pk)
+        widget = self.get_object()
         try:
             widget.reset()
         except:
@@ -36,9 +35,9 @@ class WidgetViewSet(viewsets.ModelViewSet):
                                 content_type="application/json")
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
-    @detail_route(methods=['patch'], url_path='save-parameters')
+    @detail_route(methods=['patch'], url_path='save-parameters', permission_classes=[IsAdminOrSelf,])
     def save_parameters(self, request, pk=None):
-        widget = get_object_or_404(Widget, pk=pk)
+        widget = self.get_object()
         try:
             parameter_data = request.data
             for parameter in parameter_data:
@@ -54,9 +53,9 @@ class WidgetViewSet(viewsets.ModelViewSet):
                                 content_type="application/json")
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
-    @detail_route(methods=['post'], url_path='run')
+    @detail_route(methods=['post'], url_path='run', permission_classes=[IsAdminOrSelf,])
     def run(self, request, pk=None):
-        w = get_object_or_404(Widget, pk=pk)
+        w = self.get_object()
         data = ''
         try:
             # find all required inputs
@@ -109,9 +108,9 @@ class WidgetViewSet(viewsets.ModelViewSet):
                                                                                                            str(e))})
         return HttpResponse(data, 'application/javascript')
 
-    @detail_route(methods=['get'], url_path='visualize')
+    @detail_route(methods=['get'], url_path='visualize', permission_classes=[IsAdminOrSelf,])
     def visualize(self, request, pk=None):
-        w = get_object_or_404(Widget, pk=pk)
+        w = self.get_object()
         if w.is_visualization():
             output_dict = {}
             for o in w.outputs.all():
@@ -138,9 +137,9 @@ class WidgetViewSet(viewsets.ModelViewSet):
             data = json.dumps({'status': 'error', 'message': 'Widget {} is not a visualization widget.'.format(w.name)})
             return HttpResponse(data, 'application/javascript')
 
-    @detail_route(methods=['get', 'post'], url_path='interact')
+    @detail_route(methods=['get', 'post'], url_path='interact', permission_classes=[IsAdminOrSelf,])
     def interact(self, request, pk=None):
-        w = get_object_or_404(Widget, pk=pk)
+        w = self.get_object()
         if request.method == 'GET':
             input_dict = {}
             output_dict = {}
@@ -195,7 +194,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
             return HttpResponse(data, mimetype)
 
     def destroy(self, request, pk=None, **kwargs):
-        widget = get_object_or_404(Widget, pk=pk)
+        widget = self.get_object()
         widget.delete()
         if widget.is_special_subprocess_type():
             subprocess_widget = widget.workflow.widget

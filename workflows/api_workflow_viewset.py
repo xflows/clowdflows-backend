@@ -2,7 +2,6 @@ from django.db.models import Q, Max
 from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
-from rest_framework.generics import get_object_or_404
 
 from workflows.permissions import IsAdminOrSelf
 from workflows.serializers import *
@@ -40,7 +39,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'], url_path='run')
     def run_workflow(self, request, pk=None):
-        workflow = get_object_or_404(Workflow, pk=pk)
+        workflow = self.get_object()
         try:
             workflow.run()
         except:
@@ -50,13 +49,13 @@ class WorkflowViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'], url_path='stop')
     def stop_workflow(self, request, pk=None):
-        workflow = get_object_or_404(Workflow, pk=pk)
+        workflow = self.get_object()
         # TODO: stop workflow execution
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
     @detail_route(methods=['post'], url_path='subprocess')
     def add_subprocess(self, request, pk=None):
-        workflow = get_object_or_404(Workflow, pk=pk)
+        workflow = self.get_object()
         start_x = request.POST.get('start_x', 0)
         start_y = request.POST.get('start_y', 0)
 
@@ -70,7 +69,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'], url_path='subprocess-input')
     def add_subprocess_input(self, request, pk=None):
-        workflow = get_object_or_404(Workflow, pk=pk)
+        workflow = self.get_object()
         if workflow.widget == None:
             message = 'The input widget can only be put in a subprocess.'
             data = json.dumps({'message': message, 'status': 'error'})
@@ -110,7 +109,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'], url_path='subprocess-output')
     def add_subprocess_output(self, request, pk=None):
-        workflow = get_object_or_404(Workflow, pk=pk)
+        workflow = self.get_object()
         if workflow.widget == None:
             message = 'The output widget can only be put in a subprocess.'
             data = json.dumps({'message': message, 'status': 'error'})
@@ -150,7 +149,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'], url_path='subprocess-forloop')
     def add_subprocess_forloop(self, request, pk=None):
-        workflow = get_object_or_404(Workflow, pk=pk)
+        workflow = self.get_object()
         if workflow.widget == None:
             message = 'The for widgets can only be put in a subprocess.'
             data = json.dumps({'message': message, 'status': 'error'})
@@ -220,7 +219,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'], url_path='subprocess-xvalidation')
     def add_subprocess_xvalidation(self, request, pk=None):
-        workflow = get_object_or_404(Workflow, pk=pk)
+        workflow = self.get_object()
         if workflow.widget == None:
             message = 'The cross validation widgets can only be put in a subprocess.'
             data = json.dumps({'message': message, 'status': 'error'})
@@ -334,7 +333,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'], url_path='reset')
     def reset(self, request, pk=None):
-        workflow = get_object_or_404(Workflow, pk=pk)
+        workflow = self.get_object()
         for widget in workflow.widgets.filter():
             widget.reset()
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")

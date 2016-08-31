@@ -3,8 +3,7 @@ from django.http import HttpResponse
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import api_view, permission_classes, detail_route
 from django.contrib.auth import logout
-from django.db.models import Q, Max
-from rest_framework.generics import get_object_or_404
+from django.db.models import Q
 
 from workflows.serializers import *
 from workflows.permissions import IsAdminOrSelf
@@ -103,12 +102,12 @@ class OutputViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Output.objects.filter(Q(widget__workflow__user=self.request.user) | Q(widget__workflow__public=True))
 
-    @detail_route(methods=['get'], url_path='value')
+    @detail_route(methods=['get'], url_path='value', permission_classes=[IsAdminOrSelf,])
     def fetch_value(self, request, pk=None):
         '''
         Route for explicitly fetching output values
         '''
-        output = get_object_or_404(Output, pk=pk)
+        output = self.get_object()
         try:
             json.dumps(output.value)
         except:
