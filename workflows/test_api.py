@@ -321,13 +321,12 @@ class WidgetAPITests(BaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Test on other user's workflows
-        # TODO: The following must not fail!
-        # widget_data['workflow'] = workflow_url_private
-        # self.client.post(url, widget_data)
-        # self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        #
-        # widget_data['workflow'] = workflow_url_public
-        # self.client.post(url, widget_data)
-        # self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        widget_data['workflow'] = workflow_url_private
+        response = self.client.post(url, widget_data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        widget_data['workflow'] = workflow_url_public
+        response = self.client.post(url, widget_data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self._logout()
