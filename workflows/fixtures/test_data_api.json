@@ -7557,6 +7557,40 @@
     }
   },
   {
+    "model": "workflows.widget",
+    "pk": 33,
+    "fields": {
+      "workflow": 4,
+      "x": 29,
+      "y": 77,
+      "name": "Create Integer",
+      "abstract_widget": 26,
+      "finished": true,
+      "error": false,
+      "running": false,
+      "interaction_waiting": false,
+      "type": "regular",
+      "progress": 0
+    }
+  },
+    {
+    "model": "workflows.widget",
+    "pk": 34,
+    "fields": {
+      "workflow": 6,
+      "x": 29,
+      "y": 77,
+      "name": "Create Integer",
+      "abstract_widget": 26,
+      "finished": true,
+      "error": false,
+      "running": false,
+      "interaction_waiting": false,
+      "type": "regular",
+      "progress": 0
+    }
+  },
+  {
     "model": "workflows.input",
     "pk": 2,
     "fields": {

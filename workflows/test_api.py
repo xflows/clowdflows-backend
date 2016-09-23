@@ -7,10 +7,17 @@ from workflows.models import Workflow, Widget
 
 TEST_USERNAME = 'testuser'
 TEST_PASSWORD = '123'
+
+# Test workflow ids
 TEST_WORKFLOW_USERS_PK = 2
 TEST_WORKFLOW_OTHER_USER_PRIVATE_PK = 4
 TEST_WORKFLOW_OTHER_USER_PUBLIC_PK = 6
 TEST_OUTPUT_PK = 9
+
+# Test widget ids
+TEST_WIDGET_USERS_PK = 6
+TEST_WIDGET_OTHER_USER_PRIVATE_PK = 33
+TEST_WIDGET_OTHER_USER_PUBLIC_PK = 34
 
 
 class BaseAPITestCase(APITestCase):
@@ -327,6 +334,96 @@ class WidgetAPITests(BaseAPITestCase):
 
         widget_data['workflow'] = workflow_url_public
         response = self.client.post(url, widget_data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self._logout()
+
+    def test_patch_widget(self):
+        widget_url = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_USERS_PK})
+        widget_url_private = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_OTHER_USER_PRIVATE_PK})
+        widget_url_public = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_OTHER_USER_PUBLIC_PK})
+
+        widget_data = {
+            'x': 12,
+            'y': 34,
+            'name': 'Test name'
+        }
+
+        # Test without authentication - this should not be allowed
+        response = self.client.patch(widget_url, widget_data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self._login()
+        response = self.client.patch(widget_url, widget_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        widget = Widget.objects.get(pk=TEST_WIDGET_USERS_PK)
+        self.assertEqual(widget.x, widget_data['x'])
+        self.assertEqual(widget.y, widget_data['y'])
+        self.assertEqual(widget.name, widget_data['name'])
+
+        # Test on other user's widgets
+        response = self.client.patch(widget_url_private, widget_data)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        response = self.client.patch(widget_url_public, widget_data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self._logout()
+
+    def test_reset_widget(self):
+        widget_url = reverse('widget-reset', kwargs={'pk': TEST_WIDGET_USERS_PK})
+        widget_url_private = reverse('widget-reset', kwargs={'pk': TEST_WIDGET_OTHER_USER_PRIVATE_PK})
+        widget_url_public = reverse('widget-reset', kwargs={'pk': TEST_WIDGET_OTHER_USER_PUBLIC_PK})
+
+        # Test without authentication - this should not be allowed
+        response = self.client.post(widget_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self._login()
+        response = self.client.post(widget_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        widget = Widget.objects.get(pk=TEST_WIDGET_USERS_PK)
+        self.assertEqual(widget.finished, False)
+
+        # Test on other user's widgets
+        response = self.client.post(widget_url_private)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        response = self.client.post(widget_url_public)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self._logout()
+
+    def test_run_widget(self):
+        widget_url = reverse('widget-run', kwargs={'pk': TEST_WIDGET_USERS_PK})
+        widget_reset_url = reverse('widget-reset', kwargs={'pk': TEST_WIDGET_USERS_PK})
+        widget_url_private = reverse('widget-run', kwargs={'pk': TEST_WIDGET_OTHER_USER_PRIVATE_PK})
+        widget_url_public = reverse('widget-run', kwargs={'pk': TEST_WIDGET_OTHER_USER_PUBLIC_PK})
+
+        # Test without authentication - this should not be allowed
+        response = self.client.post(widget_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self._login()
+        # First reset the widget
+        response = self.client.post(widget_reset_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        widget = Widget.objects.get(pk=TEST_WIDGET_USERS_PK)
+        self.assertEqual(widget.finished, False)
+
+        # .. then run
+        response = self.client.post(widget_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        widget = Widget.objects.get(pk=TEST_WIDGET_USERS_PK)
+        self.assertEqual(widget.finished, True)
+
+        # Test on other user's widgets
+        response = self.client.post(widget_url_private)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        response = self.client.post(widget_url_public)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self._logout()

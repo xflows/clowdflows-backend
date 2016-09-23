@@ -7,7 +7,7 @@ class IsAdminOrSelf(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user and request.user.is_authenticated():
             # Don't allow adding widgets to workflows not owned by the user
-            if view.model == Widget:
+            if view.model == Widget and 'workflow' in request.data:
                 serializer = view.serializer_class(data=request.data)
                 serializer.is_valid()
                 workflow = serializer.validated_data['workflow']
