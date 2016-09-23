@@ -8123,6 +8123,44 @@
     }
   },
   {
+    "model": "workflows.input",
+    "pk": 98,
+    "fields": {
+      "name": "Type your integer",
+      "short_name": "int",
+      "description": "",
+      "variable": "integer",
+      "widget": 33,
+      "required": true,
+      "parameter": true,
+      "value": "gAJYAQAAADUu",
+      "multi_id": 0,
+      "inner_output": null,
+      "outer_output": null,
+      "parameter_type": "text",
+      "order": 1
+    }
+  },
+  {
+    "model": "workflows.input",
+    "pk": 99,
+    "fields": {
+      "name": "Type your integer",
+      "short_name": "int",
+      "description": "",
+      "variable": "integer",
+      "widget": 34,
+      "required": true,
+      "parameter": true,
+      "value": "gAJYAQAAADUu",
+      "multi_id": 0,
+      "inner_output": null,
+      "outer_output": null,
+      "parameter_type": "text",
+      "order": 1
+    }
+  },
+  {
     "model": "workflows.option",
     "pk": 28,
     "fields": {

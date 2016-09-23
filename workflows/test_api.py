@@ -3,7 +3,7 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from workflows.models import Workflow, Widget
+from workflows.models import Workflow, Widget, Input
 
 TEST_USERNAME = 'testuser'
 TEST_PASSWORD = '123'
@@ -18,6 +18,11 @@ TEST_OUTPUT_PK = 9
 TEST_WIDGET_USERS_PK = 6
 TEST_WIDGET_OTHER_USER_PRIVATE_PK = 33
 TEST_WIDGET_OTHER_USER_PUBLIC_PK = 34
+
+# Test widget parameters
+TEST_PARAMETER_USERS_PK = 10
+TEST_PARAMETER_OTHER_USER_PRIVATE_PK = 98
+TEST_PARAMETER_OTHER_USER_PUBLIC_PK = 99
 
 
 class BaseAPITestCase(APITestCase):
@@ -77,7 +82,7 @@ class SupportingAPITests(BaseAPITestCase):
 
 
 class WorkflowAPITests(BaseAPITestCase):
-    def test_create_workflow(self):
+    def test_create(self):
         url = reverse('workflow-list')
 
         workflow_data = {
@@ -97,7 +102,7 @@ class WorkflowAPITests(BaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self._logout()
 
-    def test_patch_workflow(self):
+    def test_patch(self):
         url = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_USERS_PK})
         url_other_user_private = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PRIVATE_PK})
         url_other_user_public = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PUBLIC_PK})
@@ -130,7 +135,7 @@ class WorkflowAPITests(BaseAPITestCase):
 
         self._logout()
 
-    def test_delete_workflow(self):
+    def test_delete(self):
         url = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_USERS_PK})
         url_other_user_private = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PRIVATE_PK})
         url_other_user_public = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PUBLIC_PK})
@@ -149,7 +154,7 @@ class WorkflowAPITests(BaseAPITestCase):
 
         self._logout()
 
-    def test_reset_workflow(self):
+    def test_reset(self):
         url = reverse('workflow-reset', kwargs={'pk': TEST_WORKFLOW_USERS_PK})
         url_other_user_private = reverse('workflow-reset', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PRIVATE_PK})
         url_other_user_public = reverse('workflow-reset', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PUBLIC_PK})
@@ -179,7 +184,7 @@ class WorkflowAPITests(BaseAPITestCase):
 
         self._logout()
 
-    def test_run_workflow(self):
+    def test_run(self):
         url = reverse('workflow-run', kwargs={'pk': TEST_WORKFLOW_USERS_PK})
         url_other_user_private = reverse('workflow-run', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PRIVATE_PK})
         url_other_user_public = reverse('workflow-run', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PUBLIC_PK})
@@ -299,7 +304,7 @@ class WidgetAPITests(BaseAPITestCase):
         data = response.json()
         self.assertEqual(data['value'], '5')
 
-    def test_create_widget(self):
+    def test_create(self):
         url = reverse('widget-list')
         workflow_url = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_USERS_PK})
         workflow_url_private = reverse('workflow-detail', kwargs={'pk': TEST_WORKFLOW_OTHER_USER_PRIVATE_PK})
@@ -338,7 +343,7 @@ class WidgetAPITests(BaseAPITestCase):
 
         self._logout()
 
-    def test_patch_widget(self):
+    def test_patch(self):
         widget_url = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_USERS_PK})
         widget_url_private = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_OTHER_USER_PRIVATE_PK})
         widget_url_public = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_OTHER_USER_PUBLIC_PK})
@@ -371,7 +376,7 @@ class WidgetAPITests(BaseAPITestCase):
 
         self._logout()
 
-    def test_reset_widget(self):
+    def test_reset(self):
         widget_url = reverse('widget-reset', kwargs={'pk': TEST_WIDGET_USERS_PK})
         widget_url_private = reverse('widget-reset', kwargs={'pk': TEST_WIDGET_OTHER_USER_PRIVATE_PK})
         widget_url_public = reverse('widget-reset', kwargs={'pk': TEST_WIDGET_OTHER_USER_PUBLIC_PK})
@@ -396,7 +401,7 @@ class WidgetAPITests(BaseAPITestCase):
 
         self._logout()
 
-    def test_run_widget(self):
+    def test_run(self):
         widget_url = reverse('widget-run', kwargs={'pk': TEST_WIDGET_USERS_PK})
         widget_reset_url = reverse('widget-reset', kwargs={'pk': TEST_WIDGET_USERS_PK})
         widget_url_private = reverse('widget-run', kwargs={'pk': TEST_WIDGET_OTHER_USER_PRIVATE_PK})
@@ -428,7 +433,7 @@ class WidgetAPITests(BaseAPITestCase):
 
         self._logout()
 
-    def test_delete_widget(self):
+    def test_delete(self):
         widget_url = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_USERS_PK})
         widget_url_private = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_OTHER_USER_PRIVATE_PK})
         widget_url_public = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_OTHER_USER_PUBLIC_PK})
@@ -449,6 +454,38 @@ class WidgetAPITests(BaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         response = self.client.delete(widget_url_public)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self._logout()
+
+    def test_save_parameters(self):
+        widget_url = reverse('widget-save-parameters', kwargs={'pk': TEST_WIDGET_USERS_PK})
+        widget_url_private = reverse('widget-save-parameters', kwargs={'pk': TEST_WIDGET_OTHER_USER_PRIVATE_PK})
+        widget_url_public = reverse('widget-save-parameters', kwargs={'pk': TEST_WIDGET_OTHER_USER_PUBLIC_PK})
+
+        parameters = [{
+            'id': TEST_PARAMETER_USERS_PK,
+            'value': '42'
+        }]
+
+        # Test without authentication - this should not be allowed
+        response = self.client.patch(widget_url, parameters)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self._login()
+        response = self.client.patch(widget_url, parameters)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        parameter = Input.objects.get(pk=TEST_PARAMETER_USERS_PK)
+        self.assertEqual(parameter.value, '42')
+
+        # Test on other user's widgets
+        parameters[0]['id'] = TEST_PARAMETER_OTHER_USER_PRIVATE_PK
+        response = self.client.patch(widget_url_private, parameters)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        parameters[0]['id'] = TEST_PARAMETER_OTHER_USER_PUBLIC_PK
+        response = self.client.patch(widget_url_public, parameters)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self._logout()
