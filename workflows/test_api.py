@@ -427,3 +427,28 @@ class WidgetAPITests(BaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self._logout()
+
+    def test_delete_widget(self):
+        widget_url = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_USERS_PK})
+        widget_url_private = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_OTHER_USER_PRIVATE_PK})
+        widget_url_public = reverse('widget-detail', kwargs={'pk': TEST_WIDGET_OTHER_USER_PUBLIC_PK})
+
+        # Test without authentication - this should not be allowed
+        response = self.client.delete(widget_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self._login()
+        response = self.client.delete(widget_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        widget_count = Widget.objects.filter(pk=TEST_WIDGET_USERS_PK).count()
+        self.assertEqual(widget_count, 0)
+
+        # Test on other user's widgets
+        response = self.client.delete(widget_url_private)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        response = self.client.delete(widget_url_public)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self._logout()
