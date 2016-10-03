@@ -182,6 +182,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 w.running = False
                 w.finished = False
                 w.interaction_waiting = False
+                w.interaction_finished = False
                 w.save()
                 print traceback.format_exc(e)
                 # raise

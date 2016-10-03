@@ -703,6 +703,8 @@ class Widget(models.Model):
     error = models.BooleanField(default=False)  # a field
     running = models.BooleanField(default=False)  # a field
     interaction_waiting = models.BooleanField(default=False)  # a field
+    interaction_finished = models.BooleanField(default=False)  # a field
+
     """ type of widgets """
     WIDGET_CHOICES = (
         ('regular', 'Regular widget'),
@@ -862,6 +864,13 @@ class Widget(models.Model):
         self.error = False
         self.running = True
         self.save()
+
+        if self.abstract_widget.interactive:
+            if not self.interaction_waiting and not self.interaction_finished:
+                self.interaction_waiting = True
+                self.save()
+                return
+
         if self.type == 'regular' or self.type == 'subprocess':
             """ if this is a subprocess or a regular widget than true."""
             if not self.abstract_widget is None:
@@ -1054,6 +1063,8 @@ class Widget(models.Model):
         self.finished = False
         self.error = False
         self.running = False
+        self.interaction_finished = False
+        self.interaction_waiting = False
         self.save()
         if self.type == 'subprocess':
             self.subunfinish()
@@ -1154,6 +1165,7 @@ class Widget(models.Model):
             self.error = True
             self.running = False
             self.finished = False
+            self.interaction_finished = False
             self.save()
             raise
         for o in self.outputs.all():
@@ -1163,6 +1175,7 @@ class Widget(models.Model):
         self.running = False
         self.error = False
         self.interaction_waiting = False
+        self.interaction_finished = True
         self.save()
         cons = Connection.objects.filter(output__widget=self)
         for c in cons:
