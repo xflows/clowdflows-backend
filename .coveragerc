@@ -1,3 +1,8 @@
+[run]
+include =
+    workflows/api_*.py
+    workflows/serializers.py
+
 [report]
 # Regexes for lines to exclude from consideration
 exclude_lines =

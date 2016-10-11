@@ -865,7 +865,9 @@ class Widget(models.Model):
         self.running = True
         self.save()
 
-        if self.abstract_widget.interactive:
+        is_in_subprocess = bool(self.workflow.template_parent)
+
+        if self.abstract_widget and self.abstract_widget.interactive and not is_in_subprocess:
             if not self.interaction_waiting and not self.interaction_finished:
                 self.interaction_waiting = True
                 self.save()
