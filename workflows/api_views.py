@@ -1,9 +1,11 @@
 from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from rest_framework import viewsets, permissions
-from rest_framework.decorators import api_view, permission_classes, detail_route
+from rest_framework.decorators import api_view, permission_classes, detail_route, list_route
 from django.contrib.auth import logout
 from django.db.models import Q
+
+from services.webservice import WebService
 
 from workflows.serializers import *
 from workflows.permissions import IsAdminOrSelf
@@ -161,3 +163,69 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Category.objects.filter(parent__isnull=True)
+
+    @list_route(methods=['post'], url_path='import-ws')
+    def import_webservice(self, request):
+        wsdl = request.data.get('wsdl')
+        ws = WebService(wsdl)
+        new_c = Category()
+        current_name = ws.name
+        i = 0
+        while request.user.categories.filter(name=current_name).count() > 0:
+            i = i + 1
+            current_name = ws.name + ' (' + str(i) + ')'
+        new_c.name = current_name
+        new_c.user = request.user
+        new_c.workflow = request.user.userprofile.active_workflow
+        new_c.save()
+        for m in ws.methods:
+            new_a = AbstractWidget()
+            new_a.name = m['name']
+            new_a.action = 'call_webservice'
+            new_a.wsdl = ws.wsdl_url
+            new_a.wsdl_method = m['name']
+            new_a.description = m['documentation']
+            new_a.user = request.user
+            new_a.category = new_c
+            new_a.save()
+            new_i = AbstractInput()
+            new_i.parameter = True
+            new_i.widget = new_a
+            new_i.name = "Timeout"
+            new_i.short_name = "to"
+            new_i.variable = "timeout"
+            new_i.default = '60'
+            new_i.parameter_type = 'text'
+            new_i.save()
+            new_i = AbstractInput()
+            new_i.parameter = True
+            new_i.widget = new_a
+            new_i.name = "Send empty strings to webservices"
+            new_i.short_name = "ses"
+            new_i.variable = "sendemptystrings"
+            new_i.default = ''
+            new_i.parameter_type = 'checkbox'
+            new_i.save()
+            for i in m['inputs']:
+                new_i = AbstractInput()
+                new_i.name = i['name']
+                new_i.variable = i['name']
+                new_i.short_name = i['name'][:3]
+                new_i.description = ''
+                new_i.required = False
+                new_i.parameter = False
+                if i['type'] == bool:
+                    new_i.parameter_type = 'checkbox'
+                new_i.default = ''
+                new_i.widget = new_a
+                new_i.save()
+            for o in m['outputs']:
+                new_o = AbstractOutput()
+                new_o.name = o['name']
+                new_o.variable = o['name']
+                new_o.short_name = o['name'][:3]
+                new_o.description = ''
+                new_o.widget = new_a
+                new_o.save()
+        data = json.dumps({'category_id': new_c.id})
+        return HttpResponse(data, 'application/json')

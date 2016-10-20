@@ -30,6 +30,9 @@ class WidgetViewSet(viewsets.ModelViewSet):
         widget = self.get_object()
         try:
             widget.reset()
+            descendants = widget.reset_descendants()
+            for widget_pk in descendants:
+                Widget.objects.get(pk=widget_pk).reset()
         except:
             return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem resetting the widget'}),
                                 content_type="application/json")
