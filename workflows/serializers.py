@@ -202,6 +202,9 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         if 'outputs' in validated_data:
             validated_data.pop('outputs')
         widget, _ = Widget.objects.update_or_create(pk=widget.pk, defaults=validated_data)
+        if widget.type == 'subprocess':
+            widget.workflow_link.name = widget.name
+            widget.workflow_link.save()
         return widget
 
     def get_icon(self, widget):

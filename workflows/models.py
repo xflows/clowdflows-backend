@@ -1199,8 +1199,8 @@ def send_finished_notification(sender, instance, **kwargs):
         'is_interaction': instance.is_interaction()
     }
     position = {
-        'x': instance.x,
-        'y': instance.y
+        'x': int(instance.x),
+        'y': int(instance.y)
     }
     Group("workflow-{}".format(instance.workflow.pk)).send({
         'text': json.dumps({'status': status, 'position': position, 'widget_pk': instance.pk})

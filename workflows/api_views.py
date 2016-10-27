@@ -168,6 +168,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     def import_webservice(self, request):
         wsdl = request.data.get('wsdl')
         ws = WebService(wsdl)
+        wsdl_category, _ = Category.objects.get_or_create(name='WSDL Imports')
         new_c = Category()
         current_name = ws.name
         i = 0
@@ -177,6 +178,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         new_c.name = current_name
         new_c.user = request.user
         new_c.workflow = request.user.userprofile.active_workflow
+        new_c.parent = wsdl_category
         new_c.save()
         for m in ws.methods:
             new_a = AbstractWidget()
