@@ -5,7 +5,9 @@ from rest_framework.decorators import api_view, permission_classes, detail_route
 from django.contrib.auth import logout
 from django.db.models import Q
 
+from mothra.local_settings import FILES_FOLDER
 from services.webservice import WebService
+from workflows.helpers import ensure_dir
 
 from workflows.serializers import *
 from workflows.permissions import IsAdminOrSelf
@@ -92,6 +94,26 @@ class InputViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Input.objects.filter(Q(widget__workflow__user=self.request.user) | Q(widget__workflow__public=True))
 
+    @detail_route(methods=['post'], url_path='upload')
+    def upload(self, request, pk=None):
+        input = self.get_object()
+        try:
+            destination = FILES_FOLDER + str(input.widget.workflow.id) + '/' + request.FILES['file'].name
+            ensure_dir(destination)
+            destination_file = open(destination, 'wb')
+            for chunk in request.FILES['file'].chunks():
+                destination_file.write(chunk)
+            destination_file.close()
+            input.value = destination
+            input.save()
+            input.widget.unfinish()
+            data = json.dumps(
+                {'status': 'ok', 'message': 'File successfully uploaded'})
+        except Exception, e:
+            data = json.dumps(
+                {'status': 'error', 'message': 'Problem uploading file: {}'.format(str(e))})
+        return HttpResponse(data, 'application/json')
+
 
 class OutputViewSet(viewsets.ModelViewSet):
     """
@@ -109,6 +131,7 @@ class OutputViewSet(viewsets.ModelViewSet):
         '''
         Route for explicitly fetching output values
         '''
+        STRING_CUTOFF_CHARS = 300
         output = self.get_object()
         try:
             json.dumps(output.value)
@@ -116,6 +139,8 @@ class OutputViewSet(viewsets.ModelViewSet):
             serialized_value = repr(output.value)
         else:
             serialized_value = output.value
+            if type(serialized_value) == str:
+                serialized_value = '{} [ ... ]'.format(serialized_value[:STRING_CUTOFF_CHARS])
         return HttpResponse(json.dumps({'value': serialized_value}), content_type="application/json")
 
 
