@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
+from rest_framework.generics import get_object_or_404
 
 from workflows.permissions import IsAdminOrSelf
 from workflows.serializers import *
@@ -53,6 +54,76 @@ class WidgetViewSet(viewsets.ModelViewSet):
             widget.unfinish()
         except:
             return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem saving parameters'}),
+                                content_type="application/json")
+        return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
+
+    @detail_route(methods=['patch'], url_path='save-configuration', permission_classes=[IsAdminOrSelf, ])
+    def save_configuration(self, request, pk=None):
+        widget = self.get_object()
+        data = request.data
+        try:
+            inputs = data['inputs']
+            params = data['parameters']
+            outputs = data['outputs']
+            benchmark = data['benchmark']
+            changed = False
+            reordered = False
+            deletedConnections = []
+            for order, input_pk in enumerate(inputs):
+                inp = get_object_or_404(Input, pk=input_pk)
+                order += 1
+                if inp.parameter:
+                    inp.parameter = False
+                    changed = True
+                    inp.save()
+                if inp.order != order:
+                    inp.order = order
+                    reordered = True
+                    inp.save()
+            for order, input_pk in enumerate(params):
+                inp = get_object_or_404(Input, pk=input_pk)
+                order += 1
+                if not inp.parameter:
+                    # need to be careful if connections are set up to this input and need to be removed
+                    for c in Connection.objects.filter(input=inp):
+                        deletedConnections.append(c.id)
+                        c.delete()
+                    inp.parameter = True
+                    changed = True
+                    inp.save()
+                if inp.order != order:
+                    inp.order = order
+                    reordered = True
+                    inp.save()
+            for order, output_pk in enumerate(outputs):
+                out = get_object_or_404(Output, pk=output_pk)
+                order += 1
+                if out.order != order:
+                    out.order = order
+                    reordered = True
+                    out.save()
+            if benchmark:
+                if widget.outputs.filter(variable='clowdflows_elapsed').count() == 0:
+                    new_o = Output()
+                    new_o.widget = widget
+                    new_o.variable = 'clowdflows_elapsed'
+                    new_o.name = 'Elapsed time'
+                    new_o.short_name = 'bmk'
+                    new_o.order = widget.outputs.count() + 1
+                    new_o.save()
+                changed = True
+                reordered = True
+            else:
+                o = widget.outputs.filter(variable='clowdflows_elapsed')
+                if len(o) > 0:
+                    o.delete()
+                changed = True
+                reordered = True
+            if changed:
+                widget.unfinish()
+        except Exception, e:
+            print e
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem saving configuration'}),
                                 content_type="application/json")
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 

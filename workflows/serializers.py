@@ -107,6 +107,7 @@ class InputSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class OutputSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
     class Meta:
         model = Output
         exclude = ('value',)
