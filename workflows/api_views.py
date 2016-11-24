@@ -243,6 +243,8 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
                 new_i.parameter = False
                 if i['type'] == bool:
                     new_i.parameter_type = 'checkbox'
+                else:
+                    new_i.parameter_type = 'textarea'
                 new_i.default = ''
                 new_i.widget = new_a
                 new_i.save()
