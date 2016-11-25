@@ -1,4 +1,7 @@
+from django.template.loader import render_to_string
 from rest_framework import serializers
+
+from mothra.settings import STATIC_URL
 from workflows.models import *
 
 
@@ -108,6 +111,7 @@ class InputSerializer(serializers.HyperlinkedModelSerializer):
 
 class OutputSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Output
         exclude = ('value',)
@@ -119,12 +123,66 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
     user = UserSerializer(read_only=True)
     is_subprocess = serializers.SerializerMethodField()
     is_public = serializers.BooleanField(source='public')
+    preview = serializers.SerializerMethodField()
 
     def get_is_subprocess(self, obj):
         if obj.widget == None:
             return False
         else:
             return True
+
+    def get_preview(self, obj):
+        if not obj.public:
+            return ''
+        min_x = 10000
+        min_y = 10000
+        max_x = 0
+        max_y = 0
+        max_width = 300
+        max_height = 200
+        normalized_values = {}
+        obj.normalized_widgets = obj.widgets.all()
+        obj.unique_connections = []
+        obj.pairs = []
+        for widget in obj.normalized_widgets:
+            if widget.x > max_x:
+                max_x = widget.x
+            if widget.x < min_x:
+                min_x = widget.x
+            if widget.y > max_y:
+                max_y = widget.y
+            if widget.y < min_y:
+                min_y = widget.y
+        for widget in obj.normalized_widgets:
+            x = (widget.x - min_x) * 1.0
+            y = (widget.y - min_y) * 1.0
+            normalized_max_x = max_x - min_x
+            if x == 0:
+                x = 1
+            if y == 0:
+                y = 1
+            if normalized_max_x == 0:
+                normalized_max_x = x * 2
+            normalized_max_y = max_y - min_y
+            if normalized_max_y == 0:
+                normalized_max_y = y * 2
+            widget.norm_x = (x / normalized_max_x) * max_width
+            widget.norm_y = (y / normalized_max_y) * max_height
+            normalized_values[widget.id] = (widget.norm_x, widget.norm_y)
+        for c in obj.connections.select_related("output", "input").defer("output__value", "input__value").all():
+            if not (c.output.widget_id, c.input.widget_id) in obj.pairs:
+                obj.pairs.append((c.output.widget_id, c.input.widget_id))
+        for pair in obj.pairs:
+            conn = {}
+            conn['x1'] = normalized_values[pair[0]][0] + 40
+            conn['y1'] = normalized_values[pair[0]][1] + 15
+            conn['x2'] = normalized_values[pair[1]][0] - 10
+            conn['y2'] = normalized_values[pair[1]][1] + 15
+            obj.unique_connections.append(conn)
+        base_url = self.context['request'].build_absolute_uri('/')[:-1]
+        images_url = '{}{}'.format(base_url, STATIC_URL)
+        preview_html = render_to_string('website/preview.html', {'w': obj, 'images_url': images_url})
+        return preview_html
 
     class Meta:
         model = Workflow
@@ -217,7 +275,8 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         static_or_media = settings.STATIC_URL
         if widget.abstract_widget:
             if widget.abstract_widget.static_image:
-                icon_path = '{}/icons/widget/{}'.format(widget.abstract_widget.package, widget.abstract_widget.static_image)
+                icon_path = '{}/icons/widget/{}'.format(widget.abstract_widget.package,
+                                                        widget.abstract_widget.static_image)
             elif widget.abstract_widget.image:
                 static_or_media = settings.MEDIA_URL
                 icon_path = widget.abstract_widget.image
@@ -259,6 +318,7 @@ class WidgetListSerializer(serializers.HyperlinkedModelSerializer):
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     widgets = WidgetSerializer(many=True, read_only=True)
+    user = UserSerializer(read_only=True)
     connections = ConnectionSerializer(many=True, read_only=True)
     is_subprocess = serializers.SerializerMethodField()
     is_public = serializers.BooleanField(source='public')
@@ -271,4 +331,4 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Workflow
-        exclude = ('user', 'public',)
+        exclude = ('public',)
