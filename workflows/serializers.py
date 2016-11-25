@@ -116,6 +116,7 @@ class OutputSerializer(serializers.HyperlinkedModelSerializer):
 
 class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
+    user = UserSerializer(read_only=True)
     is_subprocess = serializers.SerializerMethodField()
     is_public = serializers.BooleanField(source='public')
 
