@@ -1,11 +1,10 @@
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from workflows.models import *
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     help = 'This command updates the recommendations in the database.'
-    option_list = NoArgsCommand.option_list
 
-    def handle_noargs(self, **options):
+    def handle(self, *args, **options):
         d={}
         for c0 in Connection.objects.all():
             # ===========================================
@@ -14,6 +13,9 @@ class Command(NoArgsCommand):
             var_name = minp.variable
             mw1 = minp.widget       # only one
             maw = mw1.abstract_widget
+            if not maw:  # Skip widgets with no abstract widgets
+                continue
+
             mai = AbstractInput.objects.filter(widget=maw.id, variable=var_name)
             mai = mai[0]            
 
@@ -23,6 +25,9 @@ class Command(NoArgsCommand):
             var_name = mout.variable
             mw2 = mout.widget       # only one
             maw = mw2.abstract_widget
+            if not maw:  # Skip widgets with no abstract widgets
+                continue
+                
             mao = AbstractOutput.objects.filter(widget=maw.id, variable=var_name)
             mao = mao[0]
             if not mw1.error and not mw2.error:
