@@ -1003,6 +1003,14 @@ function updateWidgetListeners() {
                         showDocumentation(thisWidgetId);
                     }
 
+                    if (action=='recommendinp') {
+                        recommendInp(thisWidgetId);
+                    }
+
+                    if (action=='recommendout') {
+                        recommendOut(thisWidgetId);
+                    }
+
 
 				});
 				$(this).data('contextMenu',true);
@@ -2002,4 +2010,51 @@ function resizeSvg() {
         $(this).css('height',$(this).parent()[0].scrollHeight-40+'px');
         $(this).css('width',$(this).parent()[0].scrollWidth-40+'px');
     });
+}
+
+function recommendInp(widgetId) {
+    $(".ajax-loader").show();
+    $.post(url['get-recomm'], { 'widget_id' : widgetId, "inp":1 }, function(data,status) {
+        $(".ajax-loader").hide();
+        showRecommendations(data.recomm_arr)
+
+        updateWidgetListeners();
+        resizeWidgets();
+    },'json');
+}
+
+function recommendOut(widgetId) {
+    $(".ajax-loader").show();
+    $.post(url['get-recomm'], { 'widget_id' : widgetId, "out":1 }, function(data,status) {
+        $(".ajax-loader").hide();
+        showRecommendations(data.recomm_arr)
+
+        updateWidgetListeners();
+        resizeWidgets();
+    },'json');
+}
+
+function showRecommendations(recomm_arr) {
+    var str = recomm_arr;   
+
+    var sb = $('#searchBox');
+    sb[0].value = '';       // clear searchBox text
+
+    var res = str.split(":::");
+    if (str.length>0 && res.length > 0) {
+        // hides all tree nodes
+        $('#widgetsTree li').hide();
+
+        for (i = 0; i < res.length; i++) {
+            w=res[i];
+            // finds all tree nodes which contain w (all 'li' elements)
+            // would show() the terminal node + all nodes on the way to the root
+            $('#widgetsTree li:Contains(' + w + ')').show();
+        }
+        // expands the (+) : all tree nodes become visible
+        $('#widgetsTree').find("div[class*=expandable-hitarea]").click();        
+    } else {
+        reportOk('No recommendations have been found.');
+    }
+
 }

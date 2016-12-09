@@ -785,6 +785,66 @@ class Widget(models.Model):
             d['outputs'].append(o.export())
         return d
 
+    def calc_recomm_inp(self):
+        num_recomm = 10
+
+        # Self[Widget] has FK to abstract_widget [AbstractWidget]
+        # [AbstractInput] has FK to [AbstractWidget]
+
+        aw = self.abstract_widget
+        
+        """ Get abswidg.inputs for this widget """
+        ainputs = AbstractInput.objects.filter(widget=aw)
+
+        recomm_dict={}      # key: w.name, val: sum(counts)
+
+        for ainp in ainputs:
+            if not ainp.parameter:
+                """ Get recomm for all inputs of this abswidg """                
+                rarr = Recommender.objects.filter(inp=ainp)
+                rarr = sorted(rarr, key=lambda r: r.count, reverse=True)[:num_recomm]
+                for r in rarr:
+                    # print "  widget:" + str( r.out.widget.name ) + " (out:" + str( r.out.name ) + ")  count: " + str( r.count )
+                    if not(recomm_dict.has_key(r.out.widget.name)):
+                        recomm_dict[ r.out.widget.name ] = 0
+
+                    recomm_dict[ r.out.widget.name ] += r.count
+
+        #convert to tuple and sort; result: list of tuples
+        recomm_lt=sorted(recomm_dict.items(), key=lambda el: el[1], reverse=True)
+        # print aw.name + ".recomm_inp: " + str(recomm_lt)
+        recomm_l=[el[0] for el in recomm_lt]
+        res = str( ":::".join(recomm_l) )
+        return res
+
+    def calc_recomm_out(self):
+        num_recomm = 10
+        aw = self.abstract_widget
+        
+        """ Get abswidg.inputs for this widget """
+        aoutputs = AbstractOutput.objects.filter(widget=aw)
+
+        recomm_dict={}      # key: w.name, val: sum(counts)
+
+        for aout in aoutputs:
+            """ Get recomm for all outputs of this abswidg """            
+            rarr = Recommender.objects.filter(out=aout)
+            rarr = sorted(rarr, key=lambda r: r.count, reverse=True)[:num_recomm]
+            for r in rarr:
+                # print "  widget:" + str( r.inp.widget.name ) + " (out:" + str( r.inp.name ) + ")  count: " + str( r.count )
+                if not(recomm_dict.has_key(r.inp.widget.name)):
+                    recomm_dict[ r.inp.widget.name ] = 0
+
+                recomm_dict[ r.inp.widget.name ] += r.count
+        
+        #convert to tuple and sort; result: list of tuples
+        recomm_lt=sorted(recomm_dict.items(), key=lambda el: el[1], reverse=True)  
+        # print aw.name + ".recomm_out: " + str(recomm_lt)        
+        recomm_l=[el[0] for el in recomm_lt]
+        res = str( ":::".join(recomm_l) )
+        return res
+    # ========================================================================
+
     def is_visualization(self):
         try:
             if self.abstract_widget.visualization_view != '':
@@ -1358,6 +1418,12 @@ class Output(models.Model):
 
     def __unicode__(self):
         return unicode(self.name)
+
+
+class Recommender(models.Model):
+    inp = models.ForeignKey(AbstractInput, related_name='input')
+    out = models.ForeignKey(AbstractOutput, related_name='output')
+    count = models.IntegerField()
 
 
 class UserProfile(models.Model):

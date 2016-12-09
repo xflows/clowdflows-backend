@@ -28,5 +28,6 @@
         {% if widget.workflow.widget %}<div style="display:none;" class="outer-widget-link" rel="{{ widget.workflow.widget.pk }}"></div>
         <div style="display:none;" class="outer-widget-workflow" rel="{{ widget.workflow.widget.workflow.pk }}"></div>{% endif %}
         {% if widget.workflow_link %}<div class="workflow_link" style="display:none;" rel="{{ widget.workflow_link.pk }}"></div>{% endif %}
+
     </div>
 {% endfor %}

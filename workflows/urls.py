@@ -76,4 +76,7 @@ urlpatterns += [
     url(r'^widget-inputs/(?P<widget_id>[0-9]+)/$', workflow_views.widget_inputs, name='widget inputs'),
 
     url(r'^workflow_results/(?P<workflow_id>[0-9]+)/$', workflow_views.workflow_results, name='workflow_results'),
+
+    url(r'^get_recomm/$', workflow_views.get_recomm, name='get recomm'),
 ]
+
