@@ -197,12 +197,13 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     outputs = OutputSerializer(many=True, read_only=True)
     description = serializers.CharField(source='abstract_widget.description', read_only=True)
     icon = serializers.SerializerMethodField()
-
     workflow_link = serializers.HyperlinkedRelatedField(
         read_only=True,
         view_name='workflow-detail'
     )
     abstract_widget = serializers.PrimaryKeyRelatedField(queryset=AbstractWidget.objects.all(), allow_null=True)
+    recommended_inputs = serializers.SerializerMethodField()
+    recommended_outputs = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         '''
@@ -295,12 +296,18 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         icon_url = '{}//{}{}{}'.format(protocol, base_url, static_or_media, icon_path)
         return icon_url
 
+    def get_recommended_inputs(self, widget):
+        return widget.recommended_input_widgets()
+
+    def get_recommended_outputs(self, widget):
+        return widget.recommended_output_widgets()
+
     class Meta:
         model = Widget
         fields = (
             'id', 'url', 'workflow', 'x', 'y', 'name', 'abstract_widget', 'finished', 'error', 'running',
             'interaction_waiting', 'description', 'icon',
-            'type', 'progress', 'inputs', 'outputs', 'workflow_link')
+            'type', 'progress', 'inputs', 'outputs', 'workflow_link', 'recommended_inputs', 'recommended_outputs')
 
 
 class WidgetPositionSerializer(serializers.HyperlinkedModelSerializer):
