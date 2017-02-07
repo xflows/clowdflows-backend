@@ -5,6 +5,7 @@ from channels.sessions import channel_session
 
 @channel_session
 def ws_add(message):
+    message.reply_channel.send({"accept": True})
     qs = parse_qs(message['query_string'])
     workflow_pk = qs['workflow_pk'][0]
     message.channel_session['workflow_pk'] = workflow_pk

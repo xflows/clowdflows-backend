@@ -1,4 +1,4 @@
-Django==1.10
+Django==1.10.5
 Pillow==2.2.1
 PySimpleSOAP==1.05a
 Werkzeug==0.8.3
@@ -18,5 +18,5 @@ djangorestframework==3.4.0
 django-filter==0.13
 django-cors-headers==1.1.0
 drfdocs==0.0.11
-channels==0.17.3
-daphne==0.14.3
+channels==1.0.3
+daphne==1.0.2
