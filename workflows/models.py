@@ -704,6 +704,7 @@ class Widget(models.Model):
     running = models.BooleanField(default=False)  # a field
     interaction_waiting = models.BooleanField(default=False)  # a field
     interaction_finished = models.BooleanField(default=False)  # a field
+    save_results = models.BooleanField(default=False)
 
     """ type of widgets """
     WIDGET_CHOICES = (
@@ -739,6 +740,7 @@ class Widget(models.Model):
         self.x = json_data['x']
         self.y = json_data['y']
         self.name = json_data['name']
+        self.save_results = json_data['save_results']
         if json_data['abstract_widget']:
             aw = AbstractWidget.objects.get(uid=json_data['abstract_widget'],
                                             package=json_data['abstract_widget_package'])
@@ -763,6 +765,7 @@ class Widget(models.Model):
         d['x'] = self.x
         d['y'] = self.y
         d['name'] = self.name
+        d['save_results'] = self.save_results
         if self.abstract_widget:
             if self.abstract_widget.uid:
                 d['abstract_widget'] = self.abstract_widget.uid

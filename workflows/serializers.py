@@ -305,7 +305,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Widget
         fields = (
-            'id', 'url', 'workflow', 'x', 'y', 'name', 'abstract_widget', 'finished', 'error', 'running',
+            'id', 'url', 'workflow', 'x', 'y', 'name', 'save_results', 'abstract_widget', 'finished', 'error', 'running',
             'interaction_waiting', 'description', 'icon',
             'type', 'progress', 'inputs', 'outputs', 'workflow_link', 'recommended_inputs', 'recommended_outputs')
 
