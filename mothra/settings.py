@@ -1,6 +1,7 @@
 # Global settings for mothra project.
 import django.conf.global_settings as DEFAULT_SETTINGS
 import os
+from datetime import timedelta
 
 PROJECT_DIR = os.path.dirname(__file__)
 PUBLIC_DIR = os.path.join(PROJECT_DIR, 'public')
@@ -147,7 +148,7 @@ INSTALLED_APPS_DEFAULT = (
     'picklefield',
     'streams',
     'djcelery',
-    # 'kombu.transport.django',
+    'kombu.transport.django',
     'discover_runner',
     'rest_framework',
     'rest_framework.authtoken',
@@ -225,6 +226,7 @@ STATIC_DOC_ROOT = os.path.join(os.getcwd(), 'mothra/public/media')
 
 CELERY_RESULT_BACKEND = 'amqp'
 CELERY_TASK_RESULT_EXPIRES = 18000
+CELERY_TIMEZONE = 'UTC'
 
 CHANNEL_LAYERS = {
     "default": {
