@@ -1126,7 +1126,7 @@ def reset_widget(request):
         w = get_object_or_404(Widget, pk=request.POST['widget_id'])
         if (w.workflow.user == request.user):
             try:
-                w.reset_descendants()
+                w.descendants_to_reset()
                 data = simplejson.dumps({'status': 'ok', 'message': 'Widget ' + w.name + ' reset successfully.'})
                 mimetype = 'application/javascript'
             except Exception, e:

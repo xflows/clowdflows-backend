@@ -31,7 +31,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
         widget = self.get_object()
         try:
             widget.reset()
-            descendants = widget.reset_descendants()
+            descendants = widget.descendants_to_reset()
             for widget_pk in descendants:
                 Widget.objects.get(pk=widget_pk).reset()
         except:
@@ -134,7 +134,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
         try:
             # find all required inputs
             multi_satisfied = {}
-            for inp in w.inputs.filter(required=True, parameter=False):
+            for inp in w.inputs.filter(required=True, parameter=False).defer("value"):
                 if inp.connections.count() == 0:
                     if inp.multi_id == 0:
                         raise Exception(
@@ -149,7 +149,9 @@ class WidgetViewSet(viewsets.ModelViewSet):
                         multi_satisfied[mid][0]))
             if w.type == 'for_input' or w.type == 'for_output':
                 raise Exception("You can't run for loops like this. Please run the containing widget.")
-            output_dict = w.run(False)
+
+            w.run(False)
+
             if not w.abstract_widget is None:
                 if w.abstract_widget.interactive:
                     w.interaction_waiting = True
@@ -167,6 +169,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
             else:
                 data = json.dumps({'status': 'ok', 'message': 'Widget \'{}\' executed successfully.'.format(w.name)})
         except Exception, e:
+            traceback.print_exc()
             mimetype = 'application/javascript'
             w.error = True
             w.running = False

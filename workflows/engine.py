@@ -1,6 +1,10 @@
+from django.db.models import Prefetch
+
 import workflows.library
 import time
 import random
+
+from workflows.models import *
 from workflows.tasks import *
 from django.conf import settings
 
@@ -12,7 +16,7 @@ class WidgetRunner():
         self.workflow_runner = workflow_runner
         self.inner_workflow_runner = None
         self.standalone = standalone
-        if self.standalone:
+        if self.standalone: #TODO representing a workflow?
             for w in self.workflow_runner.widgets:
                 if w.id == self.widget.id:
                     self.widget = w
@@ -25,7 +29,7 @@ class WidgetRunner():
         if self.widget.type == 'regular' or self.widget.type == 'subprocess':
             if self.widget.abstract_widget:
                 function_to_call = getattr(workflows.library,self.widget.abstract_widget.action)
-            input_dict = self.get_input_dictionary()
+            input_dict = self.get_input_dictionary_and_assign_values()
             outputs = {}
             start = time.time()
             try:
@@ -49,7 +53,8 @@ class WidgetRunner():
                             outputs = function_to_call(input_dict)
                 else:
                     """ we run the subprocess """
-                    self.inner_workflow_runner = WorkflowRunner(self.widget.workflow_link,parent=self.workflow_runner)
+                    self.inner_workflow_runner = WorkflowRunner(self.widget.workflow_link,
+                                                                parent_workflow_runner=self.workflow_runner)
                     self.inner_workflow_runner.run()
             except:
                 self.widget.error=True
@@ -63,15 +68,15 @@ class WidgetRunner():
             for o in self.widget.outputs.all():
                 o.value = self.workflow_runner.parent.inputs[o.outer_input_id].value
         elif self.widget.type == 'output':
-            input_dict = self.get_input_dictionary()
+            self.get_input_dictionary_and_assign_values()
             for i in self.widget.inputs.all():
                 self.workflow_runner.parent.outputs[i.outer_output_id].value = i.value
         elif self.widget.type == 'for_output':
-            input_dict = self.get_input_dictionary()
+            self.get_input_dictionary_and_assign_values()
             for i in self.widget.inputs.all():
                 self.workflow_runner.parent.outputs[i.outer_output_id].value.append(i.value)
         elif self.widget.type == 'cv_output':
-            input_dict = self.get_input_dictionary()
+            self.get_input_dictionary_and_assign_values()
             for i in self.widget.inputs.all():
                 self.workflow_runner.parent.outputs[i.outer_output_id].value.append(i.value)
 
@@ -79,16 +84,16 @@ class WidgetRunner():
         self.widget.error = False
         self.widget.finished = True
         if self.standalone:
-            self.save()
+            self.widget.save_with_inputs_and_outputs()
 
     def assign_outputs(self,outputs):
         for o in self.widget.outputs.all():
             try:
-                o.value = outputs[o.variable]
+                self.workflow_runner.outputs[o.id].value = o.value = outputs[o.variable]
             except:
                 pass
 
-    def get_input_dictionary(self):
+    def get_input_dictionary_and_assign_values(self):
         input_dictionary = {}
         for i in self.widget.inputs.all():
             """ if this isn't a parameter we need to fetch it
@@ -109,27 +114,24 @@ class WidgetRunner():
                     input_dictionary[i.variable].append(i.value)
         return input_dictionary
 
-    def save(self):
-        for i in self.widget.inputs.all():
-            i.save()
-        for o in self.widget.outputs.all():
-            o.save()
-        self.widget.save()
 
 class WorkflowRunner():
-    def __init__(self,workflow,clean=True,parent=None):
+    def __init__(self, workflow, final_widget=None, clean=True, parent_workflow_runner=None):
         self.workflow = workflow
         self.connections = workflow.connections.all()
-        self.widgets = workflow.widgets.all().select_related('abstract_widget').prefetch_related('inputs','outputs')
+        self.widgets = workflow.get_runnable_widgets(last_runnable_widget_id=final_widget and final_widget.id)
         self.inputs = {}
         self.outputs = {}
-        for w in self.widgets:
-            for i in w.inputs.all():
+        for w in self.workflow.widgets.prefetch_related(
+                Prefetch('outputs', queryset=Output.objects.all().defer("value")),
+                Prefetch('inputs', queryset=Input.objects.filter(parameter=True),to_attr="parameter_inputs"),
+                Prefetch('inputs', queryset=Input.objects.filter(parameter=False).defer("value"),to_attr="connection_inputs")):
+            for i in w.parameter_inputs+w.connection_inputs:
                 self.inputs[i.id] = i
             for o in w.outputs.all():
                 self.outputs[o.id] = o
         self.clean = clean
-        self.parent = parent
+        self.parent = parent_workflow_runner
 
     def is_for_loop(self):
         for w in self.widgets:
@@ -182,15 +184,32 @@ class WorkflowRunner():
         """ a widget is runnable if all widgets connected before
             it are finished (i.e. widgets that have outputs that 
             are connected to this widget's input) """
-        finished_widget_ids = [w.id for w in self.finished_widgets]
+
+        # finished_widget_ids = [w.id for w in self.finished_widgets]
         runnable = []
         for w in self.unfinished_widgets:
-            ready_to_run = True
-            for c in self.connections:
-                if self.inputs[c.input_id].widget_id == w.id and not self.outputs[c.output_id].widget_id in finished_widget_ids:
-                    ready_to_run = False
-            if ready_to_run:
+            widget_connections= [c for c in self.connections if self.inputs[c.input_id].widget_id == w.id]
+
+            #check if all outputs are connection outputs are calculated
+            # c.output_id in self.outputs and
+            if all([self.outputs[c.output_id].value!=None for c in widget_connections]): #TODO what if output is actually a NoneType
                 runnable.append(w)
+
+
+
+            # ready_to_run = True
+            # for input in w.inputs.all():
+            #     if not input.id in self.inputs:
+            #         ready_to_run =False
+
+
+        #     ready_to_run = True
+        #     for c in w.connections:
+        #         if self.inputs[c.input_id].widget_id == w.id and not self.outputs[c.output_id].widget_id in finished_widget_ids:
+        #             ready_to_run = False
+        #
+        #     if ready_to_run:
+        #         runnable.append(w)
         return runnable
 
     def run_all_unfinished_widgets(self):
@@ -304,8 +323,4 @@ class WorkflowRunner():
 
     def save(self):
         for w in self.widgets:
-            for i in w.inputs.all():
-                i.save(force_update=True)
-            for o in w.outputs.all():
-                o.save(force_update=True)
-            w.save(force_update=True)
+            w.save_with_inputs_and_outputs(force_update=True)

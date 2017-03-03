@@ -1,6 +1,8 @@
 import json
 import time
 import random
+from collections import defaultdict
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -24,8 +26,6 @@ if USE_CONCURRENCY:
 
 from workflows.tasks import executeWidgetFunction, executeWidgetProgressBar, executeWidgetStreaming, \
     executeWidgetWithRequest, runWidget, executeWidgetPostInteract
-
-from workflows.engine import WidgetRunner, WorkflowRunner
 
 
 @receiver(post_save, sender=User)
@@ -191,9 +191,39 @@ class Workflow(models.Model):
                     unfinished_list.append(w.id)
         return unfinished_list
 
-    def get_runnable_widgets(self):
-        """ Method is the same as get_ready_to_run method. The difference is only that this method
-        returns a list widgets as objects (and not only id-s).  """
+    def get_runnable_widget_ids(self, last_runnable_widget_id=None):
+        """ Returns a list of widget ids, which are required to be run either for completion of the entire workflow or
+        for completion of the widget represented with the last_runnable_widget_id. """
+        widgets_id_to_widget = dict([(w.id,w) for w in self.widgets.all()])
+        connections=self.connections.select_related('input','output').all()
+
+        widget_id_to_predecessor_widget_ids=defaultdict(list)
+        for c in connections:
+            # predecessor -> output -> connection -> input -> widget
+            widget_id_to_predecessor_widget_ids[c.input.widget_id].append(c.output.widget_id)
+
+        if last_runnable_widget_id:
+            widget_ids=set()
+            check_widgets = set([last_runnable_widget_id])
+            while len(check_widgets)>0:
+                widget=widgets_id_to_widget[check_widgets.pop()]
+                if not widget.save_results or widget.is_unfinished(): #results not already saved on widget
+                    predecessors=widget_id_to_predecessor_widget_ids[widget.id]
+                    widget_ids.add(widget.id)
+                    check_widgets.update(predecessors)
+            print widget_ids
+            return list(widget_ids)
+        else:
+            return widgets_id_to_widget.keys()
+
+    def get_runnable_widgets(self,last_runnable_widget_id=None):
+        return self.widgets.filter(id__in=self.get_runnable_widget_ids(last_runnable_widget_id=last_runnable_widget_id))\
+            .select_related('abstract_widget').prefetch_related('inputs','outputs')
+
+    """
+    def get_runnable_widgets_old(self):
+        # Method is the same as get_ready_to_run method. The difference is only that this method
+        # returns a list widgets as objects (and not only id-s).
         widgets = self.widgets.all()
         unfinished_list = []
         for w in widgets:
@@ -209,7 +239,7 @@ class Workflow(models.Model):
                     unfinished_list.append(w)
         return unfinished_list
 
-    """def run_for_loop(self):
+    def run_for_loop(self):
         widgets = self.widgets.all().prefetch_related('inputs','outputs')
         connections = self.connections.all().select_related('input','output','input__widget','output__widget')
         fi = None
@@ -726,6 +756,18 @@ class Widget(models.Model):
     def is_special_subprocess_type(self):
         return self.type in ['input', 'output', 'for_input', 'for_output', 'cv_input', 'cv_output', 'cv_input2',
                              'cv_input3']
+    def is_unfinished(self):
+        return not self.finished and not self.running
+        #     ready_to_run = True
+        #     connections = self.connections.filter(input__widget=w).select_related('input__widget')
+        #     for c in connections:
+        #         if not c.output.widget.finished:
+        #             # print c.output.widget
+        #             ready_to_run = False
+        #             break
+        #     if ready_to_run:
+        #         return True
+        # return False
 
     def update_input_output_order(self):
         for i, input in enumerate(self.inputs.all()):
@@ -877,7 +919,7 @@ class Widget(models.Model):
         return True
 
     def unfinish(self):
-        self.reset_descendants()
+        self.descendants_to_reset()
 
     def subunfinish(self):
         if self.type == 'subprocess':
@@ -914,7 +956,14 @@ class Widget(models.Model):
         except Workflow.DoesNotExist:
             pass
 
-    def run(self, offline):
+    def run(self,_):
+        from workflows.engine import WorkflowRunner
+        WorkflowRunner(self.workflow,final_widget=self).run()  #run with ancestors
+
+
+
+
+    def run_old(self, offline):
         """ This is only a hack, to make this work on windows """
         try:
             if self.abstract_widget.windows_queue and settings.USE_WINDOWS_QUEUE:
@@ -928,8 +977,8 @@ class Widget(models.Model):
     def proper_run(self, offline):
         """ This is the real start. """
         # print("proper_run_widget")
-        if not self.ready_to_run():
-            raise WidgetException("The prerequisites for running this widget have not been met.")
+        # if not self.ready_to_run(): # running a widget now also executes prerequisites
+        #     raise WidgetException("The prerequisites for running this widget have not been met.")
         self.finished = False
         self.error = False
         self.running = True
@@ -970,7 +1019,7 @@ class Widget(models.Model):
                         input_dict[i.variable].append(i.value)
             start = time.time()
             try:
-                if not self.abstract_widget is None:
+                if self.abstract_widget:
                     """ again, if this objects is an abstract widget than true and check certain parameters,
                     else check if is_for_loop"""
                     if self.abstract_widget.wsdl != '':
@@ -989,8 +1038,10 @@ class Widget(models.Model):
                 else:
                     Input.objects.filter(widget__workflow=self.workflow_link, parameter=False).update(value=None)
                     Output.objects.filter(widget__workflow=self.workflow_link).update(value=None)
-                    wr = WidgetRunner(self, workflow_runner=WorkflowRunner(self.workflow, clean=False), standalone=True)
-                    wr.run()
+
+                    WorkflowRunner(self.workflow,final_widget=self).run() #run with ancestors
+                    # wr = WidgetRunner(self, workflow_runner=WorkflowRunner(self.workflow, clean=False), standalone=True)
+                    # wr.run()
                     return
             except:
                 self.error = True
@@ -1125,13 +1176,9 @@ class Widget(models.Model):
         return None
 
     def reset(self):
-        # for i in self.inputs.all():
-        #    if not i.parameter:
-        #        i.value = None
-        #        i.save()
-        # for i in self.outputs.all():
-        #    i.value = None
-        #    i.save()
+        self.inputs.filter(parameter=False).update(value=None)
+        self.outputs.update(value=None)
+
         self.finished = False
         self.error = False
         self.running = False
@@ -1141,7 +1188,7 @@ class Widget(models.Model):
         if self.type == 'subprocess':
             self.subunfinish()
 
-    def reset_descendants(self):
+    def descendants_to_reset(self):
         """ Method resets all the widget connections/descendants. """
         pairs = []
         for c in self.workflow.connections.select_related("output", "input").defer("output__value",
@@ -1232,7 +1279,8 @@ class Widget(models.Model):
                 else:
                     outputs = executeWidgetPostInteract(self, input_dict, output_dict, request)
             else:
-                self.workflow_link.run()
+                WorkflowRunner(self.workflow_link)
+                # self.workflow_link.run()
         except:
             self.error = True
             self.running = False
@@ -1253,6 +1301,14 @@ class Widget(models.Model):
         for c in cons:
             c.input.widget.unfinish()
         return outputs
+
+    def save_with_inputs_and_outputs(self,force_update=False):
+        if self.save_results:
+            for i in self.inputs.all():
+                i.save(force_update=force_update)
+            for o in self.outputs.all():
+                o.save(force_update=force_update)
+        self.save(force_update=force_update)
 
     def __unicode__(self):
         return unicode(self.name)
