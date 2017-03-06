@@ -1,7 +1,9 @@
+import json
+
 from django.template.loader import render_to_string
 from rest_framework import serializers
 
-from mothra.settings import STATIC_URL
+from mothra.settings import STATIC_URL, MEDIA_URL
 from workflows.models import *
 
 
@@ -275,13 +277,13 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         protocol = full_path_tokens[0]
         base_url = full_path_tokens[2]
         icon_path = 'widget-icons/question-mark.png'
-        static_or_media = settings.STATIC_URL
+        static_or_media = STATIC_URL
         if widget.abstract_widget:
             if widget.abstract_widget.static_image:
                 icon_path = '{}/icons/widget/{}'.format(widget.abstract_widget.package,
                                                         widget.abstract_widget.static_image)
             elif widget.abstract_widget.image:
-                static_or_media = settings.MEDIA_URL
+                static_or_media = MEDIA_URL
                 icon_path = widget.abstract_widget.image
             elif widget.abstract_widget.wsdl:
                 icon_path = 'widget-icons/ws.png'

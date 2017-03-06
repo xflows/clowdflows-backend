@@ -6,6 +6,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404
 
+from workflows.engine import WidgetRunner
 from workflows.permissions import IsAdminOrSelf
 from workflows.serializers import *
 
@@ -216,6 +217,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get', 'post'], url_path='interact', permission_classes=[IsAdminOrSelf,])
     def interact(self, request, pk=None):
+        '''Used for interactive widgets.'''
         w = self.get_object()
         if request.method == 'GET':
             input_dict = {}
@@ -242,7 +244,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
         else:  # POST
             try:
                 data = dict(request.POST) if request.POST else request.data
-                output_dict = w.run_post(data)
+                output_dict = WidgetRunner.run_post(w,data)
                 #w.interaction_waiting = False
                 #w.save()
                 mimetype = 'application/javascript'
