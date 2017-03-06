@@ -138,8 +138,6 @@ INSTALLED_APPS_DEFAULT = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'website',
-    'signuplogin',
     'django_extensions',
     'django.contrib.humanize',
     'orderable_inlines',

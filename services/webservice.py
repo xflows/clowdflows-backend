@@ -1,35 +1,5 @@
-#from suds.client import Client
 import pysimplesoap
 from pysimplesoap.client import SoapClient
-
-# class SudsWebService:
-    # def __init__(self, wsdl_url):
-        # self.client = Client(wsdl_url)
-        # self.wsdl_url = wsdl_url
-        # self.name = self.client.sd[0].ports[0][0].name
-        # self.methods = []
-        # for s in self.client.sd:
-            # for p in s.ports:
-                # for m in p[1]:
-                    # method = {}
-                    # method['name'] = m[0]
-                    # method['inputs'] = []
-                   # method['method'] = m
-                    # for i in m[1]:
-                        # input = {}
-                        # input['name']=i[0]
-                        # try:
-                            # input['type']=i[1].type[0]
-                        # except:
-                            # pass
-                        # method['inputs'].append(input)
-                    # self.methods.append(method)
- 
-    # def __unicode__(self):
-        # return self.wsdl_url
-    
-    # def __str__(self):
-        # return self.wsdl_url
 
         
 class WebService:

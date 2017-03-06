@@ -1,28 +1,17 @@
 import os
+from mothra.local_settings import FILES_FOLDER
+
 
 def ensure_dir(f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
         os.makedirs(d)
-        
-class UnpicklableObject:
-    def __init__(self, init_string):
-        self.init_string = init_string
-        self.imports = []
-        
-    def addimport(self,import_string):
-        self.imports.append(import_string)
-    
-    def generate(self):
-        for i in self.imports:
-            exec(i)
-        return eval(self.init_string)
 
-    def __unicode__(self):
-        return self.init_string
-    
-    def __str__(self):
-        return self.init_string
-        
-    def __repr__(self):
-        return self.init_string
+def safeOpen(filename):
+    if filename.startswith(FILES_FOLDER):
+        if filename.find("..")==-1:
+            return open(filename,'r')
+        else:
+            raise Exception("Invalid filename")
+    else:
+        raise Exception("Invalid filename.")

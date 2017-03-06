@@ -17,9 +17,6 @@ urlpatterns = [
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-    # Uncomment the next line to enable the admin:
-    url(r'^', include('signuplogin.urls')),
-    url(r'^', include('website.urls')),
     #url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^workflows/', include('workflows.urls')),
     url(r'^streams/', include('streams.urls')),

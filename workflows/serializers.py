@@ -166,7 +166,7 @@ def get_workflow_preview(request, obj):
         obj.unique_connections.append(conn)
     base_url = request.build_absolute_uri('/')[:-1]
     images_url = '{}{}'.format(base_url, STATIC_URL)
-    preview_html = render_to_string('website/preview.html', {'w': obj, 'images_url': images_url})
+    preview_html = render_to_string('preview.html', {'w': obj, 'images_url': images_url})
     return preview_html
 
 
