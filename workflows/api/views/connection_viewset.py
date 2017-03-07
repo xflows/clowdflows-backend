@@ -1,11 +1,10 @@
 from django.db.models import Q, Max
 from django.http import HttpResponse
 from rest_framework import viewsets
-from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer
 
-from workflows.permissions import IsAdminOrSelf
-from workflows.serializers import *
+from workflows.api.permissions import IsAdminOrSelf
+from workflows.api.serializers import *
 from workflows.utils import checkForCycles
 
 

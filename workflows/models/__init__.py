@@ -11,8 +11,7 @@ from recommender import Recommender
 from user_profile import UserProfile
 from widget import Widget
 from workflow import Workflow
-
-from django.contrib.auth.models import User
+from workflow import copy_workflow
 
 
 class WidgetException(Exception):

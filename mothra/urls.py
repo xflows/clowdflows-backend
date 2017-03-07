@@ -22,7 +22,7 @@ urlpatterns = [
     url(r'^streams/', include('streams.urls')),
     url(r'^admin/', include(admin.site.urls)),
 
-    url(r'^api/', include('workflows.api_urls')),
+    url(r'^api/', include('workflows.api.urls')),
     url(r'^docs/', include('rest_framework_docs.urls')),
 
     url('^' + LOGIN_URL[1:] + '$', auth_views.login, name='login'),

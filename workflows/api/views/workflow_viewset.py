@@ -3,9 +3,9 @@ from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 
+from workflows.api.permissions import IsAdminOrSelf
+from workflows.api.serializers import *
 from workflows.engine import WorkflowRunner
-from workflows.permissions import IsAdminOrSelf
-from workflows.serializers import *
 
 
 def next_order(inputs_or_outputs):

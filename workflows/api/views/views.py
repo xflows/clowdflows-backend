@@ -1,17 +1,16 @@
 from django.contrib.auth import authenticate
-from django.http import HttpResponse
-from rest_framework import viewsets, permissions
-from rest_framework.decorators import api_view, permission_classes, detail_route, list_route
-from rest_framework.authtoken.models import Token
 from django.contrib.auth import logout
 from django.db.models import Q
+from django.http import HttpResponse
+from rest_framework import viewsets, permissions
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view, permission_classes, detail_route, list_route
 
 from mothra.local_settings import FILES_FOLDER
 from services.webservice import WebService
+from workflows.api.permissions import IsAdminOrSelf
+from workflows.api.serializers import *
 from workflows.helpers import ensure_dir
-
-from workflows.serializers import *
-from workflows.permissions import IsAdminOrSelf
 
 
 def login_response(request, user):

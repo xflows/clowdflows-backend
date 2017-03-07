@@ -6,9 +6,10 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404
 
+from workflows.api.permissions import IsAdminOrSelf
+from workflows.api.serializers import *
 from workflows.engine import WidgetRunner
-from workflows.permissions import IsAdminOrSelf
-from workflows.serializers import *
+import workflows as workflows_app
 
 
 class WidgetViewSet(viewsets.ModelViewSet):
@@ -27,7 +28,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
         return Widget.objects.filter(Q(workflow__user=self.request.user) | Q(workflow__public=True)).prefetch_related(
             'inputs', 'outputs')
 
-    @detail_route(methods=['post'], url_path='reset', permission_classes=[IsAdminOrSelf,])
+    @detail_route(methods=['post'], url_path='reset', permission_classes=[IsAdminOrSelf, ])
     def reset(self, request, pk=None):
         widget = self.get_object()
         try:
@@ -40,7 +41,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                                 content_type="application/json")
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
-    @detail_route(methods=['patch'], url_path='save-parameters', permission_classes=[IsAdminOrSelf,])
+    @detail_route(methods=['patch'], url_path='save-parameters', permission_classes=[IsAdminOrSelf, ])
     def save_parameters(self, request, pk=None):
         widget = self.get_object()
         try:
@@ -128,7 +129,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                                 content_type="application/json")
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
-    @detail_route(methods=['post'], url_path='run', permission_classes=[IsAdminOrSelf,])
+    @detail_route(methods=['post'], url_path='run', permission_classes=[IsAdminOrSelf, ])
     def run(self, request, pk=None):
         w = self.get_object()
         data = ''
@@ -186,7 +187,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                                                                                                            str(e))})
         return HttpResponse(data, 'application/javascript')
 
-    @detail_route(methods=['get'], url_path='visualize', permission_classes=[IsAdminOrSelf,])
+    @detail_route(methods=['get'], url_path='visualize', permission_classes=[IsAdminOrSelf, ])
     def visualize(self, request, pk=None):
         w = self.get_object()
         if w.is_visualization():
@@ -209,13 +210,13 @@ class WidgetViewSet(viewsets.ModelViewSet):
                         input_dict[i.variable] = []
                     if not i.value == None:
                         input_dict[i.variable].append(i.value)
-            view_to_call = getattr(workflows.visualization_views, w.abstract_widget.visualization_view)
+            view_to_call = getattr(workflows_app.visualization_views, w.abstract_widget.visualization_view)
             return view_to_call(request, input_dict, output_dict, w)
         else:
             data = json.dumps({'status': 'error', 'message': 'Widget {} is not a visualization widget.'.format(w.name)})
             return HttpResponse(data, 'application/javascript')
 
-    @detail_route(methods=['get', 'post'], url_path='interact', permission_classes=[IsAdminOrSelf,])
+    @detail_route(methods=['get', 'post'], url_path='interact', permission_classes=[IsAdminOrSelf, ])
     def interact(self, request, pk=None):
         '''Used for interactive widgets.'''
         w = self.get_object()
@@ -239,14 +240,14 @@ class WidgetViewSet(viewsets.ModelViewSet):
                         input_dict[i.variable].append(i.value)
             for o in w.outputs.all():
                 output_dict[o.variable] = o.value
-            view_to_call = getattr(workflows.interaction_views, w.abstract_widget.interaction_view)
+            view_to_call = getattr(workflows_app.interaction_views, w.abstract_widget.interaction_view)
             return view_to_call(request, input_dict, output_dict, w)
         else:  # POST
             try:
                 data = dict(request.POST) if request.POST else request.data
-                output_dict = WidgetRunner.run_post(w,data)
-                #w.interaction_waiting = False
-                #w.save()
+                output_dict = WidgetRunner.run_post(w, data)
+                # w.interaction_waiting = False
+                # w.save()
                 mimetype = 'application/javascript'
                 if w.abstract_widget.visualization_view != '':
                     data = json.dumps(
@@ -365,7 +366,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 j.widget = w
                 j.save()
                 output_conversion[i.pk] = j.pk
-            workflows.models.copy_workflow(orig_w.workflow_link, request.user, widget_conversion, input_conversion,
+            workflows_app.models.copy_workflow(orig_w.workflow_link, request.user, widget_conversion, input_conversion,
                                            output_conversion, w)
             widget_data = WidgetSerializer(w, context={'request': request}).data
             return HttpResponse(json.dumps(widget_data), 'application/json')

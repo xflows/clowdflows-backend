@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from rest_framework import serializers
 
