@@ -172,7 +172,6 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 data = json.dumps({'status': 'ok', 'message': 'Widget \'{}\' executed successfully.'.format(w.name)})
         except Exception, e:
             traceback.print_exc()
-            mimetype = 'application/javascript'
             w.error = True
             w.running = False
             w.finished = False
@@ -245,10 +244,9 @@ class WidgetViewSet(viewsets.ModelViewSet):
         else:  # POST
             try:
                 data = dict(request.POST) if request.POST else request.data
-                output_dict = WidgetRunner.run_post(w, data)
+                WidgetRunner.run_post(w, data)
                 # w.interaction_waiting = False
                 # w.save()
-                mimetype = 'application/javascript'
                 if w.abstract_widget.visualization_view != '':
                     data = json.dumps(
                         {'status': 'visualize', 'message': 'Visualizing widget {}.'.format(w.name), 'widget_id': w.id})
@@ -257,7 +255,6 @@ class WidgetViewSet(viewsets.ModelViewSet):
                         {'status': 'ok', 'message': 'Widget {} executed successfully.'.format(w.name),
                          'widget_id': w.id})
             except Exception, e:
-                mimetype = 'application/javascript'
                 w.error = True
                 w.running = False
                 w.finished = False
@@ -272,7 +269,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 data = json.dumps({'status': 'error',
                                    'message': 'Error occurred when trying to execute widget \'{}\': {}'.format(w.name,
                                                                                                                str(e))})
-            return HttpResponse(data, mimetype)
+            return HttpResponse(data, 'application/javascript')
 
     @detail_route(methods=['post'], url_path='copy', permission_classes=[IsAdminOrSelf, ])
     def copy(self, request, pk=None):
