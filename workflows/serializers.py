@@ -199,6 +199,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     outputs = OutputSerializer(many=True, read_only=True)
     description = serializers.CharField(source='abstract_widget.description', read_only=True)
     icon = serializers.SerializerMethodField()
+    must_save = serializers.SerializerMethodField()
     workflow_link = serializers.HyperlinkedRelatedField(
         read_only=True,
         view_name='workflow-detail'
@@ -272,11 +273,20 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
             widget.workflow_link.save()
         return widget
 
+    def get_must_save(self, widget):
+        '''
+        Some widget always require their inputs and outputs to be saved.
+        '''
+        must_save = False
+        if widget.abstract_widget:
+            must_save = widget.abstract_widget.interactive
+        return must_save
+
     def get_icon(self, widget):
         full_path_tokens = self.context['request'].build_absolute_uri().split('/')
         protocol = full_path_tokens[0]
         base_url = full_path_tokens[2]
-        icon_path = 'widget-icons/question-mark.png'
+        icon_path = 'special_icons/question-mark.png'
         static_or_media = STATIC_URL
         if widget.abstract_widget:
             if widget.abstract_widget.static_image:
@@ -286,15 +296,15 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
                 static_or_media = MEDIA_URL
                 icon_path = widget.abstract_widget.image
             elif widget.abstract_widget.wsdl:
-                icon_path = 'widget-icons/ws.png'
+                icon_path = 'special_icons/ws.png'
         elif hasattr(widget, 'workflow_link'):
-            icon_path = 'images/120px-Gears_icon.png'
+            icon_path = 'special_icons/subprocess.png'
         elif widget.type == 'input':
-            icon_path = 'images/forward-arrow.png'
+            icon_path = 'special_icons/forward-arrow.png'
         elif widget.type == 'output':
-            icon_path = 'images/forward-arrow.png'
+            icon_path = 'special_icons/forward-arrow.png'
         elif widget.type == 'output':
-            icon_path = 'images/Toolbar_-_Loop.png'
+            icon_path = 'special_icons/loop.png'
         icon_url = '{}//{}{}{}'.format(protocol, base_url, static_or_media, icon_path)
         return icon_url
 
@@ -307,9 +317,9 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Widget
         fields = (
-            'id', 'url', 'workflow', 'x', 'y', 'name', 'save_results', 'abstract_widget', 'finished', 'error', 'running',
-            'interaction_waiting', 'description', 'icon',
-            'type', 'progress', 'inputs', 'outputs', 'workflow_link', 'recommended_inputs', 'recommended_outputs')
+            'id', 'url', 'workflow', 'x', 'y', 'name', 'save_results', 'must_save', 'abstract_widget', 'finished',
+            'error', 'running', 'interaction_waiting', 'description', 'icon', 'type', 'progress', 'inputs', 'outputs',
+            'workflow_link', 'recommended_inputs', 'recommended_outputs')
 
 
 class WidgetPositionSerializer(serializers.HyperlinkedModelSerializer):

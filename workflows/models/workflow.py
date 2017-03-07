@@ -136,7 +136,6 @@ class Workflow(models.Model):
                     predecessors=widget_id_to_predecessor_widget_ids[widget.id]
                     widget_ids.add(widget.id)
                     check_widgets.update(predecessors)
-            print widget_ids
             return list(widget_ids)
         else:
             return widgets_id_to_widget.keys()

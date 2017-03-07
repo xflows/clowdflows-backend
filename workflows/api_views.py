@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import api_view, permission_classes, detail_route, list_route
+from rest_framework.authtoken.models import Token
 from django.contrib.auth import logout
 from django.db.models import Q
 
