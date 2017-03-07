@@ -48,6 +48,7 @@ class ConnectionViewSet(viewsets.ModelViewSet):
                 message = "Adding this connection would result in a cycle in the workflow."
                 data = json.dumps({'message': message, 'status': 'error'})
                 return HttpResponse(data, 'application/javascript')
+
             new_c.input.widget.unfinish()
             if deleted == -1:
                 if new_c.input.multi_id != 0:
@@ -76,13 +77,11 @@ class ConnectionViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, pk=None, **kwargs):
         c = self.get_object()
-        # Are we just swapping connections? Don't delete any multi_id inputs if we are
-        replacing = request.GET.get('replacing', '0') == '1'
         c.input.widget.unfinish()
         refresh = -1
         refreshworkflow = -1
         already_deleted = False
-        if c.input.multi_id != 0 and not replacing:
+        if c.input.multi_id != 0:
             # pogledamo kok jih je s tem idjem, ce je vec k en, tega pobrisemo
             inputs = c.input.widget.inputs.filter(multi_id=c.input.multi_id)
             if inputs.count() > 1:
