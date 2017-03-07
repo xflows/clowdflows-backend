@@ -1,5 +1,11 @@
+from django.core.management import call_command
 from celery.task import task
 import workflows.library
+
+
+@task()
+def updateRecommendations():
+    return call_command('update_recommender')
 
 @task()
 def add(a,b):
