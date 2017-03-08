@@ -7,12 +7,14 @@ from django.conf import settings
 
 
 class WidgetRunner():
-    def __init__(self,widget,workflow_runner):
+    def __init__(self,widget,inputs,outputs,workflow_runner):
         self.widget = widget
-        self.inputs = widget.inputs.all()
-        self.output = widget.outputs.all()
+        self.widget_inputs = inputs
+        self.widget_outputs = outputs
         self.workflow_runner = workflow_runner
         self.inner_workflow_runner = None
+        # prepare inputs (with proper values) in workflow_runner?
+        # save inputs? if savable and workflow_runner.parent_workflow_runner is None
 
     def run(self):
         self.widget.running = True
@@ -48,28 +50,28 @@ class WidgetRunner():
                     self.inner_workflow_runner = WorkflowRunner(self.widget.workflow_link,
                                                                 parent_workflow_runner=self.workflow_runner)
                     self.inner_workflow_runner.run()
-            except:
+            except Exception,c:
                 self.widget.error=True
                 self.widget.running=False
                 self.widget.finished=False
-                raise
+                raise c
             elapsed = (time.time()-start)
             outputs['clowdflows_elapsed']=elapsed
             self.assign_outputs(outputs)
         elif self.widget.type == 'input':
-            for o in self.widget.outputs.all():
+            for o in self.widget_outputs:
                 o.value = self.workflow_runner.parent.inputs[o.outer_input_id].value
         elif self.widget.type == 'output':
             self.get_input_dictionary_and_assign_values()
-            for i in self.widget.inputs.all():
+            for i in self.widget_inputs:
                 self.workflow_runner.parent.outputs[i.outer_output_id].value = i.value
         elif self.widget.type == 'for_output':
             self.get_input_dictionary_and_assign_values()
-            for i in self.widget.inputs.all():
+            for i in self.widget_inputs:
                 self.workflow_runner.parent.outputs[i.outer_output_id].value.append(i.value)
         elif self.widget.type == 'cv_output':
             self.get_input_dictionary_and_assign_values()
-            for i in self.widget.inputs.all():
+            for i in self.widget_inputs:
                 self.workflow_runner.parent.outputs[i.outer_output_id].value.append(i.value)
 
         self.widget.running = False
@@ -138,21 +140,21 @@ class WidgetRunner():
         return outputs
 
     def assign_outputs(self,outputs):
-        for o in self.widget.outputs.all():
+        for o in self.widget_outputs:
             try:
-                self.workflow_runner.outputs[o.id].value = o.value = outputs[o.variable]
+                o.value = outputs[o.variable]
             except:
                 pass
 
     def get_input_dictionary_and_assign_values(self):
         input_dictionary = {}
-        for i in self.widget.inputs.all():
+        for i in self.widget_inputs:
             """ if this isn't a parameter we need to fetch it
                 from the output. """
             if not i.parameter:
                 connection = self.workflow_runner.get_connection_for_input(i)
                 if connection:
-                    i.value = self.workflow_runner.outputs[connection.output_id].value
+                    i.value = self.workflow_runner.output_id_to_output[connection.output_id].value
                 else:
                     i.value = None
             """ here we assign the value to the dictionary """

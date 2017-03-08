@@ -42,7 +42,7 @@ class WidgetEngineTest(TestCase):
     fixtures = ['test_data2',]
     def test_fast_widget_runner(self):
         w = Widget.objects.get(id=6)
-        wr = WidgetRunner(w,workflow_runner=WorkflowRunner(w.workflow,clean=False),standalone=True)
+        wr = WidgetRunner(w,workflow_runner=WorkflowRunner(w.workflow,clean=False))
         wr.run()
         wid = Widget.objects.get(id=6)
         o = wid.outputs.all()[0].value
@@ -50,7 +50,7 @@ class WidgetEngineTest(TestCase):
 
     def test_fast_widget_runner_cv(self):
         w = Widget.objects.get(id=16)
-        wr = WidgetRunner(w,workflow_runner=WorkflowRunner(w.workflow,clean=False),standalone=True)
+        wr = WidgetRunner(w,workflow_runner=WorkflowRunner(w.workflow,clean=False))
         wr.run()
         wid = Widget.objects.get(id=16)
         o = wid.outputs.all()[0].value

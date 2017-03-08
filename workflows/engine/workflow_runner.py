@@ -2,22 +2,37 @@ from django.db.models import Prefetch
 
 from workflows.engine.widget_runner import WidgetRunner
 from workflows.models import *
+from collections import defaultdict
+
+class ValueNotSet:
+    pass
 
 class WorkflowRunner():
+
+
     def __init__(self, workflow, final_widget=None, clean=True, parent_workflow_runner=None):
         self.workflow = workflow
         self.connections = workflow.connections.all()
         self.widgets = workflow.get_runnable_widgets(last_runnable_widget_id=final_widget and final_widget.id)
-        self.inputs = {}
-        self.outputs = {}
+        self.input_id_to_input= {}
+        self.output_id_to_output= {}
+        self.inputs_per_widget_id = defaultdict(list)
+        self.outputs_per_widget_id = defaultdict(list)
+
         for w in self.workflow.widgets.prefetch_related(
-                Prefetch('outputs', queryset=Output.objects.all().defer("value")),
+                Prefetch('outputs', queryset=Output.objects.all()),
                 Prefetch('inputs', queryset=Input.objects.filter(parameter=True),to_attr="parameter_inputs"),
                 Prefetch('inputs', queryset=Input.objects.filter(parameter=False).defer("value"),to_attr="connection_inputs")):
             for i in w.parameter_inputs+w.connection_inputs:
-                self.inputs[i.id] = i
-            for o in w.outputs.all():
-                self.outputs[o.id] = o
+                self.input_id_to_input[i.id] = i
+                if not i.parameter:
+                    i.value=ValueNotSet
+                self.inputs_per_widget_id[w.id].append(i)
+            for o in w.outputs_defer:
+                if not w.save_results:
+                    o.value=ValueNotSet
+                self.output_id_to_output[o.id] = o
+                self.outputs_per_widget_id[w.id].append(o)
         self.clean = clean
         self.parent = parent_workflow_runner
 
@@ -50,14 +65,14 @@ class WorkflowRunner():
             if c.input_id==input.id:
                 return c
         return None
-
-    @property
-    def finished_widgets(self):
-        finished_widgets = []
-        for w in self.widgets:
-            if w.finished:
-                finished_widgets.append(w)
-        return finished_widgets
+    #
+    # @property
+    # def finished_widgets(self):
+    #     finished_widgets = []
+    #     for w in self.widgets:
+    #         if w.finished:
+    #             finished_widgets.append(w)
+    #     return finished_widgets
 
     @property
     def unfinished_widgets(self):
@@ -76,35 +91,21 @@ class WorkflowRunner():
         # finished_widget_ids = [w.id for w in self.finished_widgets]
         runnable = []
         for w in self.unfinished_widgets:
-            widget_connections= [c for c in self.connections if self.inputs[c.input_id].widget_id == w.id]
+            widget_connections= [c for c in self.connections if self.input_id_to_input[c.input_id].widget_id == w.id]
+            # widget_connections= [c for c in self.connections if c.input_id in self.inputs_per_widget_id]
 
             #check if all outputs are connection outputs are calculated
             # c.output_id in self.outputs and
-            if all([self.outputs[c.output_id].value!=None for c in widget_connections]): #TODO what if output is actually a NoneType
+            if all([self.output_id_to_output[c.output_id].value!=ValueNotSet for c in widget_connections]):
                 runnable.append(w)
-
-
-
-            # ready_to_run = True
-            # for input in w.inputs.all():
-            #     if not input.id in self.inputs:
-            #         ready_to_run =False
-
-
-        #     ready_to_run = True
-        #     for c in w.connections:
-        #         if self.inputs[c.input_id].widget_id == w.id and not self.outputs[c.output_id].widget_id in finished_widget_ids:
-        #             ready_to_run = False
-        #
-        #     if ready_to_run:
-        #         runnable.append(w)
+        print runnable
         return runnable
 
     def run_all_unfinished_widgets(self):
         runnable_widgets = self.runnable_widgets
         while len(runnable_widgets)>0:
             for w in runnable_widgets:
-                wr = WidgetRunner(w,self)
+                wr = WidgetRunner(w,self.inputs_per_widget_id[w.id],self.outputs_per_widget_id[w.id],self)
                 try:
                     wr.run()
                 except:

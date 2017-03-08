@@ -39,7 +39,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         return workflows.prefetch_related('widgets', 'widgets__inputs', 'widgets__outputs')
 
     @detail_route(methods=['post'], url_path='run')
-    def run_workflow(self, request, pk=None):
+    def run(self, request, pk=None):
         workflow = self.get_object()
         try:
             WorkflowRunner(workflow)
@@ -49,7 +49,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
     @detail_route(methods=['post'], url_path='stop')
-    def stop_workflow(self, request, pk=None):
+    def stop(self, request, pk=None):
         workflow = self.get_object()
         # TODO: stop workflow execution
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
