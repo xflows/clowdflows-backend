@@ -98,7 +98,6 @@ class WorkflowRunner():
             # c.output_id in self.outputs and
             if all([self.output_id_to_output[c.output_id].value!=ValueNotSet for c in widget_connections]):
                 runnable.append(w)
-        print runnable
         return runnable
 
     def run_all_unfinished_widgets(self):

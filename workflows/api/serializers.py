@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.auth.models import User
+from django.db.models import Prefetch
 from django.template.loader import render_to_string
 from rest_framework import serializers
 
@@ -65,7 +66,6 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
         model = Category
         fields = ('name', 'user', 'order', 'children', 'widgets')
         read_only_fields = ('name', 'user', 'order', 'children', 'widgets')
-
 
 CategorySerializer._declared_fields['children'] = CategorySerializer(many=True, read_only=True)
 
