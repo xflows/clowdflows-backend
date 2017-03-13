@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models import Prefetch
 from django.template.loader import render_to_string
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from mothra.settings import STATIC_URL, MEDIA_URL
 from workflows.models import *
@@ -75,10 +76,14 @@ class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
     input_widget = serializers.SerializerMethodField()
 
     def get_output_widget(self, obj):
-        return WidgetListSerializer(obj.output.widget, context=self.context).data["url"]
+        request=self.context['request']
+        return request.build_absolute_uri(reverse('widget-detail', kwargs={'pk': obj.output.widget_id}))
+        #return WidgetListSerializer(obj.output.widget, context=self.context).data["url"]
 
     def get_input_widget(self, obj):
-        return WidgetListSerializer(obj.input.widget, context=self.context).data["url"]
+        request=self.context['request']
+        return request.build_absolute_uri(reverse('widget-detail', kwargs={'pk': obj.input.widget_id}))
+        # return WidgetListSerializer(obj.input.widget, context=self.context).data["url"]
 
     class Meta:
         model = Connection
@@ -178,7 +183,6 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
     user = UserSerializer(read_only=True)
     is_subprocess = serializers.SerializerMethodField()
     is_public = serializers.BooleanField(source='public')
-    preview = serializers.SerializerMethodField()
 
     def get_is_subprocess(self, obj):
         if obj.widget == None:
@@ -186,13 +190,16 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
         else:
             return True
 
-    def get_preview(self, obj):
-        return get_workflow_preview(self.context['request'], obj)
 
     class Meta:
         model = Workflow
         exclude = ('public',)
 
+class WorkflowPreviewSerializer(WorkflowListSerializer):
+    preview = serializers.SerializerMethodField()
+
+    def get_preview(self, obj):
+        return get_workflow_preview(self.context['request'], obj)
 
 class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
@@ -310,10 +317,10 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         return icon_url
 
     def get_recommended_inputs(self, widget):
-        return widget.recommended_input_widgets()
+        return [] #widget.recommended_input_widgets()
 
     def get_recommended_outputs(self, widget):
-        return widget.recommended_output_widgets()
+        return [] #widget.recommended_output_widgets()
 
     class Meta:
         model = Widget
@@ -344,16 +351,12 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     connections = ConnectionSerializer(many=True, read_only=True)
     is_subprocess = serializers.SerializerMethodField()
     is_public = serializers.BooleanField(source='public')
-    preview = serializers.SerializerMethodField()
 
     def get_is_subprocess(self, obj):
         if obj.widget == None:
             return False
         else:
             return True
-
-    def get_preview(self, obj):
-        return get_workflow_preview(self.context['request'], obj)
 
     class Meta:
         model = Workflow

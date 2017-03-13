@@ -124,10 +124,10 @@ class Widget(models.Model):
         return d
 
     def recommended_input_widgets(self):
-        return filter(None, self.calc_recomm_inp().split(':::'))
+        return filter(None, self.calc_recomm_inp())
 
     def recommended_output_widgets(self):
-        return filter(None, self.calc_recomm_out().split(':::'))
+        return filter(None, self.calc_recomm_out())
 
     def calc_recomm_inp(self):
         num_recomm = 10
@@ -158,6 +158,7 @@ class Widget(models.Model):
         recomm_lt = sorted(recomm_dict.items(), key=lambda el: el[1], reverse=True)
         # print aw.name + ".recomm_inp: " + str(recomm_lt)
         recomm_l = [el[0] for el in recomm_lt]
+        return recomm_l
         res = str(":::".join(recomm_l))
         return res
 
@@ -185,6 +186,7 @@ class Widget(models.Model):
         recomm_lt = sorted(recomm_dict.items(), key=lambda el: el[1], reverse=True)
         # print aw.name + ".recomm_out: " + str(recomm_lt)
         recomm_l = [el[0] for el in recomm_lt]
+        return recomm_l
         res = str(":::".join(recomm_l))
         return res
 

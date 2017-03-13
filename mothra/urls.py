@@ -18,7 +18,6 @@ urlpatterns = [
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     #url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^workflows/', include('workflows.urls')),
     url(r'^streams/', include('streams.urls')),
     url(r'^admin/', include(admin.site.urls)),
 

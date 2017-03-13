@@ -22,21 +22,60 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     filter_fields = ('public',)
 
     def get_serializer_class(self):
+        if False: #is preview
+            return WorkflowPreviewSerializer
         if self.action == 'list':
             return WorkflowListSerializer
+        #TODO additional parameter for previews
         return WorkflowSerializer
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        user_only = self.request.GET.get('user', '0') == '1'
-        if user_only:
-            filters = Q(user=self.request.user)
-        else:
-            filters = Q(user=self.request.user) | Q(public=True)
-        workflows = Workflow.objects.filter(filters)
-        return workflows.prefetch_related('widgets', 'widgets__inputs', 'widgets__outputs')
+        workflows = Workflow.objects.prefetch_related('widget', 'user')
+        if self.action == 'list': #or preview
+            user=self.request.user
+            user_only = self.request.GET.get('user', '0') == '1'
+
+            if user_only:
+                filters = Q(user=user)
+            else:
+                filters = Q(user=user) | Q(public=True)
+            workflows=workflows.filter(filters).prefetch_related('connections')
+            if False: #is preview
+                workflows=workflows.prefetch_related("widgets","connections__output", "connections__input")\
+                    .defer("connections__output__value", "connections__input__value")
+        elif self.action == "retrieve":
+            workflows= Workflow.objects.prefetch_related('widget', 'user')\
+                .prefetch_related("connections","connections__output", "connections__input")\
+                .defer("connections__output__value", "connections__input__value")\
+                .prefetch_related(
+                'widget',
+                    'widgets',
+                    'widgets__inputs', 'widgets__inputs',
+                    'widgets__inputs__options',
+                    'widgets__inputs__inner_output', #TODO check why
+                    'widgets__outputs', #'outputs__inner_input',
+                    'widgets__workflow_link',
+                    'widgets__abstract_widget','widgets__abstract_widget__inputs','widgets__abstract_widget__outputs') \
+                .defer("widgets__outputs__value", "widgets__inputs__value")
+
+
+                # .prefetch_related(
+                #     Prefetch('widgets',
+                #         queryset=Widget.objects.prefetch_related(
+                #         'inputs',
+                #         'inputs__options',
+                #         'inputs__inner_output', #why why oh why check
+                #         'outputs', #'outputs__inner_input',
+                #         'workflow'
+                #         'workflow_link',
+                #         'abstract_widget')
+                #         .defer("outputs__value", "inputs__value")
+                #     )
+                # )
+        return workflows
 
     @detail_route(methods=['post'], url_path='run')
     def run(self, request, pk=None):

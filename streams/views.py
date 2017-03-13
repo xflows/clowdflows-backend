@@ -4,7 +4,7 @@ from django.http import Http404, HttpResponse
 from django.contrib import messages
 from django.core import serializers
 # from django.utils import simplejson
-from workflows.urls import *
+# from workflows.urls import *
 from workflows.helpers import *
 import workflows.interaction_views
 import workflows.visualization_views
@@ -25,7 +25,7 @@ from mothra.settings import DEBUG, FILES_FOLDER
 
 from streams.models import Stream
 
-import workflows.views
+# import workflows.views
 
 #ostalo
 import os
@@ -36,6 +36,6 @@ def stream_widget_visualization(request,stream_id,widget_id):
     if widget.abstract_widget.streaming_visualization_view == '':
         return Http404
     else:
-        view_to_call = getattr(workflows.views,widget.abstract_widget.streaming_visualization_view)
+        view_to_call = None #TODO fix ... getattr(workflows.views,widget.abstract_widget.streaming_visualization_view)
         return view_to_call(request,widget,stream)
 

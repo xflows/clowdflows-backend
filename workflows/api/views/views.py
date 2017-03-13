@@ -188,7 +188,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Category.objects.filter(parent__isnull=True).prefetch_related(
-            'widgets','widgets__inputs','widgets__outputs','widgets__inputs__options')
+            'widgets','widgets__inputs','widgets__outputs','widgets__inputs__options','children')
 
     @list_route(methods=['post'], url_path='import-ws')
     def import_webservice(self, request):
