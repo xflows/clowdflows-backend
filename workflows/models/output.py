@@ -11,6 +11,8 @@ class Output(models.Model):
     variable = models.CharField(max_length=50)
     widget = models.ForeignKey('Widget', related_name="outputs")
     value = PickledObjectField(null=True)
+    abstract_output = models.ForeignKey('AbstractOutput',blank=True, null=True)
+
     inner_input = models.ForeignKey(Input, related_name="outer_output_rel", blank=True, null=True)  # za subprocess
     outer_input = models.ForeignKey(Input, related_name="inner_output_rel", blank=True, null=True)  # za subprocess
     order = models.PositiveIntegerField(default=1)
@@ -20,6 +22,7 @@ class Output(models.Model):
         self.short_name = json_data['short_name']
         self.description = json_data['description']
         self.variable = json_data['variable']
+        self.abstract_output_id= json_data['abstract_output_id'] # TODO import from clowdflows v1.X ?
         self.order = json_data['order']
         self.save()
         output_conversion[json_data['pk']] = self.pk
@@ -35,6 +38,7 @@ class Output(models.Model):
         d['short_name'] = self.short_name
         d['description'] = self.description
         d['variable'] = self.variable
+        d['abstract_output_id'] = self.abstract_output_id
         d['order'] = self.order
         d['pk'] = self.pk
         try:

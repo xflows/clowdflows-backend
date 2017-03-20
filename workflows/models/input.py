@@ -14,6 +14,8 @@ class Input(models.Model):
     parameter = models.BooleanField(default=False)
     value = PickledObjectField(null=True)
     multi_id = models.IntegerField(default=0)
+    abstract_input = models.ForeignKey('AbstractInput',blank=True, null=True)
+
     inner_output = models.ForeignKey('Output', related_name="outer_input_rel", blank=True, null=True)  # za subprocess
     outer_output = models.ForeignKey('Output', related_name="inner_input_rel", blank=True, null=True)  # za subprocess
     PARAMETER_CHOICES = (
@@ -38,6 +40,7 @@ class Input(models.Model):
         self.required = json_data['required']
         self.parameter = json_data['parameter']
         self.multi_id = json_data['multi_id']
+        self.abstract_input_id=json_data['abstract_input_id'] # TODO import from clowdflows v1.X ?
         self.parameter_type = json_data['parameter_type']
         self.order = json_data['order']
         if self.parameter:
@@ -50,6 +53,7 @@ class Input(models.Model):
             o.import_from_json(option, input_conversion, output_conversion)
             o.save()
         if json_data['outer_output']:
+            from output import Output
             self.outer_output = Output.objects.get(pk=output_conversion[json_data['outer_output']])
             self.outer_output.inner_input = self
             self.outer_output.save()
@@ -64,6 +68,8 @@ class Input(models.Model):
         d['required'] = self.required
         d['parameter'] = self.parameter
         d['value'] = None
+        d['abstract_input_id'] = self.abstract_input_id
+
         if self.parameter:
             d['value'] = self.value
         d['multi_id'] = self.multi_id

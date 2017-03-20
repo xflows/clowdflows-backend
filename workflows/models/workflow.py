@@ -235,6 +235,7 @@ def copy_workflow(old, user, parent_widget_conversion={}, parent_input_conversio
             new_input.short_name = input.short_name
             new_input.description = input.description
             new_input.variable = input.variable
+            new_input.abstract_input_id = input.abstract_input_id
             new_input.widget = new_widget
             new_input.required = input.required
             new_input.parameter = input.parameter
@@ -264,6 +265,7 @@ def copy_workflow(old, user, parent_widget_conversion={}, parent_input_conversio
             new_output.short_name = output.short_name
             new_output.description = output.description
             new_output.variable = output.variable
+            new_output.abstract_output_id = input.abstract_output_id
             new_output.widget = new_widget
             new_output.value = output.value
             # inner input nikol ne nastavlamo
