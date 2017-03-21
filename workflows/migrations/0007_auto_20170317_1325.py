@@ -50,5 +50,5 @@ class Migration(migrations.Migration):
             name='abstract_output',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recommender', to='workflows.AbstractOutput'),
         ),
-        fix_inputs_and_outputs_without_abstract_ids
+        migrations.RunPython(fix_inputs_and_outputs_without_abstract_ids)
     ]

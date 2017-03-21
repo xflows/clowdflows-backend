@@ -7,6 +7,8 @@ from workflows.api import views
 router = routers.DefaultRouter()
 
 router.register(r'inputs', views.InputViewSet, base_name='input')
+router.register(r'abstract_inputs', views.AbstractInputViewSet, base_name='abstractinput')
+router.register(r'abstract_outputs', views.AbstractOutputViewSet, base_name='abstractoutput')
 router.register(r'outputs', views.OutputViewSet, base_name='output')
 router.register(r'users', views.UserViewSet, base_name='user')
 router.register(r'workflows', views.WorkflowViewSet, base_name='workflow')
