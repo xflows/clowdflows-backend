@@ -28,7 +28,7 @@ class WorkflowRunner():
                 if not i.parameter:
                     i.value=ValueNotSet
                 self.inputs_per_widget_id[w.id].append(i)
-            for o in w.outputs_defer:
+            for o in w.outputs.all():
                 if not w.save_results:
                     o.value=ValueNotSet
                 self.output_id_to_output[o.id] = o
