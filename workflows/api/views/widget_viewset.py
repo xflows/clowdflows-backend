@@ -299,6 +299,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 j.parameter_type = i.parameter_type
                 j.value = i.value
                 j.multi_id = i.multi_id
+                j.abstract_input_id =i.abstract_input_id
                 j.save()
                 for k in i.options.all():
                     o = Option()
@@ -313,6 +314,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 j.description = i.description
                 j.variable = i.variable
                 j.widget = w
+                j.abstract_output_id =i.abstract_output_id
                 j.save()
             widget_data = WidgetSerializer(w, context={'request': request}).data
             return HttpResponse(json.dumps(widget_data), 'application/json')

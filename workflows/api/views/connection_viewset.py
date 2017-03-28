@@ -54,6 +54,7 @@ class ConnectionViewSet(viewsets.ModelViewSet):
                 if new_c.input.multi_id != 0:
                     i = new_c.input
                     j = Input()
+                    j.abstract_input_id = i.abstract_input_id
                     m = i.widget.inputs.aggregate(Max('order'))
                     j.name = i.name
                     j.short_name = i.short_name

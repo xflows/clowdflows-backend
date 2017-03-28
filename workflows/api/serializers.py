@@ -233,6 +233,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
             j.required = i.required
             j.parameter = i.parameter
             j.value = None
+            j.abstract_input=i
             if (i.parameter):
                 param_order += 1
                 j.order = param_order
@@ -259,6 +260,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
             j.description = i.description
             j.variable = i.variable
             j.widget = w
+            j.abstract_output=i
             outputOrder += 1
             j.order = outputOrder
             j.save()
