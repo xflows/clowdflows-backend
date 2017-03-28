@@ -14,6 +14,10 @@ def remove_old_recommenders(apps, schema_editor):
     Recommender.objects.all().delete()
 
 
+def fix_inputs_and_outputs_without_abstract_ids_wrapper(apps, schema_editor):
+    fix_inputs_and_outputs_without_abstract_ids()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -50,5 +54,5 @@ class Migration(migrations.Migration):
             name='abstract_output',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recommender', to='workflows.AbstractOutput'),
         ),
-        migrations.RunPython(fix_inputs_and_outputs_without_abstract_ids)
+        migrations.RunPython(fix_inputs_and_outputs_without_abstract_ids_wrapper)
     ]
