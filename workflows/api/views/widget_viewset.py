@@ -26,7 +26,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Widget.objects.filter(Q(workflow__user=self.request.user) | Q(workflow__public=True)).prefetch_related(
-            'inputs', 'outputs')
+            'inputs', 'inputs__options', 'outputs')
 
     @detail_route(methods=['post'], url_path='reset', permission_classes=[IsAdminOrSelf, ])
     def reset(self, request, pk=None):
