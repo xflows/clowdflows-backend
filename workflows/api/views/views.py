@@ -73,6 +73,20 @@ def user_logout(request):
     return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
 
 
+@api_view(['GET', ])
+@permission_classes((permissions.IsAuthenticated,))
+def recommender_model(request):
+    '''
+    @return: A recommender model, basically a mapping between abstract inputs and outpus 
+    '''
+    recommender_maps = Recommender.load_recommendations()
+    recommender = {
+        'recomm_for_abstract_output_id': recommender_maps[0],
+        'recomm_for_abstract_input_id': recommender_maps[1]
+    }
+    return HttpResponse(json.dumps(recommender), content_type="application/json")
+
+
 class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows connections to be viewed or edited.

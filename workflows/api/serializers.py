@@ -24,25 +24,28 @@ class AbstractOptionSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class AbstractInputSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField()
     options = AbstractOptionSerializer(many=True, read_only=True)
 
     class Meta:
         model = AbstractInput
         fields = (
-            'name', 'short_name', 'description', 'variable', 'required', 'parameter', 'multi', 'default',
+            'id', 'name', 'short_name', 'description', 'variable', 'required', 'parameter', 'multi', 'default',
             'parameter_type',
             'order', 'options')
         read_only_fields = (
-            'name', 'short_name', 'description', 'variable', 'required', 'parameter', 'multi', 'default',
+            'id', 'name', 'short_name', 'description', 'variable', 'required', 'parameter', 'multi', 'default',
             'parameter_type',
             'order', 'options')
 
 
 class AbstractOutputSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField()
+
     class Meta:
         model = AbstractOutput
-        fields = ('name', 'short_name', 'description', 'variable', 'order')
-        read_only_fields = ('name', 'short_name', 'description', 'variable', 'order')
+        fields = ('id', 'name', 'short_name', 'description', 'variable', 'order')
+        read_only_fields = ('id', 'name', 'short_name', 'description', 'variable', 'order')
 
 
 class AbstractWidgetSerializer(serializers.HyperlinkedModelSerializer):
@@ -100,6 +103,7 @@ class InputSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     deserialized_value = serializers.SerializerMethodField()
     options = OptionSerializer(many=True, read_only=True)
+    abstract_input_id = serializers.SerializerMethodField()
 
     def get_deserialized_value(self, obj):
         if obj.parameter:
@@ -112,18 +116,25 @@ class InputSerializer(serializers.HyperlinkedModelSerializer):
         else:
             return ''
 
+    def get_abstract_input_id(self, obj):
+        return obj.abstract_input_id
+
     class Meta:
         model = Input
-        exclude = ('value',)
+        exclude = ('value', 'abstract_input')
         read_only_fields = ('id', 'url', 'widget')
 
 
 class OutputSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
+    abstract_output_id = serializers.SerializerMethodField()
+
+    def get_abstract_output_id(self, obj):
+        return obj.abstract_output_id
 
     class Meta:
         model = Output
-        exclude = ('value',)
+        exclude = ('value', 'abstract_output')
         read_only_fields = ('id', 'url', 'widget')
 
 
@@ -215,8 +226,6 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         view_name='workflow-detail'
     )
     abstract_widget = serializers.PrimaryKeyRelatedField(queryset=AbstractWidget.objects.all(), allow_null=True)
-    recommended_inputs = serializers.SerializerMethodField()
-    recommended_outputs = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         '''
@@ -320,18 +329,12 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         icon_url = '{}//{}{}{}'.format(protocol, base_url, static_or_media, icon_path)
         return icon_url
 
-    def get_recommended_inputs(self, widget):
-        return []  # widget.recommended_input_widgets()
-
-    def get_recommended_outputs(self, widget):
-        return []  # widget.recommended_output_widgets()
-
     class Meta:
         model = Widget
         fields = (
             'id', 'url', 'workflow', 'x', 'y', 'name', 'save_results', 'must_save', 'abstract_widget', 'finished',
             'error', 'running', 'interaction_waiting', 'description', 'icon', 'type', 'progress', 'inputs', 'outputs',
-            'workflow_link', 'recommended_inputs', 'recommended_outputs')
+            'workflow_link')
 
 
 class WidgetPositionSerializer(serializers.HyperlinkedModelSerializer):
