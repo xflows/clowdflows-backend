@@ -22,11 +22,11 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     filter_fields = ('public',)
 
     def get_serializer_class(self):
-        if False: #is preview
+        preview = self.request.GET.get('preview', '0') == '1'
+        if preview:
             return WorkflowPreviewSerializer
         if self.action == 'list':
             return WorkflowListSerializer
-        #TODO additional parameter for previews
         return WorkflowSerializer
 
     def perform_create(self, serializer):
@@ -34,7 +34,8 @@ class WorkflowViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         workflows = Workflow.objects.prefetch_related('widget', 'user')
-        if self.action == 'list': #or preview
+        preview = self.request.GET.get('preview', '0') == '1'
+        if self.action == 'list' or preview:
             user=self.request.user
             user_only = self.request.GET.get('user', '0') == '1'
 
@@ -43,7 +44,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             else:
                 filters = Q(user=user) | Q(public=True)
             workflows=workflows.filter(filters).prefetch_related('connections')
-            if False: #is preview
+            if preview:
                 workflows=workflows.prefetch_related("widgets","connections__output", "connections__input")\
                     .defer("connections__output__value", "connections__input__value")
         elif self.action == "retrieve":

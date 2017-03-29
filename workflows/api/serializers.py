@@ -68,6 +68,7 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
         fields = ('name', 'user', 'order', 'children', 'widgets')
         read_only_fields = ('name', 'user', 'order', 'children', 'widgets')
 
+
 CategorySerializer._declared_fields['children'] = CategorySerializer(many=True, read_only=True)
 
 
@@ -76,12 +77,12 @@ class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
     input_widget = serializers.SerializerMethodField()
 
     def get_output_widget(self, obj):
-        request=self.context['request']
+        request = self.context['request']
         return request.build_absolute_uri(reverse('widget-detail', kwargs={'pk': obj.output.widget_id}))
-        #return WidgetListSerializer(obj.output.widget, context=self.context).data["url"]
+        # return WidgetListSerializer(obj.output.widget, context=self.context).data["url"]
 
     def get_input_widget(self, obj):
-        request=self.context['request']
+        request = self.context['request']
         return request.build_absolute_uri(reverse('widget-detail', kwargs={'pk': obj.input.widget_id}))
         # return WidgetListSerializer(obj.input.widget, context=self.context).data["url"]
 
@@ -190,16 +191,17 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
         else:
             return True
 
-
     class Meta:
         model = Workflow
         exclude = ('public',)
+
 
 class WorkflowPreviewSerializer(WorkflowListSerializer):
     preview = serializers.SerializerMethodField()
 
     def get_preview(self, obj):
         return get_workflow_preview(self.context['request'], obj)
+
 
 class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
@@ -233,7 +235,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
             j.required = i.required
             j.parameter = i.parameter
             j.value = None
-            j.abstract_input=i
+            j.abstract_input = i
             if (i.parameter):
                 param_order += 1
                 j.order = param_order
@@ -260,7 +262,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
             j.description = i.description
             j.variable = i.variable
             j.widget = w
-            j.abstract_output=i
+            j.abstract_output = i
             outputOrder += 1
             j.order = outputOrder
             j.save()
@@ -319,10 +321,10 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         return icon_url
 
     def get_recommended_inputs(self, widget):
-        return [] #widget.recommended_input_widgets()
+        return []  # widget.recommended_input_widgets()
 
     def get_recommended_outputs(self, widget):
-        return [] #widget.recommended_output_widgets()
+        return []  # widget.recommended_output_widgets()
 
     class Meta:
         model = Widget
