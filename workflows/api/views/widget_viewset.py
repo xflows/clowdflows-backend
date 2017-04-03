@@ -8,7 +8,7 @@ from rest_framework.generics import get_object_or_404
 
 from workflows.api.permissions import IsAdminOrSelf
 from workflows.api.serializers import *
-from workflows.engine import WidgetRunner
+from workflows.engine import WidgetRunner, ValueNotSet
 import workflows as workflows_app
 
 
@@ -154,7 +154,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
 
             w.run(False)
 
-            if not w.abstract_widget is None:
+            if w.abstract_widget:
                 if w.abstract_widget.interactive:
                     w.interaction_waiting = True
                     w.save()
@@ -228,14 +228,14 @@ class WidgetViewSet(viewsets.ModelViewSet):
                         i.value = i.connections.all()[0].output.value
                         i.save()
                     else:
-                        i.value = None
+                        i.value = ValueNotSet
                         i.save()
                 if i.multi_id == 0:
                     input_dict[i.variable] = i.value
                 else:
                     if not i.variable in input_dict:
                         input_dict[i.variable] = []
-                    if not i.value == None:
+                    if not i.value == ValueNotSet:
                         input_dict[i.variable].append(i.value)
             for o in w.outputs.all():
                 output_dict[o.variable] = o.value

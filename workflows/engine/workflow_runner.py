@@ -1,21 +1,22 @@
 from django.db.models import Prefetch
 
+from workflows.engine import ValueNotSet
 from workflows.engine.widget_runner import WidgetRunner
 from workflows.models import *
 from collections import defaultdict
 
-class ValueNotSet:
-    pass
 
 class WorkflowRunner():
-
-
-    def __init__(self, workflow, final_widget=None, clean=True, parent_workflow_runner=None):
+    def __init__(self, workflow, final_widget=None, clean=True, parent_workflow_runner=None,representing_widget=None):
         self.workflow = workflow
         self.connections = workflow.connections.all()
         self.widgets = workflow.get_runnable_widgets(last_runnable_widget_id=final_widget and final_widget.id)
+
+        #used for storing results
         self.input_id_to_input= {}
         self.output_id_to_output= {}
+
+        #used for discovery of connections
         self.inputs_per_widget_id = defaultdict(list)
         self.outputs_per_widget_id = defaultdict(list)
 
@@ -29,12 +30,22 @@ class WorkflowRunner():
                     i.value=ValueNotSet
                 self.inputs_per_widget_id[w.id].append(i)
             for o in w.outputs.all():
-                if not w.save_results:
+                if not (w.save_results and w.finished):
                     o.value=ValueNotSet
                 self.output_id_to_output[o.id] = o
                 self.outputs_per_widget_id[w.id].append(o)
+
+        #preassing input values
+        relevant_input_ids=set()
+        for w in self.widgets:
+            relevant_input_ids.update([i.id for i in self.inputs_per_widget_id[w.id]])
+        for c in self.connections:
+            if c.input_id in relevant_input_ids:
+                self.input_id_to_input[c.input_id].value=self.output_id_to_output[c.output_id].value
+
         self.clean = clean
-        self.parent = parent_workflow_runner
+        self.parent_workflow_runner = parent_workflow_runner
+        self.representing_widget = representing_widget
 
     def is_for_loop(self):
         for w in self.widgets:
@@ -54,11 +65,8 @@ class WorkflowRunner():
                 w.finished = False
             w.error = False        
 
-    def get_connection_for_output(self,output):
-        for c in self.connections:
-            if c.output_id==output.id:
-                return c
-        return None
+    def get_connections_for_output(self, output):
+        return [c for c in self.connections if c.output_id==output.id]
 
     def get_connection_for_input(self,input):
         for c in self.connections:
@@ -91,12 +99,14 @@ class WorkflowRunner():
         # finished_widget_ids = [w.id for w in self.finished_widgets]
         runnable = []
         for w in self.unfinished_widgets:
-            widget_connections= [c for c in self.connections if self.input_id_to_input[c.input_id].widget_id == w.id]
+            incoming_widget_connections= [c for c in self.connections if self.input_id_to_input[c.input_id].widget_id == w.id]
             # widget_connections= [c for c in self.connections if c.input_id in self.inputs_per_widget_id]
 
             #check if all outputs are connection outputs are calculated
             # c.output_id in self.outputs and
-            if all([self.output_id_to_output[c.output_id].value!=ValueNotSet for c in widget_connections]):
+            # if all([self.output_id_to_output[c.output_id].value!=ValueNotSet for c in widget_connections]):
+            #     runnable.append(w)
+            if all([self.input_id_to_input[c.input_id].value!=ValueNotSet for c in incoming_widget_connections]):
                 runnable.append(w)
         return runnable
 
@@ -104,13 +114,17 @@ class WorkflowRunner():
         runnable_widgets = self.runnable_widgets
         while len(runnable_widgets)>0:
             for w in runnable_widgets:
-                wr = WidgetRunner(w,self.inputs_per_widget_id[w.id],self.outputs_per_widget_id[w.id],self)
                 try:
-                    wr.run()
-                except:
+                    if w.type == 'subprocess':
+                        WorkflowRunner(w.workflow_link, parent_workflow_runner=self,representing_widget=w).run()
+                    elif not w.interaction_waiting:
+                        WidgetRunner(w,self.inputs_per_widget_id[w.id],self.outputs_per_widget_id[w.id],self).run()
+                except NotImplementedError,c:
+                    w.set_as_faulty()
                     self.save()
-                    raise
+                    raise c
             runnable_widgets = self.runnable_widgets
+            print runnable_widgets
 
     def run(self):
         self.cleanup()
@@ -122,9 +136,9 @@ class WorkflowRunner():
                     fi = w
                 if w.type=='for_output':
                     fo = w
-            outer_output = self.parent.outputs[fo.inputs.all()[0].outer_output_id]
+            outer_output = self.parent_workflow_runner.outputs[fo.inputs.all()[0].outer_output_id]
             outer_output.value = []
-            input_list = self.parent.inputs[fi.outputs.all()[0].outer_input_id].value
+            input_list = self.parent_workflow_runner.inputs[fi.outputs.all()[0].outer_input_id].value
             for i in input_list:
                 self.cleanup()
                 proper_output = fi.outputs.all()[0]
@@ -140,11 +154,11 @@ class WorkflowRunner():
                     fi = w
                 if w.type=='cv_output':
                     fo = w
-            outer_output = self.parent.outputs[fo.inputs.all()[0].outer_output_id]
+            outer_output = self.parent_workflow_runner.outputs[fo.inputs.all()[0].outer_output_id]
             outer_output.value = []
-            input_list = self.parent.inputs[fi.outputs.all()[0].outer_input_id].value
-            input_fold = self.parent.inputs[fi.outputs.all()[1].outer_input_id].value
-            input_seed = self.parent.inputs[fi.outputs.all()[2].outer_input_id].value
+            input_list = self.parent_workflow_runner.inputs[fi.outputs.all()[0].outer_input_id].value
+            input_fold = self.parent_workflow_runner.inputs[fi.outputs.all()[1].outer_input_id].value
+            input_seed = self.parent_workflow_runner.inputs[fi.outputs.all()[2].outer_input_id].value
             if input_fold != None:
                 input_fold = int(input_fold)
             else:
@@ -209,6 +223,11 @@ class WorkflowRunner():
             self.run_all_unfinished_widgets()
         self.save()
 
+        if self.representing_widget:
+            self.representing_widget.set_as_finished()
+
     def save(self):
         for w in self.widgets:
-            w.save_with_inputs_and_outputs(force_update=True)
+            w.save_with_inputs_and_outputs(force_update=True,
+                inputs=w.save_results and [self.input_id_to_input[i.id] for i in self.inputs_per_widget_id[w.id]],
+                outputs=w.save_results and [self.output_id_to_output[i.id] for i in self.outputs_per_widget_id[w.id]])

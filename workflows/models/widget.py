@@ -61,6 +61,15 @@ class Widget(models.Model):
         #     if ready_to_run:
         #         return True
         # return False
+    def set_as_finished(self):
+        self.running = False
+        self.error = False
+        self.finished = True
+
+    def set_as_faulty(self):
+        self.error=True
+        self.running=False
+        self.finished=False
 
     def update_input_output_order(self):
         for i, input in enumerate(self.inputs.all()):
@@ -300,11 +309,11 @@ class Widget(models.Model):
         return widgets_that_need_reset
 
 
-    def save_with_inputs_and_outputs(self,force_update=False):
+    def save_with_inputs_and_outputs(self,inputs,outputs,force_update=False):
         if self.save_results:
-            for i in self.inputs.all():
+            for i in inputs:
                 i.save(force_update=force_update)
-            for o in self.outputs.all():
+            for o in outputs:
                 o.save(force_update=force_update)
         self.save(force_update=force_update)
 

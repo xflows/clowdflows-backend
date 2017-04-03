@@ -1,10 +1,10 @@
 import time
 import workflows.library
+from workflows.engine import ValueNotSet
 
 from workflows.models import *
 from workflows.tasks import *
 from django.conf import settings
-
 
 class WidgetRunner():
     def __init__(self,widget,inputs,outputs,workflow_runner):
@@ -12,71 +12,78 @@ class WidgetRunner():
         self.widget_inputs = inputs
         self.widget_outputs = outputs
         self.workflow_runner = workflow_runner
-        self.inner_workflow_runner = None
-        # prepare inputs (with proper values) in workflow_runner?
         # save inputs? if savable and workflow_runner.parent_workflow_runner is None
 
     def run(self):
         self.widget.running = True
+        new_value_per_variable = {}
+
         """ subprocesses and regular widgets get treated here """
-        if self.widget.type == 'regular' or self.widget.type == 'subprocess':
+        if self.widget.type == 'regular': # or self.widget.type == 'subprocess':
             if self.widget.abstract_widget:
                 function_to_call = getattr(workflows.library,self.widget.abstract_widget.action) #getattr(workflows.library, self.abstract_widget.post_interact_action)
-            input_dict = self.get_input_dictionary_and_assign_values()
-            outputs = {}
+            input_dict = self.build_input_dictionary()
             start = time.time()
-            try:
-                if self.widget.abstract_widget:
-                    if self.widget.abstract_widget.wsdl != '':
-                        input_dict['wsdl']=self.widget.abstract_widget.wsdl
-                        input_dict['wsdl_method']=self.widget.abstract_widget.wsdl_method
-                    if self.widget.abstract_widget.windows_queue and settings.USE_WINDOWS_QUEUE:
-                        if self.widget.abstract_widget.has_progress_bar:
-                            outputs = executeWidgetProgressBar.apply_async([self.widget,input_dict],queue="windows").wait()
-                        elif self.widget.abstract_widget.is_streaming:
-                            outputs = executeWidgetStreaming.apply_async([self.widget,input_dict],queue="windows").wait()
-                        else:
-                            outputs = executeWidgetFunction.apply_async([self.widget,input_dict],queue="windows").wait()
+            # try:
+            if self.widget.abstract_widget:
+                if self.widget.abstract_widget.wsdl != '':
+                    input_dict['wsdl']=self.widget.abstract_widget.wsdl
+                    input_dict['wsdl_method']=self.widget.abstract_widget.wsdl_method
+                if self.widget.abstract_widget.windows_queue and settings.USE_WINDOWS_QUEUE:
+                    if self.widget.abstract_widget.has_progress_bar:
+                        new_value_per_variable = executeWidgetProgressBar.apply_async([self.widget,input_dict],queue="windows").wait()
+                    elif self.widget.abstract_widget.is_streaming:
+                        new_value_per_variable = executeWidgetStreaming.apply_async([self.widget,input_dict],queue="windows").wait()
                     else:
-                        if self.widget.abstract_widget.has_progress_bar:
-                            outputs = function_to_call(input_dict,self.widget)
-                        elif self.widget.abstract_widget.is_streaming:
-                            outputs = function_to_call(input_dict,self.widget,None)
-                        else:
-                            outputs = function_to_call(input_dict)
+                        new_value_per_variable = executeWidgetFunction.apply_async([self.widget,input_dict],queue="windows").wait()
                 else:
-                    """ we run the subprocess """
-                    from workflows.engine.workflow_runner import WorkflowRunner #TODO temp solution, maybe delete this run method?
-                    self.inner_workflow_runner = WorkflowRunner(self.widget.workflow_link,
-                                                                parent_workflow_runner=self.workflow_runner)
-                    self.inner_workflow_runner.run()
-            except Exception,c:
-                self.widget.error=True
-                self.widget.running=False
-                self.widget.finished=False
-                raise c
+                    if self.widget.abstract_widget.has_progress_bar:
+                        new_value_per_variable = function_to_call(input_dict,self.widget)
+                    elif self.widget.abstract_widget.is_streaming:
+                        new_value_per_variable = function_to_call(input_dict,self.widget,None)
+                    else:
+                        new_value_per_variable = function_to_call(input_dict)
+            else:
+                raise "this shouldn't happen (TM)"
+
             elapsed = (time.time()-start)
-            outputs['clowdflows_elapsed']=elapsed
-            self.assign_outputs(outputs)
+            new_value_per_variable['clowdflows_elapsed']=elapsed
         elif self.widget.type == 'input':
             for o in self.widget_outputs:
-                o.value = self.workflow_runner.parent.inputs[o.outer_input_id].value
-        elif self.widget.type == 'output':
-            self.get_input_dictionary_and_assign_values()
-            for i in self.widget_inputs:
-                self.workflow_runner.parent.outputs[i.outer_output_id].value = i.value
-        elif self.widget.type == 'for_output':
-            self.get_input_dictionary_and_assign_values()
-            for i in self.widget_inputs:
-                self.workflow_runner.parent.outputs[i.outer_output_id].value.append(i.value)
-        elif self.widget.type == 'cv_output':
-            self.get_input_dictionary_and_assign_values()
-            for i in self.widget_inputs:
-                self.workflow_runner.parent.outputs[i.outer_output_id].value.append(i.value)
+                new_value_per_variable[o.variable] = self.workflow_runner.parent_workflow_runner.input_id_to_input[o.outer_input_id].value
+        else: #self.widget.type IN 'output', 'for_output','cv_output'
+            inner_input=self.widget_inputs[0]
+            outer_output=self.workflow_runner.parent_workflow_runner.output_id_to_output[inner_input.outer_output_id]
+            self.build_input_dictionary()
 
-        self.widget.running = False
-        self.widget.error = False
-        self.widget.finished = True
+            #we need to assign outer outputs
+            new_value_per_variable_outer={}
+            if self.widget.type == 'output':
+                new_value_per_variable_outer[outer_output.variable] = inner_input.value
+            elif self.widget.type == 'for_output' or self.widget.type == 'cv_output':
+                new_value_per_variable_outer[outer_output.variable]=outer_output.value+[inner_input.value]
+
+            #assign outer outputs and connected inputs
+            self.assign_outputs([outer_output], new_value_per_variable_outer, self.workflow_runner.parent_workflow_runner)
+
+
+
+
+        #wait for interaction if widget is interective and not inside a subprocess
+        if self.widget.abstract_widget_id and self.widget.abstract_widget.interactive and not self.workflow_runner.parent_workflow_runner:
+            self.widget.interaction_waiting = True
+            #assign outputs and connected inputs
+            self.assign_outputs(self.widget_outputs, new_value_per_variable, self.workflow_runner,False)
+
+            self.widget.save_with_inputs_and_outputs(
+                [self.workflow_runner.input_id_to_input[i.id] for i in self.workflow_runner.inputs_per_widget_id[self.widget.id]],
+                [self.workflow_runner.output_id_to_output[i.id] for i in self.workflow_runner.outputs_per_widget_id[self.widget.id]]
+            )
+        else:
+            self.widget.set_as_finished()
+            #assign outputs and connected inputs
+            self.assign_outputs(self.widget_outputs, new_value_per_variable, self.workflow_runner)
+
 
 
     @staticmethod #TODO could this method also use __init__ and WorkflowRunner
@@ -102,14 +109,14 @@ class WidgetRunner():
                     i.value = i.connections.all()[0].output.value
                     i.save()
                 else:
-                    i.value = None
+                    i.value = ValueNotSet
                     i.save()
             if i.multi_id == 0:
                 input_dict[i.variable] = i.value
             else:
                 if not i.variable in input_dict:
                     input_dict[i.variable] = []
-                if not i.value == None:
+                if not i.value == ValueNotSet:
                     input_dict[i.variable].append(i.value)
         try:
             if widget.abstract_widget.windows_queue and settings.USE_WINDOWS_QUEUE:
@@ -119,51 +126,51 @@ class WidgetRunner():
                 outputs = executeWidgetPostInteract(widget, input_dict, output_dict, request)
 
         except:
-            widget.error = True
-            widget.running = False
-            widget.finished = False
             widget.interaction_finished = False
+            widget.set_as_faulty()
             widget.save()
             raise
-        for o in widget_outputs:
-            o.value = outputs[o.variable]
-            o.save()
-        widget.finished = True
-        widget.running = False
-        widget.error = False
-        widget.interaction_waiting = False
-        widget.interaction_finished = True
-        widget.save()
-        cons = Connection.objects.filter(output__widget=widget)
-        for c in cons:
-            c.input.widget.unfinish()
-        return outputs
-
-    def assign_outputs(self,outputs):
-        for o in self.widget_outputs:
-            try:
+        else:
+            for o in widget_outputs:
                 o.value = outputs[o.variable]
-            except:
-                pass
+                o.save()
+            widget.interaction_waiting = False
+            widget.interaction_finished = True
+            widget.set_as_finished()
+            widget.save()
+            cons = Connection.objects.filter(output__widget=widget)
+            for c in cons:
+                c.input.widget.unfinish()
+            return outputs
 
-    def get_input_dictionary_and_assign_values(self):
+    def assign_outputs(self, outputs,new_value_for_variable, workflow_runner, assign_inputs=True):
+        for o in outputs:
+            o.value = new_value_for_variable[o.variable]
+
+            if assign_inputs: #don't set connected inputs when waiting for an interaction
+                for con in workflow_runner.get_connections_for_output(o):
+                    workflow_runner.input_id_to_input[con.input_id].value = new_value_for_variable[o.variable]
+
+
+
+    def build_input_dictionary(self):
         input_dictionary = {}
         for i in self.widget_inputs:
             """ if this isn't a parameter we need to fetch it
                 from the output. """
-            if not i.parameter:
-                connection = self.workflow_runner.get_connection_for_input(i)
-                if connection:
-                    i.value = self.workflow_runner.output_id_to_output[connection.output_id].value
-                else:
-                    i.value = None
+            # if not i.parameter:
+            #     connection = self.workflow_runner.get_connection_for_input(i)
+            #     if connection:
+            #         i.value = self.workflow_runner.output_id_to_output[connection.output_id].value
+            #     else:
+            #         i.value = None
             """ here we assign the value to the dictionary """
             if i.multi_id==0:
                 input_dictionary[i.variable]=i.value
             else: # it's a multiple input
                 if not i.variable in input_dictionary:
                     input_dictionary[i.variable]=[]
-                if not i.value==None:
+                if not i.value==ValueNotSet: #not i.value==None and
                     input_dictionary[i.variable].append(i.value)
         return input_dictionary
 
