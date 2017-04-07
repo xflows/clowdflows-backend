@@ -132,6 +132,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'], url_path='run', permission_classes=[IsAdminOrSelf, ])
     def run(self, request, pk=None):
         w = self.get_object()
+        run_and_interact = self.request.GET.get('interact', '0') == '1'
         data = ''
         try:
             # find all required inputs
@@ -155,7 +156,8 @@ class WidgetViewSet(viewsets.ModelViewSet):
             w.run(False)
 
             if w.abstract_widget:
-                if w.abstract_widget.interactive:
+                if w.abstract_widget.interactive and run_and_interact:
+                    w.running = True
                     w.interaction_waiting = True
                     w.save()
                     data = json.dumps(

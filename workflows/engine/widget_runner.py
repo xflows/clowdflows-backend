@@ -66,23 +66,9 @@ class WidgetRunner():
             #assign outer outputs and connected inputs
             self.assign_outputs([outer_output], new_value_per_variable_outer, self.workflow_runner.parent_workflow_runner)
 
-
-
-
-        #wait for interaction if widget is interective and not inside a subprocess
-        if self.widget.abstract_widget_id and self.widget.abstract_widget.interactive and not self.workflow_runner.parent_workflow_runner:
-            self.widget.interaction_waiting = True
-            #assign outputs and connected inputs
-            self.assign_outputs(self.widget_outputs, new_value_per_variable, self.workflow_runner,False)
-
-            self.widget.save_with_inputs_and_outputs(
-                [self.workflow_runner.input_id_to_input[i.id] for i in self.workflow_runner.inputs_per_widget_id[self.widget.id]],
-                [self.workflow_runner.output_id_to_output[i.id] for i in self.workflow_runner.outputs_per_widget_id[self.widget.id]]
-            )
-        else:
-            self.widget.set_as_finished()
-            #assign outputs and connected inputs
-            self.assign_outputs(self.widget_outputs, new_value_per_variable, self.workflow_runner)
+        self.widget.set_as_finished()
+        #assign outputs and connected inputs
+        self.assign_outputs(self.widget_outputs, new_value_per_variable, self.workflow_runner)
 
 
 
