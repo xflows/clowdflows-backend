@@ -120,7 +120,7 @@ class Workflow(models.Model):
         """ Returns a list of widget ids, which are required to be run either for completion of the entire workflow or
         for completion of the widget represented with the last_runnable_widget_id. """
         widgets_id_to_widget = dict([(w.id,w) for w in self.widgets.all()])
-        connections=self.connections.select_related('input','output').all()
+        connections=self.connections.select_related('input','output').defer('input__value','output__value',).all()
 
         widget_id_to_predecessor_widget_ids=defaultdict(list)
         for c in connections:

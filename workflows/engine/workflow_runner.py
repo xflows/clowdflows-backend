@@ -117,7 +117,7 @@ class WorkflowRunner():
                 try:
                     if w.type == 'subprocess':
                         WorkflowRunner(w.workflow_link, parent_workflow_runner=self,representing_widget=w).run()
-                    elif not w.interaction_waiting:
+                    else:
                         WidgetRunner(w,self.inputs_per_widget_id[w.id],self.outputs_per_widget_id[w.id],self).run()
                 except NotImplementedError,c:
                     w.set_as_faulty()
