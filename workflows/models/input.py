@@ -1,6 +1,7 @@
 from django.db import models
 
 from picklefield import PickledObjectField
+from workflows.models import AbstractInput
 from workflows.models.option import Option
 
 
@@ -14,7 +15,7 @@ class Input(models.Model):
     parameter = models.BooleanField(default=False)
     value = PickledObjectField(null=True)
     multi_id = models.IntegerField(default=0)
-    abstract_input = models.ForeignKey('AbstractInput',blank=True, null=True)
+    abstract_input = models.ForeignKey('AbstractInput', blank=True, null=True)
 
     inner_output = models.ForeignKey('Output', related_name="outer_input_rel", blank=True, null=True)  # za subprocess
     outer_output = models.ForeignKey('Output', related_name="inner_input_rel", blank=True, null=True)  # za subprocess
@@ -40,7 +41,7 @@ class Input(models.Model):
         self.required = json_data['required']
         self.parameter = json_data['parameter']
         self.multi_id = json_data['multi_id']
-        self.abstract_input_id=json_data['abstract_input_id'] # TODO import from clowdflows v1.X ?
+        self.abstract_input_id = json_data['abstract_input_id']
         self.parameter_type = json_data['parameter_type']
         self.order = json_data['order']
         if self.parameter:

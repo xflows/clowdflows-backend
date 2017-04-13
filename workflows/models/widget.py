@@ -84,11 +84,13 @@ class Widget(models.Model):
         self.x = json_data['x']
         self.y = json_data['y']
         self.name = json_data['name']
-        self.save_results = json_data['save_results']
         if json_data['abstract_widget']:
             aw = AbstractWidget.objects.get(uid=json_data['abstract_widget'],
                                             package=json_data['abstract_widget_package'])
             self.abstract_widget = aw
+        # If no save_results is provided (for legacy workflows for example), set to false
+        # by default or true for interactive widgets
+        self.save_results = json_data.get('save_results', self.abstract_widget.interactive)
         self.type = json_data['type']
         self.save()
         for i in json_data['inputs']:

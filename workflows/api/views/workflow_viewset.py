@@ -1,11 +1,12 @@
 from django.db.models import Q, Max
 from django.http import HttpResponse
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 
 from workflows.api.permissions import IsAdminOrSelf
 from workflows.api.serializers import *
 from workflows.engine import WorkflowRunner
+from workflows.forms import ImportForm
 
 
 def next_order(inputs_or_outputs):
@@ -36,46 +37,46 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         workflows = Workflow.objects.prefetch_related('widget', 'user')
         preview = self.request.GET.get('preview', '0') == '1'
         if self.action == 'list' or preview:
-            user=self.request.user
+            user = self.request.user
             user_only = self.request.GET.get('user', '0') == '1'
 
             if user_only:
                 filters = Q(user=user)
             else:
                 filters = Q(user=user) | Q(public=True)
-            workflows=workflows.filter(filters).prefetch_related('connections')
+            workflows = workflows.filter(filters).prefetch_related('connections')
             if preview:
-                workflows=workflows.prefetch_related("widgets","connections__output", "connections__input")\
+                workflows = workflows.prefetch_related("widgets", "connections__output", "connections__input") \
                     .defer("connections__output__value", "connections__input__value")
         elif self.action == "retrieve":
-            workflows= Workflow.objects.prefetch_related('widget', 'user')\
-                .prefetch_related("connections","connections__output", "connections__input")\
-                .defer("connections__output__value", "connections__input__value")\
+            workflows = Workflow.objects.prefetch_related('widget', 'user') \
+                .prefetch_related("connections", "connections__output", "connections__input") \
+                .defer("connections__output__value", "connections__input__value") \
                 .prefetch_related(
                 'widget',
-                    'widgets',
-                    'widgets__inputs', 'widgets__inputs',
-                    'widgets__inputs__options',
-                    'widgets__inputs__inner_output', #TODO check why
-                    'widgets__outputs', #'outputs__inner_input',
-                    'widgets__workflow_link',
-                    'widgets__abstract_widget','widgets__abstract_widget__inputs','widgets__abstract_widget__outputs') \
+                'widgets',
+                'widgets__inputs', 'widgets__inputs',
+                'widgets__inputs__options',
+                'widgets__inputs__inner_output',  # TODO check why
+                'widgets__outputs',  # 'outputs__inner_input',
+                'widgets__workflow_link',
+                'widgets__abstract_widget', 'widgets__abstract_widget__inputs', 'widgets__abstract_widget__outputs') \
                 .defer("widgets__outputs__value", "widgets__inputs__value")
 
 
-                # .prefetch_related(
-                #     Prefetch('widgets',
-                #         queryset=Widget.objects.prefetch_related(
-                #         'inputs',
-                #         'inputs__options',
-                #         'inputs__inner_output', #why why oh why check
-                #         'outputs', #'outputs__inner_input',
-                #         'workflow'
-                #         'workflow_link',
-                #         'abstract_widget')
-                #         .defer("outputs__value", "inputs__value")
-                #     )
-                # )
+            # .prefetch_related(
+            #     Prefetch('widgets',
+            #         queryset=Widget.objects.prefetch_related(
+            #         'inputs',
+            #         'inputs__options',
+            #         'inputs__inner_output', #why why oh why check
+            #         'outputs', #'outputs__inner_input',
+            #         'workflow'
+            #         'workflow_link',
+            #         'abstract_widget')
+            #         .defer("outputs__value", "inputs__value")
+            #     )
+            # )
         return workflows
 
     @detail_route(methods=['post'], url_path='run')
@@ -378,3 +379,38 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         for widget in workflow.widgets.filter():
             widget.reset()
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
+
+    @detail_route(methods=['get'], url_path='export')
+    def export_workflow(self, request, pk=None):
+        workflow = self.get_object()
+        workflow_json = {}
+        try:
+            workflow_json = workflow.export()
+        except:
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem exporting workflow'}),
+                                content_type="application/json")
+        return HttpResponse(json.dumps({'status': 'ok', 'workflow_json': workflow_json}),
+                            content_type="application/json")
+
+    @list_route(methods=['post'], url_path='import')
+    def import_workflow(self, request, pk=None):
+        new_workflow_id = None
+        successfully_imported = False
+        form = ImportForm(request.data)
+        message = ''
+        try:
+            if form.is_valid():
+                new_workflow = Workflow()
+                new_workflow.user = request.user
+                new_workflow.import_from_json(json.loads(form.cleaned_data['data']), {}, {})
+                new_workflow_id = new_workflow.id
+                successfully_imported = True
+        except Exception, e:
+            message = e.message
+        if not successfully_imported:
+            if not form.is_valid():
+                message = '\n'.join(form.errors)
+            return HttpResponse(json.dumps({'status': 'error', 'message': message}),
+                                content_type="application/json")
+        return HttpResponse(json.dumps({'status': 'ok', 'new_workflow_id': new_workflow_id}),
+                            content_type="application/json")
