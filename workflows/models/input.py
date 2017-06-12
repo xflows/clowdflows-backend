@@ -41,7 +41,7 @@ class Input(models.Model):
         self.required = json_data['required']
         self.parameter = json_data['parameter']
         self.multi_id = json_data['multi_id']
-        if 'abstract_input_uid' in json_data:
+        if json_data.get('abstract_input_uid'):
             self.abstract_input = AbstractInput.objects.get(uid=json_data['abstract_input_uid'])
         self.parameter_type = json_data['parameter_type']
         self.order = json_data['order']
