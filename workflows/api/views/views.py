@@ -6,7 +6,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes, detail_route, list_route
 
-from mothra.local_settings import FILES_FOLDER
+from mothra.local_settings import FILES_FOLDER, PACKAGE_TREE
 from services.webservice import WebService
 from workflows.api.permissions import IsAdminOrSelf
 from workflows.api.serializers import *
@@ -85,6 +85,29 @@ def recommender_model(request):
         'recomm_for_abstract_input_id': recommender_maps[1]
     }
     return HttpResponse(json.dumps(recommender), content_type="application/json")
+
+@api_view(['GET', ])
+@permission_classes((permissions.IsAuthenticated,))
+def widget_library(request):
+    '''
+    @return: TODO 
+    '''
+    categories=Category.objects.filter(parent__isnull=True).prefetch_related(
+            'widgets','widgets__inputs','widgets__outputs','widgets__inputs__options','children')
+    hierarchy=[]
+    packages_already_added=[]
+    for category in PACKAGE_TREE:
+        filtered_categories =categories.filter(widgets__package__in=category['packages']).distinct()
+        packages_already_added.extend(category['packages'])
+
+        hierarchy.append({'children': CategorySerializer(filtered_categories,many=True).data,
+                    'name': category['name']+" widgets", 'order': category['order'], 'user': None, 'widgets': []})
+
+    hierarchy.append({'name': 'Base widgets', 'order': -1, 'user': None, 'widgets': [],
+        'children': CategorySerializer(categories.exclude(widgets__package__in=packages_already_added),many=True).data})
+
+
+    return HttpResponse(json.dumps(sorted(hierarchy, key=lambda x: x['order'])), content_type="application/json")
 
 
 class UserViewSet(viewsets.ModelViewSet):

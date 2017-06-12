@@ -19,6 +19,7 @@ router.register(r'outputs', views.OutputViewSet, base_name='output')
 router.register(r'widget-library', views.CategoryViewSet, base_name='widget-library')
 
 urlpatterns = [
+   url(r'^widget-library/$', views.widget_library, name='widget-library'),
    url(r'^register/$', views.user_register, name='api-user-register'),
    url(r'^login/$', views.user_login, name='api-user-login'),
    url(r'^logout/$', views.user_logout, name='api-user-logout'),

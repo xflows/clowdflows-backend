@@ -44,6 +44,10 @@ INSTALLED_APPS_WORKFLOWS_SUB = (
     # 'workflows.hbp',
 )
 
+PACKAGE_TREE=[
+    # {"name": "Relational data mining","packages": ['rdm.db','rdm.wrappers'],"order": 1 }
+]
+
 INSTALLED_APPS_EXTERNAL_PACKAGES = (
     #'rdm.db',
     #'rdm.wrappers'
