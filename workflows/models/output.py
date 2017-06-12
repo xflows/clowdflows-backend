@@ -22,7 +22,7 @@ class Output(models.Model):
         self.short_name = json_data['short_name']
         self.description = json_data['description']
         self.variable = json_data['variable']
-        if json_data('abstract_output_uid'):
+        if json_data.get('abstract_output_uid'):
             self.abstract_output= AbstractOutput.objects.get(uid=json_data['abstract_output_uid'])
         self.order = json_data['order']
         self.save()
