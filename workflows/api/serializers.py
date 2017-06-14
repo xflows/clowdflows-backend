@@ -195,12 +195,16 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
     user = UserSerializer(read_only=True)
     is_subprocess = serializers.SerializerMethodField()
     is_public = serializers.BooleanField(source='public')
+    can_be_streaming = serializers.SerializerMethodField()
 
     def get_is_subprocess(self, obj):
         if obj.widget == None:
             return False
         else:
             return True
+
+    def get_can_be_streaming(self, obj):
+        return obj.can_be_streaming()
 
     class Meta:
         model = Workflow
