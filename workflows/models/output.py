@@ -1,7 +1,7 @@
 from django.db import models
 
 from picklefield import PickledObjectField
-from workflows.models import Input
+from workflows.models import Input, AbstractOutput
 
 
 class Output(models.Model):
@@ -22,7 +22,8 @@ class Output(models.Model):
         self.short_name = json_data['short_name']
         self.description = json_data['description']
         self.variable = json_data['variable']
-        self.abstract_output_id= json_data['abstract_output_id'] # TODO import from clowdflows v1.X ?
+        if json_data.get('abstract_output_uid'):
+            self.abstract_output= AbstractOutput.objects.get(uid=json_data['abstract_output_uid'])
         self.order = json_data['order']
         self.save()
         output_conversion[json_data['pk']] = self.pk
@@ -38,7 +39,8 @@ class Output(models.Model):
         d['short_name'] = self.short_name
         d['description'] = self.description
         d['variable'] = self.variable
-        d['abstract_output_id'] = self.abstract_output_id
+        if self.abstract_output:
+            d['abstract_output_uid'] = self.abstract_output.uid
         d['order'] = self.order
         d['pk'] = self.pk
         try:

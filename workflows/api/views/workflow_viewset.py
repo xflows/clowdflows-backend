@@ -1,3 +1,4 @@
+import traceback
 from django.db.models import Q, Max
 from django.http import HttpResponse
 from rest_framework import viewsets
@@ -406,6 +407,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
                 new_workflow_id = new_workflow.id
                 successfully_imported = True
         except Exception, e:
+            print traceback.format_exc(e)
             message = e.message
         if not successfully_imported:
             if not form.is_valid():

@@ -18,6 +18,16 @@ def safeOpen(filename):
         raise Exception("Invalid filename.")
 
 
+def flat(lis):
+    for item in lis:
+        if isinstance(item, list):  # and not isinstance(item, basestring):
+            for x in flat(item):
+                yield x
+        else:
+            yield item
+def flatten(lis):
+    return list(flat(lis))
+
 
 def fix_inputs_and_outputs_without_abstract_ids():
     '''finds inputs and outputs which have blank abstract_input(output)_ids and sets it by finding the appropriate
