@@ -9,17 +9,20 @@
 
     <!-- Behaviour -->
     <script type="text/javascript">
+
         function execCode() {
             var inputs = {{ inputs|safe }};
-            
+
             {{ snippet|safe }}
 
             // To ensure that `out` is always json-serializable, always add it to a list
             out = [out];
-            $('#out-{{widget.pk}}').val(JSON.stringify(out));
+            document.getElementById('out-{{widget.pk}}').setAttribute('value', JSON.stringify(out));
 
             // Finish interaction after the code executes
-            $("#widgetinteract-{{widget.pk}}").parent().find('button').click();
+            var interactDialog = document.getElementById('widgetinteract-{{widget.pk}}');
+            var finishInteractionBtn = interactDialog.parentElement.parentElement.getElementsByClassName('btn-primary')[0];
+            finishInteractionBtn.click();
         };
 
         setTimeout(execCode, 500);

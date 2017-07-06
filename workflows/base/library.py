@@ -226,8 +226,8 @@ def base_js_snippet(input_dict):
 
 def base_js_snippet_finished(postdata, input_dict, output_dict):
     try:
-        out_list = json.loads(postdata['out'][0])
-        out = out_list[0]
+        out_list = json.loads(postdata['out'])[0]
+        out = out_list
     except:
         raise Exception("Problem de-serializing the output.")
     return {'out': out}
