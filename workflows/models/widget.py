@@ -46,6 +46,13 @@ class Widget(models.Model):
 
     progress = models.IntegerField(default=0)
 
+    def prerequisite_widgets(self):
+        return Widget.objects.filter(outputs__connections__input__widget=self)
+
+    def following_widgets(self):
+        return Widget.objects.filter(inputs__connections__output__widget=self)
+
+
     def is_special_subprocess_type(self):
         return self.type in ['input', 'output', 'for_input', 'for_output', 'cv_input', 'cv_output', 'cv_input2',
                              'cv_input3']
@@ -218,11 +225,7 @@ class Widget(models.Model):
             return False
 
     def ready_to_run(self):
-        cons = Connection.objects.filter(input__widget=self)
-        for c in cons:
-            if not c.output.widget.finished:
-                return False
-        return True
+        return self.prerequisite_widgets().filter(finished=False).count() == 0
 
     def unfinish(self):
         self.descendants_to_reset()

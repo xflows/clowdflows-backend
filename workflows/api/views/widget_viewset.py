@@ -196,7 +196,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
             for o in w.outputs.all():
                 output_dict[o.variable] = o.value
             input_dict = {}
-            for i in w.inputs.all():
+            for i in w.inputs.all().defer('value'):
                 if not i.parameter:
                     if i.connections.count() > 0:
                         i.value = i.connections.all()[0].output.value
@@ -224,7 +224,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
         if request.method == 'GET':
             input_dict = {}
             output_dict = {}
-            for i in w.inputs.all():
+            for i in w.inputs.all().defer('value'):
                 if not i.parameter:
                     if i.connections.count() > 0:
                         i.value = i.connections.all()[0].output.value
