@@ -104,7 +104,7 @@ def widget_library(request):
                     'name': category['name']+" widgets", 'order': category['order'], 'user': None, 'widgets': []})
 
     hierarchy.append({'name': 'Base widgets', 'order': -1, 'user': None, 'widgets': [],
-        'children': CategorySerializer(categories.exclude(widgets__package__in=packages_already_added),many=True).data})
+        'children': CategorySerializer(categories.exclude(widgets__package__in=packages_already_added), context={'request': request}, many=True).data})
 
 
     return HttpResponse(json.dumps(sorted(hierarchy, key=lambda x: x['order'])), content_type="application/json")
