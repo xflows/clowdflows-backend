@@ -54,7 +54,7 @@ class Output(models.Model):
         return d
 
     class Meta:
-        ordering = ('order',)
+        ordering = ('order','pk')
 
     def __unicode__(self):
         return unicode(self.name)

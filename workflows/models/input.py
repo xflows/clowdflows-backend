@@ -31,7 +31,7 @@ class Input(models.Model):
     order = models.PositiveIntegerField(default=1)
 
     class Meta:
-        ordering = ('order',)
+        ordering = ('order','pk')
 
     def import_from_json(self, json_data, input_conversion, output_conversion):
         self.name = json_data['name']
