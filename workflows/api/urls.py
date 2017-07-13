@@ -11,6 +11,7 @@ router.register(r'abstract_inputs', views.AbstractInputViewSet, base_name='abstr
 router.register(r'abstract_outputs', views.AbstractOutputViewSet, base_name='abstractoutput')
 router.register(r'outputs', views.OutputViewSet, base_name='output')
 router.register(r'users', views.UserViewSet, base_name='user')
+router.register(r'streams', views.StreamViewSet, base_name='stream')
 router.register(r'workflows', views.WorkflowViewSet, base_name='workflow')
 router.register(r'widgets', views.WidgetViewSet, base_name='widget')
 router.register(r'connections', views.ConnectionViewSet, base_name='connection')

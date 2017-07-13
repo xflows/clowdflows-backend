@@ -120,6 +120,17 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
 
 
+class StreamViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows connections to be viewed or edited.
+    """
+    permission_classes = (IsAdminOrSelf,)
+    serializer_class = StreamSerializer
+    model = Stream
+    queryset = Stream.objects.all()
+
+
+
 class InputViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows widget inputs to be viewed or edited.

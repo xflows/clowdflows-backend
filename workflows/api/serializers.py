@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from mothra.settings import STATIC_URL, MEDIA_URL
+from streams.models import Stream
 from workflows.models import *
 
 
@@ -190,9 +191,20 @@ def get_workflow_preview(request, obj):
     return preview_html
 
 
+class StreamSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    last_executed = serializers.DateTimeField(read_only=True)
+    period = serializers.IntegerField()
+    active = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Stream
+
+
 class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     user = UserSerializer(read_only=True)
+    stream = StreamSerializer()
     is_subprocess = serializers.SerializerMethodField()
     is_public = serializers.BooleanField(source='public')
     can_be_streaming = serializers.SerializerMethodField()
@@ -205,6 +217,9 @@ class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_can_be_streaming(self, obj):
         return obj.can_be_streaming()
+
+    def get_stream_active(self, obj):
+        return None
 
     class Meta:
         model = Workflow
