@@ -200,7 +200,6 @@ class StreamSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Stream
 
-
 class WorkflowListSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     user = UserSerializer(read_only=True)
@@ -387,3 +386,8 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Workflow
         exclude = ('public',)
+
+
+class StreamDetailSerializer(StreamSerializer):
+    workflow = WorkflowListSerializer(read_only=True)
+

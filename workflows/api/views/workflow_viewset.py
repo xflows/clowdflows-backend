@@ -416,3 +416,15 @@ class WorkflowViewSet(viewsets.ModelViewSet):
                                 content_type="application/json")
         return HttpResponse(json.dumps({'status': 'ok', 'new_workflow_id': new_workflow_id}),
                             content_type="application/json")
+
+    @detail_route(methods=['post'], url_path='start-streaming')
+    def start_stream(self, request, pk=None):
+        w = self.get_object()
+        if w.can_be_streaming():
+            s = Stream(workflow=w, user=request.user, active=True)
+            s.save()
+        else:
+            message = 'You can only stream workflows containing streaming widgets.'
+            data = json.dumps({'message': message, 'status': 'error'})
+            return HttpResponse(data, 'application/json')
+        return HttpResponse(json.dumps({'status': 'ok', 'stream_id': s.pk}), content_type="application/json")
