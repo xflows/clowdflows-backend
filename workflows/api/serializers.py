@@ -369,6 +369,14 @@ class WidgetListSerializer(serializers.HyperlinkedModelSerializer):
         # exclude = ('abstract_widget',)
 
 
+class StreamWidgetSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Widget
+        fields = ('id', 'url', 'name')
+
+
 class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     widgets = WidgetSerializer(many=True, read_only=True)
@@ -390,4 +398,9 @@ class WorkflowSerializer(serializers.HyperlinkedModelSerializer):
 
 class StreamDetailSerializer(StreamSerializer):
     workflow = WorkflowListSerializer(read_only=True)
+    stream_visualization_widgets = serializers.SerializerMethodField()
 
+    def get_stream_visualization_widgets(self, obj):
+        widgets = obj.stream_visualization_widgets()
+        data = StreamWidgetSerializer(widgets, many=True, read_only=True, context={'request': self.context['request']}).data
+        return data

@@ -1,7 +1,7 @@
 import traceback
 
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404
@@ -10,6 +10,7 @@ from workflows.api.permissions import IsAdminOrSelf
 from workflows.api.serializers import *
 from workflows.engine import WidgetRunner, ValueNotSet
 import workflows as workflows_app
+import workflows.views as workflows_views   # To avoid name-clashing with workflows.api.views
 
 
 class WidgetViewSet(viewsets.ModelViewSet):
@@ -373,6 +374,15 @@ class WidgetViewSet(viewsets.ModelViewSet):
             return HttpResponse(json.dumps(widget_data), 'application/json')
         else:
             return HttpResponse(status=400)
+
+    @detail_route(methods=['get'], url_path='stream-visualization', permission_classes=[IsAdminOrSelf, ])
+    def stream_widget_visualization(self, request, pk=None):
+        widget = self.get_object()
+        if widget.abstract_widget.streaming_visualization_view == '':
+            raise Http404
+        else:
+            view_to_call = getattr(workflows_views, widget.abstract_widget.streaming_visualization_view)
+            return view_to_call(request, widget, widget.workflow.stream)
 
     def destroy(self, request, pk=None, **kwargs):
         widget = self.get_object()
