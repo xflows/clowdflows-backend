@@ -18,6 +18,7 @@ class Workflow(models.Model):
     description = models.TextField(blank=True, default='')  # a field
     widget = models.OneToOneField('Widget', related_name="workflow_link", blank=True, null=True)
     template_parent = models.ForeignKey('Workflow', blank=True, null=True, default=None, on_delete=models.SET_NULL)
+    staff_pick = models.BooleanField(default=False)
 
     def import_from_json(self, json_data, input_conversion, output_conversion):
         self.name = json_data['name']
@@ -207,6 +208,7 @@ def copy_workflow(old, user, parent_widget_conversion={}, parent_input_conversio
     w.user = user
     w.public = False
     w.description = old.description
+    w.staff_pick = False
     w.template_parent = old
     if not parent_widget is None:
         w.widget = parent_widget

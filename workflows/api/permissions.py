@@ -12,6 +12,8 @@ class IsAdminOrSelf(permissions.BasePermission):
                 serializer.is_valid()
                 workflow = serializer.validated_data['workflow']
                 return workflow.user == request.user
+            if view.model == Workflow and 'staff_pick' in request.data:
+                return request.user.is_staff
             else:
                 return True
 
