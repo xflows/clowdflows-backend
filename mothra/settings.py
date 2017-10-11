@@ -9,8 +9,12 @@ BACKUP_DIR = os.path.join(PROJECT_DIR, 'backup')
 
 DEBUG = False
 
+SECRET_KEY = '7du*6g0lg)0a!ba+a$ehk)xt)x%rxgb$i1&amp;133sdmdqjcgihb*'
+
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+    ('Anze', 'anze.vavpetic@ijs.si'),
+    ('Janez', 'janez.kranjc@ijs.si'),
+    ('Matic', 'matic.perovsek@ijs.si')
 )
 
 MANAGERS = ADMINS
