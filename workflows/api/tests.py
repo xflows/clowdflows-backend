@@ -129,7 +129,7 @@ class WorkflowAPITests(BaseAPITestCase):
         self._test_multiple_response_codes(
             self.client.patch,
             [url_other_user_private, url_other_user_public],
-            [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN],
+            [status.HTTP_403_FORBIDDEN, status.HTTP_403_FORBIDDEN],
             data=workflowData
         )
 
@@ -149,7 +149,7 @@ class WorkflowAPITests(BaseAPITestCase):
         self._test_multiple_response_codes(
             self.client.delete,
             [url, url_other_user_private, url_other_user_public],
-            [status.HTTP_204_NO_CONTENT, status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN]
+            [status.HTTP_204_NO_CONTENT, status.HTTP_403_FORBIDDEN, status.HTTP_403_FORBIDDEN]
         )
 
         self._logout()
@@ -179,7 +179,7 @@ class WorkflowAPITests(BaseAPITestCase):
         self._test_multiple_response_codes(
             self.client.post,
             [url_other_user_private, url_other_user_public],
-            [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN]
+            [status.HTTP_403_FORBIDDEN, status.HTTP_403_FORBIDDEN]
         )
 
         self._logout()
@@ -207,7 +207,7 @@ class WorkflowAPITests(BaseAPITestCase):
         self._test_multiple_response_codes(
             self.client.post,
             [url_other_user_private, url_other_user_public],
-            [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN]
+            [status.HTTP_403_FORBIDDEN, status.HTTP_403_FORBIDDEN]
         )
 
         self._logout()
@@ -231,7 +231,7 @@ class WorkflowAPITests(BaseAPITestCase):
         self._test_multiple_response_codes(
             self.client.post,
             [url_other_user_private, url_other_user_public],
-            [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN]
+            [status.HTTP_403_FORBIDDEN, status.HTTP_403_FORBIDDEN]
         )
 
         # Get subprocess workflow object

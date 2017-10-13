@@ -299,7 +299,8 @@
       "public": false,
       "description": "",
       "widget": null,
-      "template_parent": null
+      "template_parent": null,
+      "staff_pick": false
     }
   },
   {
@@ -311,7 +312,8 @@
       "public": true,
       "description": "Tole je opis.",
       "widget": null,
-      "template_parent": null
+      "template_parent": null,
+      "staff_pick": false
     }
   },
   {
@@ -323,7 +325,8 @@
       "public": false,
       "description": "",
       "widget": null,
-      "template_parent": 1
+      "template_parent": 1,
+      "staff_pick": false
     }
   },
   {
@@ -335,7 +338,8 @@
       "public": false,
       "description": "",
       "widget": null,
-      "template_parent": null
+      "template_parent": null,
+      "staff_pick": false
     }
   },
   {
@@ -347,7 +351,8 @@
       "public": true,
       "description": "",
       "widget": null,
-      "template_parent": null
+      "template_parent": null,
+      "staff_pick": false
     }
   },
   {
@@ -359,7 +364,8 @@
       "public": false,
       "description": "",
       "widget": 24,
-      "template_parent": null
+      "template_parent": null,
+      "staff_pick": false
     }
   },
   {
@@ -371,7 +377,8 @@
       "public": false,
       "description": "",
       "widget": 30,
-      "template_parent": null
+      "template_parent": null,
+      "staff_pick": false
     }
   },
   {
