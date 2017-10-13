@@ -18,20 +18,20 @@ class IsAdminOrSelf(permissions.BasePermission):
                 return True
 
     def has_object_permission(self, request, view, obj):
-        if request.user and request.user.is_authenticated() and request.method in permissions.SAFE_METHODS or \
-                request.user.is_superuser:
-            return True
+        if request.user and request.user.is_authenticated():
+            if request.user.is_superuser:
+                return True
 
-        # Allow only editing of the user's workflow objects
-        if isinstance(obj, Workflow):
-            return obj.user == request.user
-        if isinstance(obj, Widget):
-            return obj.workflow.user == request.user
-        if isinstance(obj, Connection):
-            return obj.workflow.user == request.user
-        if isinstance(obj, Input):
-            return obj.widget.workflow.user == request.user
-        if isinstance(obj, Output):
-            return obj.widget.workflow.user == request.user
-        else:
-            return False
+            # Allow only editing of the user's workflow objects
+            if isinstance(obj, Workflow):
+                return obj.user == request.user
+            if isinstance(obj, Widget):
+                return obj.workflow.user == request.user
+            if isinstance(obj, Connection):
+                return obj.workflow.user == request.user
+            if isinstance(obj, Input):
+                return obj.widget.workflow.user == request.user
+            if isinstance(obj, Output):
+                return obj.widget.workflow.user == request.user
+
+        return False
