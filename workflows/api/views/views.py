@@ -90,15 +90,13 @@ def recommender_model(request):
 @api_view(['GET', ])
 @permission_classes((permissions.IsAuthenticated,))
 def widget_library(request):
-    '''
-    @return: TODO 
-    '''
     categories = Category.objects.filter(parent__isnull=True).prefetch_related(
         'widgets', 'widgets__inputs', 'widgets__outputs', 'widgets__inputs__options', 'children')
     hierarchy = []
     packages_already_added = []
     for category in PACKAGE_TREE:
-        filtered_categories = categories.filter(widgets__package__in=category['packages']).distinct()
+        filtered_categories = categories.filter(Q(widgets__package__in=category['packages']) | Q(
+            children__widgets__package__in=category['packages'])).distinct()
         packages_already_added.extend(category['packages'])
 
         hierarchy.append({'children': CategorySerializer(filtered_categories, many=True).data,
