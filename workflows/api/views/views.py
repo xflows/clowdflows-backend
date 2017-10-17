@@ -93,18 +93,18 @@ def widget_library(request):
     categories = Category.objects.filter(parent__isnull=True).prefetch_related(
         'widgets', 'widgets__inputs', 'widgets__outputs', 'widgets__inputs__options', 'children')
     hierarchy = []
-    packages_already_added = []
+    category_ids_already_added = []
     for category in PACKAGE_TREE:
         filtered_categories = categories.filter(Q(widgets__package__in=category['packages']) | Q(
             children__widgets__package__in=category['packages'])).distinct()
-        packages_already_added.extend(category['packages'])
+        category_ids_already_added.extend([c.id for c in filtered_categories])
 
         hierarchy.append({'children': CategorySerializer(filtered_categories, many=True).data,
                           'name': category['name'] + " widgets", 'order': category['order'], 'user': None,
                           'widgets': []})
 
     hierarchy.append({'name': 'Base widgets', 'order': -1, 'user': None, 'widgets': [],
-                      'children': CategorySerializer(categories.exclude(widgets__package__in=packages_already_added),
+                      'children': CategorySerializer(categories.exclude(id__in=category_ids_already_added),
                                                      context={'request': request}, many=True).data})
 
     return HttpResponse(json.dumps(sorted(hierarchy, key=lambda x: x['order'])), content_type="application/json")
