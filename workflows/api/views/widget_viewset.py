@@ -154,6 +154,8 @@ class WidgetViewSet(viewsets.ModelViewSet):
             if w.type == 'for_input' or w.type == 'for_output':
                 raise Exception("You can't run for loops like this. Please run the containing widget.")
 
+            w.finished = False
+            w.save()
             w.run(False)
 
             if w.abstract_widget:
