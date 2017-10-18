@@ -411,7 +411,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             message = e.message
         if not successfully_imported:
             if not form.is_valid():
-                message = '\n'.join(form.errors)
+                message = '\n'.join(map(lambda err: err[1][0], form.errors.items()))
             return HttpResponse(json.dumps({'status': 'error', 'message': message}),
                                 content_type="application/json")
         return HttpResponse(json.dumps({'status': 'ok', 'new_workflow_id': new_workflow_id}),
