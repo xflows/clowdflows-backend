@@ -153,7 +153,7 @@ INSTALLED_APPS_DEFAULT = (
     'django.contrib.admin',
     'django_extensions',
     'django.contrib.humanize',
-    'orderable_inlines',
+    #'orderable_inlines',
     'workflows',
     'picklefield',
     'streams',
