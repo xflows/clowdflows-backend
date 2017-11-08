@@ -1,11 +1,11 @@
 Django==1.11.6
 Pillow==4.3.0
-PySimpleSOAP==1.05a
+https://github.com/pysimplesoap/pysimplesoap/archive/master.zip
+#PySimpleSOAP==1.16
 Werkzeug==0.8.3
 django-extensions==1.6.7
-django-orderable-inlines==0.0.6
 httplib2==0.7.5
-wsgiref==0.1.2
+#wsgiref==0.1.2
 unidecode==0.04.13
 django-jsonview==1.0.0
 celery<4.0.0

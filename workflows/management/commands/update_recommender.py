@@ -8,4 +8,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         recomm_for_abstract_output_id, recomm_for_abstract_input_id = Recommender.calculate_recommendations()
         Recommender.save_recommendations(recomm_for_abstract_output_id, recomm_for_abstract_input_id)
-        print "Succesfully calculated and saved recommendations."
+        print("Succesfully calculated and saved recommendations.")

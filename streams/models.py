@@ -155,7 +155,7 @@ class Stream(models.Model):
 
 
     def __unicode__(self):
-        return unicode(self.workflow)+' stream'
+        return str(self.workflow)+' stream'
 
 class StreamWidgetData(models.Model):
     stream = models.ForeignKey(Stream, related_name="widget_data")

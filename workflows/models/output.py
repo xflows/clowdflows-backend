@@ -57,5 +57,5 @@ class Output(models.Model):
         ordering = ('order','pk')
 
     def __unicode__(self):
-        return unicode(self.name)
+        return str(self.name)
 

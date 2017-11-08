@@ -1,4 +1,4 @@
-from urlparse import parse_qs
+from urllib.parse import parse_qs
 from channels import Group
 from channels.sessions import channel_session
 

@@ -139,7 +139,7 @@ class Workflow(models.Model):
                     check_widgets.update(predecessors)
             return list(widget_ids)
         else:
-            return widgets_id_to_widget.keys()
+            return list(widgets_id_to_widget.keys())
 
     def get_runnable_widgets(self,last_runnable_widget_id=None):
         return self.widgets.filter(id__in=self.get_runnable_widget_ids(last_runnable_widget_id=last_runnable_widget_id))\
@@ -188,7 +188,7 @@ class Workflow(models.Model):
         return ('export workflow', [str(self.id)])
 
     def __unicode__(self):
-        return unicode(self.name)
+        return str(self.name)
 
     class Meta:
         ordering = ['name']

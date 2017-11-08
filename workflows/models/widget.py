@@ -142,10 +142,10 @@ class Widget(models.Model):
         return d
 
     def recommended_input_widgets(self):
-        return filter(None, self.calc_recomm_inp())
+        return [i for i in self.calc_recomm_inp() if i]
 
     def recommended_output_widgets(self):
-        return filter(None, self.calc_recomm_out())
+        return [o for o in self.calc_recomm_out() if o]
 
     def calc_recomm_inp(self):
         num_recomm = 10
@@ -167,13 +167,13 @@ class Widget(models.Model):
                 rarr = sorted(rarr, key=lambda r: r.count, reverse=True)[:num_recomm]
                 for r in rarr:
                     # print "  widget:" + str( r.out.widget.name ) + " (out:" + str( r.out.name ) + ")  count: " + str( r.count )
-                    if not (recomm_dict.has_key(r.out.widget.name)):
+                    if not (r.out.widget.name in recomm_dict):
                         recomm_dict[r.out.widget.name] = 0
 
                     recomm_dict[r.out.widget.name] += r.count
 
         # convert to tuple and sort; result: list of tuples
-        recomm_lt = sorted(recomm_dict.items(), key=lambda el: el[1], reverse=True)
+        recomm_lt = sorted(list(recomm_dict.items()), key=lambda el: el[1], reverse=True)
         # print aw.name + ".recomm_inp: " + str(recomm_lt)
         recomm_l = [el[0] for el in recomm_lt]
         return recomm_l
@@ -195,13 +195,13 @@ class Widget(models.Model):
             rarr = sorted(rarr, key=lambda r: r.count, reverse=True)[:num_recomm]
             for r in rarr:
                 # print "  widget:" + str( r.inp.widget.name ) + " (out:" + str( r.inp.name ) + ")  count: " + str( r.count )
-                if not (recomm_dict.has_key(r.inp.widget.name)):
+                if not (r.inp.widget.name in recomm_dict):
                     recomm_dict[r.inp.widget.name] = 0
 
                 recomm_dict[r.inp.widget.name] += r.count
 
         # convert to tuple and sort; result: list of tuples
-        recomm_lt = sorted(recomm_dict.items(), key=lambda el: el[1], reverse=True)
+        recomm_lt = sorted(list(recomm_dict.items()), key=lambda el: el[1], reverse=True)
         # print aw.name + ".recomm_out: " + str(recomm_lt)
         recomm_l = [el[0] for el in recomm_lt]
         return recomm_l
@@ -292,7 +292,7 @@ class Widget(models.Model):
                 pairs.append((c.output.widget_id, c.input.widget_id))
         next = {}
         for p in pairs:
-            if not next.has_key(p[0]):
+            if p[0] not in next:
                 next[p[0]] = set()
             next[p[0]].add(p[1])
         widgets_that_need_reset = set([self.pk, ])
@@ -323,7 +323,7 @@ class Widget(models.Model):
         self.save(force_update=force_update)
 
     def __unicode__(self):
-        return unicode(self.name)
+        return str(self.name)
 
 
 @receiver(post_save, sender=Widget)

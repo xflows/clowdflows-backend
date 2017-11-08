@@ -7,6 +7,7 @@ from django.utils.encoding import force_text
 
 from . import DEFAULT_PROTOCOL
 from .compat import _PickledObjectField, dumps, loads
+import collections
 
 
 class PickledObject(str):
@@ -39,7 +40,7 @@ class _ObjectWrapper(object):
 
 
 def wrap_conflictual_object(obj):
-    if hasattr(obj, 'prepare_database_save') or callable(obj):
+    if hasattr(obj, 'prepare_database_save') or isinstance(obj, collections.Callable):
         obj = _ObjectWrapper(obj)
     return obj
 
@@ -96,7 +97,7 @@ class PickledObjectField(_PickledObjectField):
 
         """
         if self.has_default():
-            if callable(self.default):
+            if isinstance(self.default, collections.Callable):
                 return self.default()
             return self.default
         # If the field doesn't have a default, then we punt to models.Field.

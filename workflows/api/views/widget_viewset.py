@@ -124,8 +124,8 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 reordered = True
             if changed:
                 widget.unfinish()
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem saving configuration'}),
                                 content_type="application/json")
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
@@ -147,7 +147,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                         multi_satisfied[inp.multi_id] = (str(inp), multi_satisfied.get(inp.multi_id, False))
                 elif inp.multi_id != 0:
                     multi_satisfied[inp.multi_id] = (str(inp), True)
-            for mid in multi_satisfied.keys():
+            for mid in list(multi_satisfied.keys()):
                 if multi_satisfied[mid][1] == False:
                     raise Exception("The input '{}' must have something connected to it in order to run.".format(
                         multi_satisfied[mid][0]))
@@ -175,7 +175,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                         {'status': 'ok', 'message': 'Widget \'{}\' executed successfully.'.format(w.name)})
             else:
                 data = json.dumps({'status': 'ok', 'message': 'Widget \'{}\' executed successfully.'.format(w.name)})
-        except Exception, e:
+        except Exception as e:
             traceback.print_exc()
             w.error = True
             w.running = False
@@ -259,14 +259,14 @@ class WidgetViewSet(viewsets.ModelViewSet):
                     data = json.dumps(
                         {'status': 'ok', 'message': 'Widget {} executed successfully.'.format(w.name),
                          'widget_id': w.id})
-            except Exception, e:
+            except Exception as e:
                 w.error = True
                 w.running = False
                 w.finished = False
                 w.interaction_waiting = False
                 w.interaction_finished = False
                 w.save()
-                print traceback.format_exc(e)
+                print(traceback.format_exc(e))
                 # raise
                 for o in w.outputs.all():
                     o.value = None

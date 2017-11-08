@@ -177,7 +177,7 @@ class InputViewSet(viewsets.ModelViewSet):
             input.widget.unfinish()
             data = json.dumps(
                 {'status': 'ok', 'message': 'File successfully uploaded'})
-        except Exception, e:
+        except Exception as e:
             data = json.dumps(
                 {'status': 'error', 'message': 'Problem uploading file: {}'.format(str(e))})
         return HttpResponse(data, 'application/json')

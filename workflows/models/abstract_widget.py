@@ -89,5 +89,5 @@ class AbstractWidget(models.Model):
         self.category.update_uid()
 
     def __unicode__(self):
-        return unicode(self.name)
+        return str(self.name)
 
