@@ -119,12 +119,12 @@ class WorkflowRunner():
                         WorkflowRunner(w.workflow_link, parent_workflow_runner=self,representing_widget=w).run()
                     else:
                         WidgetRunner(w,self.inputs_per_widget_id[w.id],self.outputs_per_widget_id[w.id],self).run()
-                except NotImplementedError,c:
+                except NotImplementedError as c:
                     w.set_as_faulty()
                     self.save()
                     raise c
             runnable_widgets = self.runnable_widgets
-            print runnable_widgets
+            print(runnable_widgets)
 
     def run(self):
         self.cleanup()

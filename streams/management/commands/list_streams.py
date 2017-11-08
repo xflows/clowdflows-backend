@@ -21,7 +21,7 @@ class Command(NoArgsCommand):
                 if delta_seconds > stream.period:
                     stream.last_executed = now
                     stream.save()
-                    self.stdout.write(u"<"+str(now)+">Executing "+unicode(stream)+"...")
+                    self.stdout.write("<"+str(now)+">Executing "+str(stream)+"...")
                     self.stdout.flush()
                     stream.execute()
                     self.stdout.write("done!\n")

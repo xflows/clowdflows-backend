@@ -257,7 +257,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             widget.defered_outputs = widget.outputs.defer("value").all()
             widget.defered_inputs = widget.inputs.defer("value").all()
             widgets = [for_input, widget]
-            widget_data = map(lambda w: WidgetSerializer(w, context={'request': request}).data, widgets)
+            widget_data = [WidgetSerializer(w, context={'request': request}).data for w in widgets]
             return HttpResponse(json.dumps(widget_data), 'application/json')
 
     @detail_route(methods=['post'], url_path='subprocess-xvalidation')
@@ -371,7 +371,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             widget.defered_outputs = widget.outputs.defer("value").all()
             widget.defered_inputs = widget.inputs.defer("value").all()
             widgets = [cv_input_data, widget]
-            widget_data = map(lambda w: WidgetSerializer(w, context={'request': request}).data, widgets)
+            widget_data = [WidgetSerializer(w, context={'request': request}).data for w in widgets]
             return HttpResponse(json.dumps(widget_data), 'application/json')
 
     @detail_route(methods=['post'], url_path='reset')
@@ -406,12 +406,12 @@ class WorkflowViewSet(viewsets.ModelViewSet):
                 new_workflow.import_from_json(json.loads(form.cleaned_data['data']), {}, {})
                 new_workflow_id = new_workflow.id
                 successfully_imported = True
-        except Exception, e:
-            print traceback.format_exc(e)
+        except Exception as e:
+            print(traceback.format_exc(e))
             message = e.message
         if not successfully_imported:
             if not form.is_valid():
-                message = '\n'.join(map(lambda err: err[1][0], form.errors.items()))
+                message = '\n'.join([err[1][0] for err in form.errors.items()])
             return HttpResponse(json.dumps({'status': 'error', 'message': message}),
                                 content_type="application/json")
         return HttpResponse(json.dumps({'status': 'ok', 'new_workflow_id': new_workflow_id}),

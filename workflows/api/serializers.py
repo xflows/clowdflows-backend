@@ -60,7 +60,7 @@ class AbstractWidgetSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = AbstractWidget
-        fields = ('id', 'name', 'interactive', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage')
+        fields = ('id', 'name', 'interactive', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage', 'description')
         read_only_fields = ('id', 'name', 'interactive', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage')
 
 

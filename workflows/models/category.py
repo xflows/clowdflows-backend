@@ -27,7 +27,7 @@ class Category(models.Model):
 
     def __unicode__(self):
         if self.parent is None:
-            return unicode(self.name)
+            return str(self.name)
         else:
-            return unicode(unicode(self.parent) + " :: " + self.name)
+            return str(str(self.parent) + " :: " + self.name)
 

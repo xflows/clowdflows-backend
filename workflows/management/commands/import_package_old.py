@@ -56,7 +56,7 @@ def import_package_string(writeFunc, string, replace, verbosity=1):
     if len(Counter([x.object.uid for x in objsFile])) != len(objsFile):
         a = sorted([x.object.uid for x in objsFile])
         for x in a:
-            print x
+            print(x)
         raise CommandError('Input process terminated without any changes to the database. There were multiple equal '
                            'UIDs defined on different models in the given input file. The input procedure can not continue '
                            'from safety reasons. Please resolve manually!')
@@ -99,7 +99,7 @@ def import_package_string(writeFunc, string, replace, verbosity=1):
             if x.uid:
                 objs_per_uid[x.uid].append(x)
 
-        for uid,objs in objs_per_uid.items():
+        for uid,objs in list(objs_per_uid.items()):
             if len(objs)>1:
                 error_txt+="\n\nUID:     "+str(uid)+"\nobjects: "+str(objs)
         raise CommandError(error_txt)
@@ -107,7 +107,7 @@ def import_package_string(writeFunc, string, replace, verbosity=1):
     #create new to existing id mapping and check for type match
     idMappingDict = dict()
     for objFile in objsFile:
-        if objsdbDict.has_key(objFile.object.uid):
+        if objFile.object.uid in objsdbDict:
             objDb = objsdbDict[objFile.object.uid]
             objFileTypeId = str(type(objFile.object))+':'+str(objFile.object.id)
             objDbTypeId = str(type(objDb))+':'+str(objDb.id)
@@ -142,7 +142,7 @@ def import_package_string(writeFunc, string, replace, verbosity=1):
 
         if verbosity>1:
             objFileTypeIdStr = objFileTypeId.replace(":",":"+" "*(47-len(objFileTypeId)))
-            if idMappingDict.has_key(objFileTypeId):
+            if objFileTypeId in idMappingDict:
                 writeFunc('updating: ' + objFileTypeIdStr + ' => <db_id>: ' + str(idMappingDict[objFileTypeId]) + '\n')
             else:
                 writeFunc('  adding: ' + objFileTypeIdStr + '\n')
@@ -177,7 +177,7 @@ def import_package_string(writeFunc, string, replace, verbosity=1):
             objFile.object.abstract_input = AbstractInput.objects.get(id=objId)
 
         #update existing model or add a new one
-        if idMappingDict.has_key(objFileTypeId):
+        if objFileTypeId in idMappingDict:
             #there is already an existing model with same uid
             statDict['mod:'+str(type(objFile.object))]+=1
             objFile.object.id = idMappingDict[objFileTypeId]
@@ -201,14 +201,14 @@ def import_package_string(writeFunc, string, replace, verbosity=1):
         for wid in [wid for wid in objsFile if isinstance(wid.object, AbstractWidget)]:
             for inp in AbstractInput.objects.filter(widget = wid.object.id):
                 for opt in AbstractOption.objects.filter(abstract_input = inp.id):
-                    if not importedUids.has_key(opt.uid):
+                    if opt.uid not in importedUids:
                         statDict['del:'+str(AbstractOption)]+=1
                         opt.delete()
-                if not importedUids.has_key(inp.uid):
+                if inp.uid not in importedUids:
                     statDict['del:'+str(AbstractInput)]+=1
                     inp.delete()
             for out in AbstractOutput.objects.filter(widget = wid.object.id):
-                if not importedUids.has_key(out.uid):
+                if out.uid not in importedUids:
                     statDict['del:'+str(AbstractOutput)]+=1
                     out.delete()
         if verbosity>0:
@@ -216,7 +216,7 @@ def import_package_string(writeFunc, string, replace, verbosity=1):
 
     #update and output statistics
     if verbosity>0:
-        statDict = dict(statDict.items() + dict([('new:'+str(t),len(t.objects.all())) for t in [AbstractWidget, AbstractInput, AbstractOutput, AbstractOption, Category]]).items())
+        statDict = dict(list(statDict.items()) + list(dict([('new:'+str(t),len(t.objects.all())) for t in [AbstractWidget, AbstractInput, AbstractOutput, AbstractOption, Category]]).items()))
         writeFunc('Database models count statistics: pre-import + ( added | modified | deleted ) = after-import\n')
         for t in [AbstractWidget, AbstractInput, AbstractOutput, AbstractOption, Category]:
             writeFunc('    % 15s: % 5i + (% 4i | % 4i | % 4i ) = % 5i\n' %
