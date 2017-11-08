@@ -64,9 +64,9 @@ if DEBUG:
 
 CACHES = {}
 
-import sys
-reload(sys)
-sys.setdefaultencoding('utf8')
+#import sys
+#reload(sys)
+#sys.setdefaultencoding('utf8')
 
 USE_WINDOWS_QUEUE = False
 
