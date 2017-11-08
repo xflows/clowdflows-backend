@@ -1,4 +1,4 @@
-import cPickle
+import pickle
 import json
 
 def base_concatenate_lists(input_dict):
@@ -13,7 +13,7 @@ def base_concatenate_lists(input_dict):
 def base_merge_dictionaries(input_dict):
     dict1 = input_dict['dict1']
     dict2 = input_dict['dict2']
-    items = dict1.items()+dict2.items()
+    items = list(dict1.items())+list(dict2.items())
     output_dict = {}
     output_dict['dict']=dict(items)
     return output_dict
@@ -38,7 +38,7 @@ def create_dictionary(input_dict):
 
 def create_range(input_dict):
     output_dict = {}
-    output_dict['rangeout'] = range(int(input_dict['n_range']))
+    output_dict['rangeout'] = list(range(int(input_dict['n_range'])))
     return output_dict
 
 def delay(input_dict,widget):
@@ -70,7 +70,7 @@ def ensemble(input_dict):
     for item in data_inds:
         #det_by = item['detected_by']
         for i in item['inds']:
-            if not ens.has_key(i):
+            if i not in ens:
                 ens[i] = 1
             else:
                 ens[i] += 1
@@ -79,7 +79,7 @@ def ensemble(input_dict):
     ens_out['name'] = input_dict['ens_name']
     ens_out['inds'] = []
     n_algs = len(data_inds)
-    print ens_type
+    print(ens_type)
     if ens_type == "consensus":
         ens_out['inds'] = sorted([x[0] for x in ens.items() if x[1] == n_algs])
     else: # majority
@@ -93,7 +93,7 @@ def pickle_object(input_dict):
     '''
     Serializes the input object.
     '''
-    pkl_obj = cPickle.dumps(input_dict['object'])
+    pkl_obj = pickle.dumps(input_dict['object'])
     output_dict = {}
     output_dict['pickled_object'] = pkl_obj
     return output_dict
@@ -102,7 +102,7 @@ def unpickle_object(input_dict):
     '''
     Serializes the input object.
     '''
-    obj = cPickle.loads(str(input_dict['pickled_object']))
+    obj = pickle.loads(str(input_dict['pickled_object']))
     output_dict = {}
     output_dict['object'] = obj
     return output_dict

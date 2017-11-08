@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import with_statement
+
+
 
 __all__ = ['toposort', 'CycleDetectedError', 'LoopDetectedError']
 
@@ -104,8 +104,8 @@ def toposort(edges, extra_nodes=None,
         
         # Extract endpoints
         edge_iter = iter(edge)
-        a = edge_iter.next()
-        b = edge_iter.next()
+        a = next(edge_iter)
+        b = next(edge_iter)
         all_nodes.add(a)
         
         if a is b:
@@ -220,7 +220,7 @@ def test_generic_stress():
         of by dropping a random edge from a detected cycle until no more cycles
         are detected, then check ordering conditions."""
         edges = []
-        for _ in xrange(num_edges):
+        for _ in range(num_edges):
             n1 = random.randint(0, num_nodes - 1)
             n2 = random.randint(0, num_nodes - 1)
             edges.append((n1, n2))
@@ -228,7 +228,7 @@ def test_generic_stress():
             try:
                 loops = []
                 cycles = []
-                ordering = toposort(edges, range(num_nodes),
+                ordering = toposort(edges, list(range(num_nodes)),
                                     non_loop_cycles_are_errors=True,
                                     loop_report=loops,
                                     cycle_report=cycles)
@@ -249,5 +249,5 @@ def test_generic_stress():
                 assert ordering.index(n1) < ordering.index(n2)
     
     random.seed(4711)
-    for _ in xrange(100):
+    for _ in range(100):
         generic_test(random.randint(1, 200), random.randint(0, 500))

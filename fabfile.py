@@ -1,4 +1,4 @@
-from __future__ import with_statement
+
 from fabric.api import *
 from fabric.colors import *
 from fabric.utils import puts, abort

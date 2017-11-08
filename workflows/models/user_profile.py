@@ -13,7 +13,7 @@ class UserProfile(models.Model):
                                         on_delete=models.SET_NULL)
 
     def __unicode__(self):
-        return unicode(self.user)
+        return str(self.user)
 
 
 @receiver(post_save, sender=User)

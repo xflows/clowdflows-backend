@@ -55,7 +55,7 @@ class Input(models.Model):
             o.import_from_json(option, input_conversion, output_conversion)
             o.save()
         if json_data['outer_output']:
-            from output import Output
+            from .output import Output
             self.outer_output = Output.objects.get(pk=output_conversion[json_data['outer_output']])
             self.outer_output.inner_input = self
             self.outer_output.save()
@@ -93,4 +93,4 @@ class Input(models.Model):
         return d
 
     def __unicode__(self):
-        return unicode(self.name)
+        return str(self.name)

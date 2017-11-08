@@ -26,7 +26,7 @@ def choice(choices,question="Your choice: "):
             input_msg = ""
             for i in range(0,len(choices)):
                 input_msg += "["+str(i)+"] "+str(choices[i])+"\n"
-            choice_number = raw_input(input_msg + question)
+            choice_number = input(input_msg + question)
         try:
             choice = choices[int(choice_number)]
             return choice
@@ -35,39 +35,39 @@ def choice(choices,question="Your choice: "):
 
 def serialize_widget(aw):
     data = json.loads(serializers.serialize("json",[aw,]))[0]
-    if data.has_key('pk'):
+    if 'pk' in data:
         data.pop('pk')
-    if data['fields'].has_key('user'):
+    if 'user' in data['fields']:
         data['fields'].pop('user')
     if not data['fields']['category'] is None:
         data['fields']['category'] = aw.category.uid
     input_data = json.loads(serializers.serialize("json",aw.inputs.all().order_by('uid')))
     for i in input_data:
-        if i.has_key('pk'):
+        if 'pk' in i:
             i.pop('pk')
         i['fields']['widget']=aw.uid
     output_data = json.loads(serializers.serialize("json",aw.outputs.all().order_by('uid')))
     for i in output_data:
-        if i.has_key('pk'):
+        if 'pk' in i:
             i.pop('pk')
         i['fields']['widget']=aw.uid
     options_data = json.loads(serializers.serialize("json",AbstractOption.objects.filter(abstract_input__widget=aw).order_by('uid')))
     for o in options_data:
-        if o.has_key('pk'):
+        if 'pk' in o:
             o.pop('pk')
         o['fields']['abstract_input']=AbstractInput.objects.get(id=o['fields']['abstract_input']).uid
     return [data,]+input_data+output_data+options_data
 
 def serialize_category(c):
     data = json.loads(serializers.serialize("json",[c,]))[0]
-    if data.has_key('pk'):
+    if 'pk' in data:
         data.pop('pk')
     if not data['fields']['parent'] is None:
         c2 = Category.objects.get(id=data['fields']['parent'])
         data['fields']['parent'] = c2.uid
-    if data['fields'].has_key('workflow'):
+    if 'workflow' in data['fields']:
         data['fields'].pop('workflow')
-    if data['fields'].has_key('user'):
+    if 'user' in data['fields']:
         data['fields'].pop('user')
     return data
 

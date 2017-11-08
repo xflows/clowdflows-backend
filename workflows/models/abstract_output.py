@@ -19,4 +19,4 @@ class AbstractOutput(models.Model):
         ordering = ('order',)
 
     def __unicode__(self):
-        return unicode(self.name)
+        return str(self.name)

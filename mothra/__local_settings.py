@@ -1,6 +1,6 @@
 # Local settings for mothra project.
 LOCAL_SETTINGS = True
-from settings import *
+from .settings import *
 
 DEBUG = True
 

@@ -21,7 +21,7 @@ class WebService:
                     method['inputs']=[]
                     method['outputs']=[]
                     try:
-                        input_dict = op['input'].values()[0]
+                        input_dict = list(op['input'].values())[0]
                     except:
                         input_dict = []
                     for i in input_dict:
@@ -30,7 +30,7 @@ class WebService:
                         input['type']=input_dict[i]
                         method['inputs'].append(input)
                     try:
-                        output_dict = op['output'].values()[0]
+                        output_dict = list(op['output'].values())[0]
                     except:
                         output_dict = [[]]
                     if type(output_dict)==type([]):

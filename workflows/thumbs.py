@@ -2,7 +2,7 @@ from django.db.models import ImageField
 from django.db.models.fields.files import ImageFieldFile
 from PIL import Image
 from django.core.files.base import ContentFile
-import cStringIO
+import io
 
 #za south
 #from south.modelsinspector import add_introspection_rules
@@ -50,7 +50,7 @@ def generate_thumb(img, thumb_size, format):
         image2 = image
         image2.thumbnail(thumb_size, Image.ANTIALIAS)
     
-    io = cStringIO.StringIO()
+    io = io.StringIO()
     # PNG and GIF are the same, JPG is JPEG
     if format.upper()=='JPG':
         format = 'JPEG'
