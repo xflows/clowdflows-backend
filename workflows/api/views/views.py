@@ -199,7 +199,6 @@ class OutputViewSet(viewsets.ModelViewSet):
         '''
         Route for explicitly fetching output values
         '''
-        STRING_CUTOFF_CHARS = 300
         output = self.get_object()
         try:
             json.dumps(output.value)
@@ -207,8 +206,6 @@ class OutputViewSet(viewsets.ModelViewSet):
             serialized_value = repr(output.value)
         else:
             serialized_value = output.value
-            if type(serialized_value) == str:
-                serialized_value = '{} [ ... ]'.format(serialized_value[:STRING_CUTOFF_CHARS])
         return HttpResponse(json.dumps({'value': serialized_value}), content_type="application/json")
 
 
