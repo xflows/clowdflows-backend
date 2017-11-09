@@ -12,7 +12,7 @@ class UserProfile(models.Model):
     active_workflow = models.ForeignKey(Workflow, related_name="users", null=True, blank=True,
                                         on_delete=models.SET_NULL)
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.user)
 
 

@@ -25,7 +25,7 @@ class Category(models.Model):
         verbose_name_plural = "categories"
         ordering = ('order', 'name',)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.parent is None:
             return str(self.name)
         else:

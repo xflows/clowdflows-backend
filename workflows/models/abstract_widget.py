@@ -88,6 +88,6 @@ class AbstractWidget(models.Model):
             o.save()
         self.category.update_uid()
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.name)
 

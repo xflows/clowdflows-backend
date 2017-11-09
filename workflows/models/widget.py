@@ -322,7 +322,7 @@ class Widget(models.Model):
                 o.save(force_update=force_update)
         self.save(force_update=force_update)
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.name)
 
 

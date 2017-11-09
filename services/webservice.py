@@ -40,7 +40,5 @@ class WebService:
                         output['name']=o
                         method['outputs'].append(output)
                     self.methods.append(method)
-    def __unicode__(self):
-        return self.wsdl_url
     def __str__(self):
         return self.wsdl_url

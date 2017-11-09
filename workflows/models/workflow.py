@@ -187,7 +187,7 @@ class Workflow(models.Model):
     def get_export_url(self):
         return ('export workflow', [str(self.id)])
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.name)
 
     class Meta:

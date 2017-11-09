@@ -92,5 +92,5 @@ class Input(models.Model):
             d['outer_output'] = None
         return d
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.name)

@@ -56,6 +56,6 @@ class Output(models.Model):
     class Meta:
         ordering = ('order','pk')
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.name)
 

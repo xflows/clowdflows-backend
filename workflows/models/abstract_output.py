@@ -18,5 +18,5 @@ class AbstractOutput(models.Model):
     class Meta:
         ordering = ('order',)
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.name)

@@ -27,7 +27,7 @@ class AbstractInput(models.Model):
 
     uid = models.CharField(max_length=250, blank=True, default='')
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.name)
 
     class Meta:
