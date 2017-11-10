@@ -190,18 +190,19 @@ def export_package(package_name,writer,dest_folder=None):
 
 
 class Command(BaseCommand):
-    args = 'package_name [external_destination_folder]'
     help = 'Exports the package "package_name".'
 
+    def add_arguments(self, parser):
+        parser.add_argument('package_name', type=str)
+        parser.add_argument('external_destination_folder', type=str)
+
     def handle(self, *args, **options):
-        if len(args) < 1:
+        package_name = options.get('package_name')
+        if not package_name:
             raise CommandError('Argument "package_name" is required.')
 
-        dest_folder = None
-        if len(args) == 2:
-            dest_folder = args[1]
+        dest_folder = options.get('external_destination_folder')
 
-        package_name = args[0]
         writer = self.stdout
 
         export_package(package_name,writer,dest_folder=dest_folder)
