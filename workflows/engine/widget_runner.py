@@ -102,7 +102,7 @@ class WidgetRunner():
             else:
                 if not i.variable in input_dict:
                     input_dict[i.variable] = []
-                if not isinstance(i.value, ValueNotSet):
+                if i.value is not ValueNotSet:
                     input_dict[i.variable].append(i.value)
         try:
             if widget.abstract_widget.windows_queue and settings.USE_WINDOWS_QUEUE:
@@ -156,7 +156,7 @@ class WidgetRunner():
             else: # it's a multiple input
                 if not i.variable in input_dictionary:
                     input_dictionary[i.variable]=[]
-                if not isinstance(i.value,ValueNotSet): #not i.value==None and
+                if i.value is not ValueNotSet: #not i.value==None and
                     input_dictionary[i.variable].append(i.value)
         return input_dictionary
 

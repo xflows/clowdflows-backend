@@ -240,7 +240,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 else:
                     if not i.variable in input_dict:
                         input_dict[i.variable] = []
-                    if not isinstance(i.value, ValueNotSet):
+                    if i.value is not ValueNotSet:
                         input_dict[i.variable].append(i.value)
             for o in w.outputs.all():
                 output_dict[o.variable] = o.value

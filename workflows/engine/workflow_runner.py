@@ -98,21 +98,25 @@ class WorkflowRunner():
 
         # finished_widget_ids = [w.id for w in self.finished_widgets]
         runnable = []
+        # ufw=self.unfinished_widgets
         for w in self.unfinished_widgets:
             incoming_widget_connections= [c for c in self.connections if self.input_id_to_input[c.input_id].widget_id == w.id]
+            # incoming_widget_connection_inputs=[self.input_id_to_input[c.input_id].value for c in incoming_widget_connections]
             # widget_connections= [c for c in self.connections if c.input_id in self.inputs_per_widget_id]
 
             #check if all outputs are connection outputs are calculated
             # c.output_id in self.outputs and
             # if all([self.output_id_to_output[c.output_id].value!=ValueNotSet for c in widget_connections]):
             #     runnable.append(w)
-            if all([not isinstance(self.input_id_to_input[c.input_id].value,ValueNotSet) for c in incoming_widget_connections]):
+            if not any([self.input_id_to_input[c.input_id].value is ValueNotSet for c in incoming_widget_connections]):
                 runnable.append(w)
         return runnable
 
     def run_all_unfinished_widgets(self):
         runnable_widgets = self.runnable_widgets
         while len(runnable_widgets)>0:
+            print(runnable_widgets)
+
             for w in runnable_widgets:
                 try:
                     if w.type == 'subprocess':
@@ -124,7 +128,6 @@ class WorkflowRunner():
                     self.save()
                     raise c
             runnable_widgets = self.runnable_widgets
-            print(runnable_widgets)
 
     def run(self):
         self.cleanup()
