@@ -106,7 +106,7 @@ class WorkflowRunner():
             # c.output_id in self.outputs and
             # if all([self.output_id_to_output[c.output_id].value!=ValueNotSet for c in widget_connections]):
             #     runnable.append(w)
-            if all([self.input_id_to_input[c.input_id].value!=ValueNotSet for c in incoming_widget_connections]):
+            if all([not isinstance(self.input_id_to_input[c.input_id].value,ValueNotSet) for c in incoming_widget_connections]):
                 runnable.append(w)
         return runnable
 
