@@ -7,7 +7,7 @@ from channels.sessions import channel_session
 def ws_add(message):
     message.reply_channel.send({"accept": True})
     qs = parse_qs(message['query_string'])
-    workflow_pk = qs['workflow_pk'][0]
+    workflow_pk = qs[b'workflow_pk'][0].decode('utf-8')
     message.channel_session['workflow_pk'] = workflow_pk
     Group("workflow-{}".format(workflow_pk)).add(message.reply_channel)
 
