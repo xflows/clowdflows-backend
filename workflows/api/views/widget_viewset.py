@@ -162,11 +162,12 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 if w.abstract_widget.interactive and run_and_interact:
                     w.running = True
                     w.interaction_waiting = True
-                    w.save()
+                    w.save() #required in order to save the inputs' values
                     data = json.dumps(
                         {'status': 'interactive', 'message': 'Widget \'{}\' needs your attention.'.format(w.name),
                          'widget_id': w.id})
                 elif w.abstract_widget.visualization_view != '':
+                    w.save() #required in order to save the inputs' values
                     data = json.dumps(
                         {'status': 'visualize', 'message': 'Visualizing widget \'{}\'.'.format(w.name),
                          'widget_id': w.id})
@@ -199,14 +200,14 @@ class WidgetViewSet(viewsets.ModelViewSet):
             for o in w.outputs.all():
                 output_dict[o.variable] = o.value
             input_dict = {}
-            for i in w.inputs.all().defer('value'):
-                if not i.parameter:
-                    if i.connections.count() > 0:
-                        i.value = i.connections.all()[0].output.value
-                        i.save()
-                    else:
-                        i.value = None
-                        i.save()
+            for i in w.inputs.all(): #.defer('value'):
+                # if not i.parameter:
+                #     if i.connections.count() > 0:
+                #         i.value = i.connections.all()[0].output.value
+                #         i.save()
+                #     else:
+                #         i.value = None
+                #         i.save()
                 if i.multi_id == 0:
                     input_dict[i.variable] = i.value
                 else:
@@ -227,14 +228,14 @@ class WidgetViewSet(viewsets.ModelViewSet):
         if request.method == 'GET':
             input_dict = {}
             output_dict = {}
-            for i in w.inputs.all().defer('value'):
-                if not i.parameter:
-                    if i.connections.count() > 0:
-                        i.value = i.connections.all()[0].output.value
-                        i.save()
-                    else:
-                        i.value = ValueNotSet
-                        i.save()
+            for i in w.inputs.all(): #.defer('value'):
+                # if not i.parameter:
+                #     if i.connections.count() > 0:
+                #         i.value = i.connections.all()[0].output.value
+                #         i.save()
+                #     else:
+                #         i.value = ValueNotSet
+                #         i.save()
                 if i.multi_id == 0:
                     input_dict[i.variable] = i.value
                 else:
