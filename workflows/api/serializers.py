@@ -54,14 +54,18 @@ class AbstractWidgetSerializer(serializers.HyperlinkedModelSerializer):
     inputs = AbstractInputSerializer(many=True, read_only=True)
     outputs = AbstractOutputSerializer(many=True, read_only=True)
     cfpackage = serializers.SerializerMethodField()
+    visualization = serializers.SerializerMethodField()
 
     def get_cfpackage(self, obj):
         return obj.package
 
+    def get_visualization(self, obj):
+        return obj.visualization_view != ''
+
     class Meta:
         model = AbstractWidget
-        fields = ('id', 'name', 'interactive', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage', 'description')
-        read_only_fields = ('id', 'name', 'interactive', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage')
+        fields = ('id', 'name', 'interactive', 'visualization', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage', 'description')
+        read_only_fields = ('id', 'name', 'interactive', 'visualization', 'static_image', 'order', 'outputs', 'inputs', 'cfpackage')
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
@@ -318,7 +322,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
         '''
         must_save = False
         if widget.abstract_widget:
-            must_save = widget.abstract_widget.interactive
+            must_save = widget.abstract_widget.interactive or widget.is_visualization()
         return must_save
 
     def get_icon(self, widget):
