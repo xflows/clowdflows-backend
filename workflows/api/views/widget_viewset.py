@@ -201,13 +201,6 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 output_dict[o.variable] = o.value
             input_dict = {}
             for i in w.inputs.all(): #.defer('value'):
-                # if not i.parameter:
-                #     if i.connections.count() > 0:
-                #         i.value = i.connections.all()[0].output.value
-                #         i.save()
-                #     else:
-                #         i.value = None
-                #         i.save()
                 if i.multi_id == 0:
                     input_dict[i.variable] = i.value
                 else:
@@ -216,7 +209,10 @@ class WidgetViewSet(viewsets.ModelViewSet):
                     if not i.value == None:
                         input_dict[i.variable].append(i.value)
             view_to_call = getattr(workflows_app.visualization_views, w.abstract_widget.visualization_view)
-            return view_to_call(request, input_dict, output_dict, w)
+            response = view_to_call(request, input_dict, output_dict, w)
+            w.set_as_finished()
+            w.save()
+            return response
         else:
             data = json.dumps({'status': 'error', 'message': 'Widget {} is not a visualization widget.'.format(w.name)})
             return HttpResponse(data, 'application/javascript')
@@ -229,13 +225,6 @@ class WidgetViewSet(viewsets.ModelViewSet):
             input_dict = {}
             output_dict = {}
             for i in w.inputs.all(): #.defer('value'):
-                # if not i.parameter:
-                #     if i.connections.count() > 0:
-                #         i.value = i.connections.all()[0].output.value
-                #         i.save()
-                #     else:
-                #         i.value = ValueNotSet
-                #         i.save()
                 if i.multi_id == 0:
                     input_dict[i.variable] = i.value
                 else:
