@@ -1,3 +1,4 @@
+from workflows.engine import ValueNotSet
 from workflows.helpers import safeOpen
 import json
 import sys
@@ -47,6 +48,8 @@ def call_webservice(input_dict):
     for i in selected_method['inputs']:
         try:
             ws_dict[i['name']]=input_dict[i['name']]
+            if ws_dict[i['name']] == ValueNotSet:
+                ws_dict[i['name']] = None
             if ws_dict[i['name']] is None:
                 pass
             if i['type'] == bool:
