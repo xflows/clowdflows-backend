@@ -68,6 +68,13 @@ class ConnectionViewSet(viewsets.ModelViewSet):
                     j.multi_id = i.multi_id
                     j.order = m['order__max'] + 1
                     j.save()
+
+                    # "Normalize" order indices
+                    for idx, inp in enumerate(i.widget.inputs.filter(parameter=False)):
+                        new_order = idx + 1
+                        inp.order = new_order
+                        inp.save()
+
             serializer = ConnectionSerializer(new_c, context={'request': request})
             data = JSONRenderer().render(serializer.data)
             return HttpResponse(data, 'application/javascript')
