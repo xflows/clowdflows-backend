@@ -281,6 +281,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
             w.name = orig_w.name + ' (copy)'
             w.abstract_widget = orig_w.abstract_widget
             w.type = orig_w.type
+            w.save_results = orig_w.save_results
             w.save()
             for i in orig_w.inputs.all():
                 j = Input()
@@ -329,6 +330,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
             w.name = orig_w.name + ' (copy)'
             w.abstract_widget = orig_w.abstract_widget
             w.type = orig_w.type
+            w.save_results = orig_w.save_results
             w.save()
             widget_conversion[orig_w.pk] = w.pk
             for i in orig_w.inputs.all():
