@@ -84,7 +84,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     def run(self, request, pk=None):
         workflow = self.get_object()
         try:
-            WorkflowRunner(workflow)
+            WorkflowRunner(workflow).run()
         except:
             return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem running workflow'}),
                                 content_type="application/json")
