@@ -243,6 +243,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     description = serializers.CharField(source='abstract_widget.description', read_only=True)
     icon = serializers.SerializerMethodField()
     must_save = serializers.SerializerMethodField()
+    can_interact = serializers.SerializerMethodField()
     workflow_link = serializers.HyperlinkedRelatedField(
         read_only=True,
         view_name='workflow-detail'
@@ -325,6 +326,12 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
             must_save = widget.abstract_widget.interactive or widget.is_visualization() or widget.abstract_widget.always_save_results
         return must_save
 
+    def get_can_interact(self, widget):
+        can_interact = False
+        if widget.abstract_widget:
+            can_interact = widget.abstract_widget.interactive
+        return can_interact
+
     def get_icon(self, widget):
         full_path_tokens = self.context['request'].build_absolute_uri().split('/')
         protocol = full_path_tokens[0]
@@ -354,7 +361,7 @@ class WidgetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Widget
         fields = (
-            'id', 'url', 'workflow', 'x', 'y', 'name', 'save_results', 'must_save', 'abstract_widget', 'finished',
+            'id', 'url', 'workflow', 'x', 'y', 'name', 'save_results', 'must_save', 'can_interact', 'abstract_widget', 'finished',
             'error', 'running', 'interaction_waiting', 'description', 'icon', 'type', 'progress', 'inputs', 'outputs',
             'workflow_link')
 
