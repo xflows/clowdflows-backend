@@ -29,6 +29,12 @@ class WidgetViewSet(viewsets.ModelViewSet):
         return Widget.objects.filter(Q(workflow__user=self.request.user) | Q(workflow__public=True)).prefetch_related(
             'inputs', 'inputs__options', 'outputs')
 
+    def perform_update(self, serializer):
+        serializer.save()
+        widget = serializer.instance
+        if widget.is_special_subprocess_type():
+            widget.rename(widget.name)
+
     @detail_route(methods=['post'], url_path='reset', permission_classes=[IsAdminOrSelf, ])
     def reset(self, request, pk=None):
         widget = self.get_object()
