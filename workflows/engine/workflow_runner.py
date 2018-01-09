@@ -10,7 +10,7 @@ from collections import defaultdict
 import sklearn.model_selection as skl
 
 class WorkflowRunner():
-    def __init__(self, workflow, final_widget=None, clean=True, parent_workflow_runner=None,representing_widget=None):
+    def __init__(self, workflow, final_widget=None, parent_workflow_runner=None,representing_widget=None): # clean=True,
         self.workflow = workflow
         self.connections = workflow.connections.all()
         self.widgets = workflow.get_runnable_widgets(last_runnable_widget_id=final_widget and final_widget.id)
@@ -46,7 +46,7 @@ class WorkflowRunner():
             if c.input_id in relevant_input_ids:
                 self.input_id_to_input[c.input_id].value=self.output_id_to_output[c.output_id].value
 
-        self.clean = clean
+        #self.clean = clean
         self.parent_workflow_runner = parent_workflow_runner
         self.representing_widget = representing_widget
 
@@ -64,7 +64,8 @@ class WorkflowRunner():
 
     def cleanup(self):
         for w in self.widgets:
-            if self.clean:
+            #if self.clean:
+            if self.representing_widget:
                 w.finished = False
             w.error = False        
 
