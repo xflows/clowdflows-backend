@@ -1,13 +1,13 @@
 import random
 
-from Orange.data import Table
+
 from django.db.models import Prefetch
 
 from workflows.engine import ValueNotSet
 from workflows.engine.widget_runner import WidgetRunner
 from workflows.models import *
 from collections import defaultdict
-import sklearn.model_selection as skl
+
 
 class WorkflowRunner():
     def __init__(self, workflow, final_widget=None, parent_workflow_runner=None,representing_widget=None): # clean=True,
@@ -195,10 +195,13 @@ class WorkflowRunner():
             folds = []
 
             if input_type in {'Table', 'DBContext'}: #input_list is orange table
+                from Orange.data import Table
+                from sklearn.model_selection import StratifiedKFold, KFold
+
                 indices = None
                 if outer_input_data.domain.has_discrete_class:
                     try:
-                        splitter = skl.StratifiedKFold(
+                        splitter = StratifiedKFold(
                             outer_input_fold, shuffle=True, random_state=outer_input_seed
                         )
                         splitter.get_n_splits(outer_input_data.X, outer_input_data.Y)
@@ -207,7 +210,7 @@ class WorkflowRunner():
                         self.warnings.append("Using non-stratified sampling.")
                         indices = None
                 if indices is None:
-                    splitter = skl.KFold(
+                    splitter = KFold(
                         outer_input_fold, shuffle=True, random_state=outer_input_seed
                     )
                     splitter.get_n_splits(outer_input_data)
