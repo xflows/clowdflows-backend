@@ -1,10 +1,13 @@
+import random
+
+from Orange.data import Table
 from django.db.models import Prefetch
 
 from workflows.engine import ValueNotSet
 from workflows.engine.widget_runner import WidgetRunner
 from workflows.models import *
 from collections import defaultdict
-
+import sklearn.model_selection as skl
 
 class WorkflowRunner():
     def __init__(self, workflow, final_widget=None, clean=True, parent_workflow_runner=None,representing_widget=None):
@@ -132,78 +135,132 @@ class WorkflowRunner():
     def run(self):
         self.cleanup()
         if self.is_for_loop():
-            fi = None
-            fo = None
+            for_input_widget = None
+            for_output_widget = None
             for w in self.widgets:
                 if w.type=='for_input':
-                    fi = w
+                    for_input_widget = w
                 if w.type=='for_output':
-                    fo = w
-            outer_output = self.parent_workflow_runner.outputs[fo.inputs.all()[0].outer_output_id]
+                    for_output_widget = w
+            outer_output = self.parent_workflow_runner.outputs[for_output_widget.inputs.all()[0].outer_output_id]
             outer_output.value = []
-            input_list = self.parent_workflow_runner.inputs[fi.outputs.all()[0].outer_input_id].value
+            input_list = self.parent_workflow_runner.inputs[for_input_widget.outputs.all()[0].outer_input_id].value
             for i in input_list:
                 self.cleanup()
-                proper_output = fi.outputs.all()[0]
+                proper_output = for_input_widget.outputs.all()[0]
                 proper_output.value = i
-                fi.finished = True
+                for_input_widget.finished = True
                 self.run_all_unfinished_widgets()
         elif self.is_cross_validation():
-            import random as rand
-            fi = None
-            fo = None
+            cv_input_widget = None
+            cv_output_widget = None
             for w in self.widgets:
                 if w.type=='cv_input':
-                    fi = w
+                    cv_input_widget = w
                 if w.type=='cv_output':
-                    fo = w
-            outer_output = self.parent_workflow_runner.outputs[fo.inputs.all()[0].outer_output_id]
+                    cv_output_widget = w
+
+            outer_output = self.parent_workflow_runner.output_id_to_output[self.inputs_per_widget_id[cv_output_widget.id][0].outer_output_id]
             outer_output.value = []
-            input_list = self.parent_workflow_runner.inputs[fi.outputs.all()[0].outer_input_id].value
-            input_fold = self.parent_workflow_runner.inputs[fi.outputs.all()[1].outer_input_id].value
-            input_seed = self.parent_workflow_runner.inputs[fi.outputs.all()[2].outer_input_id].value
-            if input_fold != None:
+
+            list_output,fold_output,seed_output=self.outputs_per_widget_id[cv_input_widget.id]
+
+            #input_list = self.parent_workflow_runner.inputs[cv_input_widget.outputs.all()[0].outer_input_id].value
+            #input_fold = self.parent_workflow_runner.inputs[cv_input_widget.outputs.all()[1].outer_input_id].value
+            #input_seed = self.parent_workflow_runner.inputs[cv_input_widget.outputs.all()[2].outer_input_id].value
+
+            #GET INNER INPUTS
+            input_list = self.parent_workflow_runner.input_id_to_input[list_output.outer_input_id].value
+            input_fold = self.parent_workflow_runner.input_id_to_input[fold_output.outer_input_id].value
+            input_seed = self.parent_workflow_runner.input_id_to_input[seed_output.outer_input_id].value
+            if input_fold is not ValueNotSet:
                 input_fold = int(input_fold)
             else:
                 input_fold = 10
 
-            if input_seed != None:
+            if input_seed is not ValueNotSet:
                 input_seed = int(input_seed)
             else:
                 input_seed = random.randint(0,10**9)
+            proper_output = cv_input_widget.outputs.all()[2]
+            proper_output.value = input_seed
+
+
 
             input_type = input_list.__class__.__name__
             context = None
             if input_type == 'DBContext':
                 context = input_list
                 input_list = context.orng_tables.get(context.target_table,None)
+            elif input_type == 'DocumentCorpus':
+                document_corpus = input_list
+                input_list = document_corpus.documents
 
             if not input_list:
                 raise Exception('CrossValidation: Empty input list!')
 
+
+            #SPLIT INPUT DATA INTO FOLDS
             folds = []
-            if hasattr(input_list, "get_items_ref"):
-                import orange
-                indices = orange.MakeRandomIndicesCV(input_list, randseed=input_seed, folds=input_fold, stratified=orange.MakeRandomIndices.Stratified)
+
+            if input_type == 'Table': #input_list is orange table
+                indices = None
+                if input_list.domain.has_discrete_class:
+                    try:
+                        splitter = skl.StratifiedKFold(
+                            input_fold, shuffle=True, random_state=input_seed
+                        )
+                        splitter.get_n_splits(input_list.X, input_list.Y)
+                        self.indices = list(splitter.split(input_list.X, input_list.Y))
+                    except ValueError:
+                        self.warnings.append("Using non-stratified sampling.")
+                        indices = None
+                    if indices is None:
+                        splitter = skl.KFold(
+                            input_fold, shuffle=True, random_state=input_seed
+                        )
+                        splitter.get_n_splits(input_list)
+                        indices = list(splitter.split(input_list))
+
                 for i in range(input_fold):
-                    output_train = input_list.select(indices, i, negate=1)
-                    output_test = input_list.select(indices, i)
+                    output_train = Table.from_table_rows(input_list,indices[i][0])
+                    output_test = Table.from_table_rows(input_list,indices[i][1])
                     output_train.name = input_list.name
                     output_test.name = input_list.name
                     folds.append((output_train, output_test))
+
+            elif input_type == 'DocumentCorpus':
+                from sklearn.model_selection import StratifiedKFold, KFold
+
+                if 'Labels' in document_corpus.features:
+                    labels = document_corpus.get_document_labels()
+                    # print "Seed:"+str(input_seed)
+                    stf = StratifiedKFold(labels, n_folds=input_fold, random_state=input_seed)
+                else:
+                    stf = KFold(len(document_corpus.documents), n_folds=input_fold, random_state=input_seed)
+
+                folds = [(list(train_index), list(test_index)) for train_index, test_index in stf]
             else:
-                rand.seed(input_seed)
-                rand.shuffle(input_list)
+                random.seed(input_seed)
+                random.shuffle(input_list)
                 folds = [input_list[i::input_fold] for i in range(input_fold)]
 
-            proper_output = fi.outputs.all()[2]
-            proper_output.value = input_seed
+
+
+
+
+
 
             for i in range(len(folds)):
-                #import pdb; pdb.set_trace()
-                if hasattr(input_list, "get_items_ref"):
+                if input_type == 'Table':
                     output_test = folds[i][1]
                     output_train = folds[i][0]
+                elif input_type == 'DocumentCorpus':
+                    train_indices, test_indices= folds[i]
+                    print("engine")
+                    print("TRAIN:", train_indices, "TEST:", test_indices)
+
+                    output_train, output_test = document_corpus.split(train_indices,test_indices)
                 else:
                     output_train = folds[:i] + folds[i+1:]
                     output_test = folds[i]
@@ -215,12 +272,14 @@ class WorkflowRunner():
                     output_train = output_train_obj
                     output_test = output_test_obj
 
+
                 self.cleanup()
-                proper_output = fi.outputs.all()[0] # inner output
-                proper_output.value = output_train
-                proper_output = fi.outputs.all()[1] # inner output
-                proper_output.value = output_test
-                fi.finished=True # set the input widget as finished
+
+                #proper_output = cv_input_widget.outputs.all()[0] # inner output
+                #proper_output.value = output_train
+                #proper_output = cv_input_widget.outputs.all()[1] # inner output
+                #proper_output.value = output_test
+                cv_input_widget.finished=True # set the input widget as finished
                 self.run_all_unfinished_widgets()
         else:
             self.run_all_unfinished_widgets()
