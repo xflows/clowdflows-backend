@@ -65,8 +65,11 @@ class WorkflowRunner():
     def cleanup(self):
         for w in self.widgets:
             #if self.clean:
-            if self.representing_widget:
+            if self.representing_widget or not w.save_results:
                 w.finished = False
+                for i in self.inputs_per_widget_id[w.id]:
+                    if not i.parameter:
+                        i.value = ValueNotSet
             w.error = False        
 
     def get_connections_for_output(self, output):
@@ -77,16 +80,7 @@ class WorkflowRunner():
             if c.input_id==input.id:
                 return c
         return None
-    #
-    # @property
-    # def finished_widgets(self):
-    #     finished_widgets = []
-    #     for w in self.widgets:
-    #         if w.finished:
-    #             finished_widgets.append(w)
-    #     return finished_widgets
 
-    @property
     def unfinished_widgets(self):
         unfinished_widgets = []
         for w in self.widgets:
@@ -94,7 +88,6 @@ class WorkflowRunner():
                 unfinished_widgets.append(w)
         return unfinished_widgets
 
-    @property
     def runnable_widgets(self):
         """ a widget is runnable if all widgets connected before
             it are finished (i.e. widgets that have outputs that 
@@ -103,7 +96,7 @@ class WorkflowRunner():
         # finished_widget_ids = [w.id for w in self.finished_widgets]
         runnable = []
         # ufw=self.unfinished_widgets
-        for w in self.unfinished_widgets:
+        for w in self.unfinished_widgets():
             incoming_widget_connections= [c for c in self.connections if self.input_id_to_input[c.input_id].widget_id == w.id]
             # incoming_widget_connection_inputs=[self.input_id_to_input[c.input_id].value for c in incoming_widget_connections]
             # widget_connections= [c for c in self.connections if c.input_id in self.inputs_per_widget_id]
@@ -117,7 +110,7 @@ class WorkflowRunner():
         return runnable
 
     def run_all_unfinished_widgets(self):
-        runnable_widgets = self.runnable_widgets
+        runnable_widgets = self.runnable_widgets()
         while len(runnable_widgets)>0:
             print(runnable_widgets)
 
@@ -131,7 +124,7 @@ class WorkflowRunner():
                     w.set_as_faulty()
                     self.save()
                     raise c
-            runnable_widgets = self.runnable_widgets
+            runnable_widgets = self.runnable_widgets()
 
     def run(self):
         self.cleanup()
@@ -145,8 +138,8 @@ class WorkflowRunner():
                     for_output_widget = w
             outer_output = self.parent_workflow_runner.outputs[for_output_widget.inputs.all()[0].outer_output_id]
             outer_output.value = []
-            input_list = self.parent_workflow_runner.inputs[for_input_widget.outputs.all()[0].outer_input_id].value
-            for i in input_list:
+            outer_input_data = self.parent_workflow_runner.inputs[for_input_widget.outputs.all()[0].outer_input_id].value
+            for i in outer_input_data:
                 self.cleanup()
                 proper_output = for_input_widget.outputs.all()[0]
                 proper_output.value = i
@@ -164,70 +157,62 @@ class WorkflowRunner():
             outer_output = self.parent_workflow_runner.output_id_to_output[self.inputs_per_widget_id[cv_output_widget.id][0].outer_output_id]
             outer_output.value = []
 
-            list_output,fold_output,seed_output=self.outputs_per_widget_id[cv_input_widget.id]
-
-            #input_list = self.parent_workflow_runner.inputs[cv_input_widget.outputs.all()[0].outer_input_id].value
-            #input_fold = self.parent_workflow_runner.inputs[cv_input_widget.outputs.all()[1].outer_input_id].value
-            #input_seed = self.parent_workflow_runner.inputs[cv_input_widget.outputs.all()[2].outer_input_id].value
+            train_output, test_output, seed_output=self.outputs_per_widget_id[cv_input_widget.id]
 
             #GET INNER INPUTS
-            input_list = self.parent_workflow_runner.input_id_to_input[list_output.outer_input_id].value
-            input_fold = self.parent_workflow_runner.input_id_to_input[fold_output.outer_input_id].value
-            input_seed = self.parent_workflow_runner.input_id_to_input[seed_output.outer_input_id].value
-            if input_fold is not ValueNotSet:
-                input_fold = int(input_fold)
-            else:
-                input_fold = 10
+            #
+            # !!!!
+            # E.g., outer input for fold corresponds to inner output for the test fold
+            # !!!!
+            outer_input_data = self.parent_workflow_runner.input_id_to_input[train_output.outer_input_id].value
+            outer_input_fold = self.parent_workflow_runner.input_id_to_input[test_output.outer_input_id].value
+            outer_input_seed = self.parent_workflow_runner.input_id_to_input[seed_output.outer_input_id].value
 
-            if input_seed is not ValueNotSet:
-                input_seed = int(input_seed)
-            else:
-                input_seed = random.randint(0,10**9)
-            proper_output = cv_input_widget.outputs.all()[2]
-            proper_output.value = input_seed
+            outer_input_fold = int(outer_input_fold) if outer_input_fold is not ValueNotSet else 10
+            outer_input_seed = int(outer_input_seed) if outer_input_seed is not ValueNotSet else random.randint(0, 10**9)
 
+            #proper_output = cv_input_widget.outputs.all()[2]
+            seed_output.value = outer_input_seed
 
-
-            input_type = input_list.__class__.__name__
-            context = None
+            input_type = outer_input_data.__class__.__name__
             if input_type == 'DBContext':
-                context = input_list
-                input_list = context.orng_tables.get(context.target_table,None)
+                context = outer_input_data
+                outer_input_data = context.orng_tables.get(context.target_table, None)
             elif input_type == 'DocumentCorpus':
-                document_corpus = input_list
-                input_list = document_corpus.documents
+                document_corpus = outer_input_data
+                outer_input_data = document_corpus.documents
 
-            if not input_list:
-                raise Exception('CrossValidation: Empty input list!')
+            if not outer_input_data:
+                raise Exception('CrossValidation: Empty input data!')
 
 
             #SPLIT INPUT DATA INTO FOLDS
             folds = []
 
-            if input_type == 'Table': #input_list is orange table
+            if input_type in {'Table', 'DBContext'}: #input_list is orange table
                 indices = None
-                if input_list.domain.has_discrete_class:
+                if outer_input_data.domain.has_discrete_class:
                     try:
                         splitter = skl.StratifiedKFold(
-                            input_fold, shuffle=True, random_state=input_seed
+                            outer_input_fold, shuffle=True, random_state=outer_input_seed
                         )
-                        splitter.get_n_splits(input_list.X, input_list.Y)
-                        self.indices = list(splitter.split(input_list.X, input_list.Y))
+                        splitter.get_n_splits(outer_input_data.X, outer_input_data.Y)
+                        self.indices = list(splitter.split(outer_input_data.X, outer_input_data.Y))
                     except ValueError:
                         self.warnings.append("Using non-stratified sampling.")
                         indices = None
-                    if indices is None:
-                        splitter = skl.KFold(
-                            input_fold, shuffle=True, random_state=input_seed
-                        )
-                        splitter.get_n_splits(input_list)
-                        indices = list(splitter.split(input_list))
+                if indices is None:
+                    splitter = skl.KFold(
+                        outer_input_fold, shuffle=True, random_state=outer_input_seed
+                    )
+                    splitter.get_n_splits(outer_input_data)
+                    indices = list(splitter.split(outer_input_data))
 
-                for i in range(input_fold):
-                    output_train = Table.from_table_rows(input_list,indices[i][0])
-                    output_test = Table.from_table_rows(input_list,indices[i][1])
-                    output_train.name = input_list.name
-                    output_test.name = input_list.name
+                for i in range(outer_input_fold):
+                    output_train = Table.from_table_rows(outer_input_data,indices[i][0])
+                    output_test = Table.from_table_rows(outer_input_data,indices[i][1])
+                    output_train.name = outer_input_data.name
+                    output_test.name = outer_input_data.name
                     folds.append((output_train, output_test))
 
             elif input_type == 'DocumentCorpus':
@@ -236,24 +221,18 @@ class WorkflowRunner():
                 if 'Labels' in document_corpus.features:
                     labels = document_corpus.get_document_labels()
                     # print "Seed:"+str(input_seed)
-                    stf = StratifiedKFold(labels, n_folds=input_fold, random_state=input_seed)
+                    stf = StratifiedKFold(labels, n_folds=outer_input_fold, random_state=outer_input_seed)
                 else:
-                    stf = KFold(len(document_corpus.documents), n_folds=input_fold, random_state=input_seed)
+                    stf = KFold(len(document_corpus.documents), n_folds=outer_input_fold, random_state=outer_input_seed)
 
                 folds = [(list(train_index), list(test_index)) for train_index, test_index in stf]
             else:
-                random.seed(input_seed)
-                random.shuffle(input_list)
-                folds = [input_list[i::input_fold] for i in range(input_fold)]
-
-
-
-
-
-
+                random.seed(outer_input_seed)
+                random.shuffle(outer_input_data)
+                folds = [outer_input_data[i::outer_input_fold] for i in range(outer_input_fold)]
 
             for i in range(len(folds)):
-                if input_type == 'Table':
+                if input_type in {'Table', 'DBContext'}:
                     output_test = folds[i][1]
                     output_train = folds[i][0]
                 elif input_type == 'DocumentCorpus':
@@ -276,10 +255,13 @@ class WorkflowRunner():
 
                 self.cleanup()
 
-                #proper_output = cv_input_widget.outputs.all()[0] # inner output
-                #proper_output.value = output_train
-                #proper_output = cv_input_widget.outputs.all()[1] # inner output
-                #proper_output.value = output_test
+                train_output.value = output_train
+                test_output.value = output_test
+
+                for o in [train_output, test_output]:
+                    for con in self.get_connections_for_output(o):
+                        self.input_id_to_input[con.input_id].value = o.value
+
                 cv_input_widget.finished=True # set the input widget as finished
                 self.run_all_unfinished_widgets()
         else:
