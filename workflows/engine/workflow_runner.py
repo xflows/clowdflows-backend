@@ -136,13 +136,18 @@ class WorkflowRunner():
                     for_input_widget = w
                 if w.type=='for_output':
                     for_output_widget = w
-            outer_output = self.parent_workflow_runner.outputs[for_output_widget.inputs.all()[0].outer_output_id]
+
+            for_input_widget_output = self.outputs_per_widget_id[for_input_widget.id][0]
+            outer_output = self.parent_workflow_runner.output_id_to_output[self.inputs_per_widget_id[for_output_widget.id][0].outer_output_id]
             outer_output.value = []
-            outer_input_data = self.parent_workflow_runner.inputs[for_input_widget.outputs.all()[0].outer_input_id].value
+            outer_input_data = self.parent_workflow_runner.input_id_to_input[for_input_widget_output.outer_input_id].value
             for i in outer_input_data:
                 self.cleanup()
-                proper_output = for_input_widget.outputs.all()[0]
-                proper_output.value = i
+                for_input_widget_output.value = i
+
+                for con in self.get_connections_for_output(for_input_widget_output):
+                    self.input_id_to_input[con.input_id].value = for_input_widget_output.value
+
                 for_input_widget.finished = True
                 self.run_all_unfinished_widgets()
         elif self.is_cross_validation():
