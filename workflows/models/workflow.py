@@ -171,6 +171,9 @@ class Workflow(models.Model):
         self.name = new_name
         self.save()
 
+    def copy(self, user):
+        return copy_workflow(self,user)
+
     @models.permalink
     def get_absolute_url(self):
         return ('open workflow', [str(self.id)])
@@ -192,8 +195,6 @@ class Workflow(models.Model):
 
     class Meta:
         ordering = ['name']
-
-
 
 
 
@@ -267,7 +268,7 @@ def copy_workflow(old, user, parent_widget_conversion={}, parent_input_conversio
             new_output.short_name = output.short_name
             new_output.description = output.description
             new_output.variable = output.variable
-            new_output.abstract_output_id = input.abstract_output_id
+            new_output.abstract_output_id = output.abstract_output_id
             new_output.widget = new_widget
             new_output.value = output.value
             # inner input nikol ne nastavlamo

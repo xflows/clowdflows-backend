@@ -80,6 +80,14 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             # )
         return workflows
 
+    @detail_route(methods=['post'], url_path='copy', permission_classes=[IsAdminOrSelf, ])
+    def copy(self, request, pk=None):
+        orig_w = self.get_object()
+        new_workflow= orig_w.copy(request.user)
+
+        return HttpResponse(json.dumps({'id': new_workflow.id}), content_type="application/json")
+
+
     @detail_route(methods=['post'], url_path='run')
     def run(self, request, pk=None):
         workflow = self.get_object()

@@ -1,5 +1,4 @@
 from workflows.engine import ValueNotSet
-from workflows.helpers import safeOpen
 import json
 import sys
 
@@ -21,20 +20,7 @@ def add_multiple(input_dict):
 def load_file(input_dict):
     return input_dict
     
-def file_to_string(input_dict):
-    f = safeOpen(input_dict['file'])
-    output_dict = {}
-    output_dict['string']=f.read()
-    return output_dict
 
-def load_to_string(input_dict):
-    '''
-    Opens the file and reads its contents into a string.
-    '''
-    f = safeOpen(input_dict['file'])
-    output_dict = {}
-    output_dict['string']=f.read()
-    return output_dict
 
 def call_webservice(input_dict):
     from services.webservice import WebService
@@ -97,13 +83,8 @@ def filter_integers_post(postdata,input_dict,output_dict):
         pass
     return output_dict
 
-def create_integer(input_dict):
-    output_dict = {}
-    output_dict['integer'] = input_dict['integer']
-    return output_dict
-    
-def create_string(input_dict):
-    return input_dict  
+
+
     
 def concatenate_strings(input_dict):
     output_dict = {}
@@ -113,16 +94,14 @@ def concatenate_strings(input_dict):
     output_dict['string'] = input_dict['delimiter'].join(input_dict['strings'])
     return output_dict
     
-def display_string(input_dict):
-    return {}
+
 
 def add_integers(input_dict):
     output_dict = {}
     output_dict['integer'] = int(input_dict['integer1'])+int(input_dict['integer2'])
     return output_dict
 
-def object_viewer(input_dict):
-    return {}
+
 
 def table_viewer(input_dict):
     return {}
@@ -140,8 +119,6 @@ def select_data(input_dict):
     return input_dict
 
 
-def string_to_file(input_dict):
-    return {}
 
 def alter_table(input_dict):
     return {'altered_data' : None}
