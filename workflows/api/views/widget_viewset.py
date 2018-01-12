@@ -353,6 +353,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 j.parameter_type = i.parameter_type
                 j.value = i.value
                 j.multi_id = i.multi_id
+                j.order = i.order
                 j.save()
                 input_conversion[i.pk] = j.pk
                 for k in i.options.all():
@@ -368,10 +369,11 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 j.description = i.description
                 j.variable = i.variable
                 j.widget = w
+                j.order = i.order
                 j.save()
                 output_conversion[i.pk] = j.pk
             workflows_app.models.copy_workflow(orig_w.workflow_link, request.user, widget_conversion, input_conversion,
-                                           output_conversion, w)
+                                               output_conversion, w)
             widget_data = WidgetSerializer(w, context={'request': request}).data
             return HttpResponse(json.dumps(widget_data), 'application/json')
         else:

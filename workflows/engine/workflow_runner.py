@@ -92,7 +92,6 @@ class WorkflowRunner():
         """ a widget is runnable if all widgets connected before
             it are finished (i.e. widgets that have outputs that 
             are connected to this widget's input) """
-
         # finished_widget_ids = [w.id for w in self.finished_widgets]
         runnable = []
         # ufw=self.unfinished_widgets

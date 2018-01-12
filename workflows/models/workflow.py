@@ -243,6 +243,7 @@ def copy_workflow(old, user, parent_widget_conversion={}, parent_input_conversio
             new_input.required = input.required
             new_input.parameter = input.parameter
             new_input.value = input.value
+            new_input.order = input.order
             new_input.multi_id = input.multi_id
             # inner_output nikol ne nastavlamo
             # outer_output in njemu spremenimo inner input
@@ -271,6 +272,7 @@ def copy_workflow(old, user, parent_widget_conversion={}, parent_input_conversio
             new_output.abstract_output_id = output.abstract_output_id
             new_output.widget = new_widget
             new_output.value = output.value
+            new_output.order = output.order
             # inner input nikol ne nastavlamo
             # outer input in njemu spremenimo inner output
             if not parent_widget is None:
