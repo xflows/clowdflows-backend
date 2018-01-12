@@ -72,11 +72,14 @@ class Widget(models.Model):
         self.running = False
         self.error = False
         self.finished = True
+        send_finished_notification(Widget, self)
 
     def set_as_faulty(self):
         self.error=True
         self.running=False
         self.finished=False
+        send_finished_notification(Widget, self)
+
 
     def update_input_output_order(self):
         for i, input in enumerate(self.inputs.all()):
