@@ -67,6 +67,7 @@ class WorkflowRunner():
             #if self.clean:
             if self.representing_widget or not w.save_results:
                 w.finished = False
+            if self.representing_widget:
                 for i in self.inputs_per_widget_id[w.id]:
                     if not i.parameter:
                         i.value = ValueNotSet

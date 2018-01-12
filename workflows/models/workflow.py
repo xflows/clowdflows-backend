@@ -133,6 +133,7 @@ class Workflow(models.Model):
             check_widgets = set([last_runnable_widget_id])
             while len(check_widgets)>0:
                 widget=widgets_id_to_widget[check_widgets.pop()]
+
                 if not widget.save_results or widget.is_unfinished(): #results not already saved on widget
                     predecessors=widget_id_to_predecessor_widget_ids[widget.id]
                     widget_ids.add(widget.id)
