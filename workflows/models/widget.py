@@ -100,7 +100,7 @@ class Widget(models.Model):
             self.abstract_widget = aw
         # If no save_results is provided (for legacy workflows for example), set to false
         # by default or true for interactive widgets
-        self.save_results = json_data.get('save_results', self.abstract_widget.interactive if self.abstract_widget else False)
+        self.save_results = json_data.get('save_results', self.abstract_widget.always_save_results if self.abstract_widget else False)
         self.type = json_data['type']
         self.save()
         for i in json_data['inputs']:
@@ -331,6 +331,7 @@ class Widget(models.Model):
 
 @receiver(post_save, sender=Widget)
 def send_finished_notification(sender, instance, **kwargs):
+    print(instance.name,instance.id, instance.finished)
     status = {
         'finished': instance.finished,
         'error': instance.error,
