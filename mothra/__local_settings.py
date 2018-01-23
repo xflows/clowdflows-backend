@@ -44,14 +44,12 @@ INSTALLED_APPS_WORKFLOWS_SUB = (
     # 'workflows.hbp',
 )
 
-PACKAGE_TREE=[
-    # {"name": "Relational data mining","packages": ['rdm.db','rdm.wrappers'],"order": 1 }
-]
+PACKAGE_TREE = [{"name": "Utility", "packages": ['cf_core'], "order": 1000}
+                # {"name": "Relational data mining","packages": ['rdm.db','rdm.wrappers'],"order": 1 }
+                ]
 
-INSTALLED_APPS_EXTERNAL_PACKAGES = (
-    #'rdm.db',
-    #'rdm.wrappers'
-)
+INSTALLED_APPS_EXTERNAL_PACKAGES = tuple([p for packages in PACKAGE_TREE for p in packages['packages']])
+
 
 BROKER_URL = 'django://'
 
