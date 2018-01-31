@@ -10,6 +10,7 @@ TEST_WORKFLOW_USERS_PK = 2
 
 class WorkflowExportTest(TestCase):
     fixtures = ['test_data_api', ]
+    #maxDiff = None
 
     def test_export_workflow(self):
         w = Workflow.objects.get(pk=2)
@@ -22,7 +23,7 @@ class WorkflowExportTest(TestCase):
              'description': 'Tole je opis.',
              'name': 'Multiply integers',
              'widgets': [{'abstract_widget': '8b20d4ad-c420-4156-973d-48d6d15934ba',
-                          'abstract_widget_package': 'base',
+                          'abstract_widget_package': 'cf_core',
                           'inputs': [{'description': '',
                                       'inner_output': None,
                                       'multi_id': 0,
@@ -52,7 +53,7 @@ class WorkflowExportTest(TestCase):
                           'x': 29,
                           'y': 77},
                          {'abstract_widget': '8b20d4ad-c420-4156-973d-48d6d15934ba',
-                          'abstract_widget_package': 'base',
+                          'abstract_widget_package': 'cf_core',
                           'inputs': [{'description': '',
                                       'inner_output': None,
                                       'multi_id': 0,
@@ -82,7 +83,7 @@ class WorkflowExportTest(TestCase):
                           'x': 40,
                           'y': 223},
                          {'abstract_widget': '8b20d4ad-c420-4156-973d-48d6d15934ba',
-                          'abstract_widget_package': 'base',
+                          'abstract_widget_package': 'cf_core',
                           'inputs': [{'description': '',
                                       'inner_output': None,
                                       'multi_id': 0,
@@ -112,7 +113,7 @@ class WorkflowExportTest(TestCase):
                           'x': 39,
                           'y': 364},
                          {'abstract_widget': 'c950af9c-be87-4761-a69e-e37f0c26cacb',
-                          'abstract_widget_package': 'base',
+                          'abstract_widget_package': 'cf_core',
                           'inputs': [{'description': '',
                                       'inner_output': None,
                                       'multi_id': 3,
@@ -184,7 +185,7 @@ class WorkflowExportTest(TestCase):
                           'x': 401,
                           'y': 144},
                          {'abstract_widget': '2c69b211-05fe-49a2-8de1-d38971e75b95',
-                          'abstract_widget_package': 'base',
+                          'abstract_widget_package': 'cf_core',
                           'inputs': [{'description': 'Displays the string so that it is readable.',
                                       'inner_output': None,
                                       'multi_id': 0,
@@ -207,7 +208,7 @@ class WorkflowExportTest(TestCase):
                           'x': 802,
                           'y': 111},
                          {'abstract_widget': '1b38bbab-7f89-4469-94cd-2f481f9c61f7',
-                          'abstract_widget_package': 'base',
+                          'abstract_widget_package': 'cf_core',
                           'inputs': [{'description': '',
                                       'inner_output': None,
                                       'multi_id': 0,
@@ -237,7 +238,7 @@ class WorkflowExportTest(TestCase):
                           'x': 272,
                           'y': 408},
                          {'abstract_widget': '9c8a4da5-6f43-4dbc-846c-adf280c0f484',
-                          'abstract_widget_package': 'base',
+                          'abstract_widget_package': 'cf_core',
                           'inputs': [{'description': '',
                                       'inner_output': None,
                                       'multi_id': 0,

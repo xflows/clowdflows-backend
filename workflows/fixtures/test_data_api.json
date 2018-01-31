@@ -386,7 +386,7 @@
     "pk": 1,
     "fields": {
       "name": "Unpickle object",
-      "action": "unpickle_object",
+      "action": "core_unpickle_object",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Creates a ClowdFlows (or a Python) object from its pickled format.",
@@ -404,7 +404,7 @@
       "is_streaming": false,
       "order": 7,
       "uid": "58975866-d556-49ff-84bf-70e31af4638c",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -413,7 +413,7 @@
     "pk": 2,
     "fields": {
       "name": "File to string",
-      "action": "file_to_string",
+      "action": "core_file_to_string",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Reads a file residing on the ClowdFlows server and outputs its contents.",
@@ -431,7 +431,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "ff26380c-dd36-47c4-92ec-4526e199abbc",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -440,7 +440,7 @@
     "pk": 3,
     "fields": {
       "name": "Multiply integers",
-      "action": "multiply_integers",
+      "action": "core_multiply_integers",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Multiplies integers and outputs their product",
@@ -458,7 +458,7 @@
       "is_streaming": false,
       "order": 5,
       "uid": "c950af9c-be87-4761-a69e-e37f0c26cacb",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -467,7 +467,7 @@
     "pk": 4,
     "fields": {
       "name": "Stopwatch",
-      "action": "stopwatch",
+      "action": "core_stopwatch",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Logs the moment of the signal passing this widget (widget beeing run). If there is datetime in the input, it also outputs timespan difference between current time and input datetime.",
@@ -485,7 +485,7 @@
       "is_streaming": false,
       "order": 9,
       "uid": "eddf42f0-826c-4a64-a9c5-7af53e8b08e5",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -512,7 +512,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "2734af6c-6044-494d-9f08-4b3526b224c0",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -521,7 +521,7 @@
     "pk": 6,
     "fields": {
       "name": "Create List",
-      "action": "create_list",
+      "action": "core_create_list",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Creates a list structure, by using provided list elements.",
@@ -539,7 +539,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "ed60cacd-633c-4c7c-b963-a5fda548bed4",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -566,7 +566,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "cd62c3e4-bf00-4c18-96a9-1d203badf743",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -575,7 +575,7 @@
     "pk": 8,
     "fields": {
       "name": "Delay",
-      "action": "delay",
+      "action": "core_delay",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Delays for a certain amount of seconds",
@@ -593,7 +593,7 @@
       "is_streaming": false,
       "order": 3,
       "uid": "51a88c36-60c3-44c1-ba5a-b895c0ed0370",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -602,7 +602,7 @@
     "pk": 9,
     "fields": {
       "name": "Subtract integers",
-      "action": "subtract_integers",
+      "action": "core_subtract_integers",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Subtracts two integers",
@@ -620,7 +620,7 @@
       "is_streaming": false,
       "order": 6,
       "uid": "c6cf5c17-f6a6-4076-bf35-ecb06d72da86",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -647,7 +647,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "9c8a4da5-6f43-4dbc-846c-adf280c0f484",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -656,7 +656,7 @@
     "pk": 11,
     "fields": {
       "name": "Add integers",
-      "action": "add_integers",
+      "action": "core_add_integers",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Adds two integers",
@@ -674,7 +674,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "e898b974-bafa-4b67-8918-b47b801e063e",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -701,7 +701,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "8c747432-07e8-4b29-a657-9fec2a284791",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -710,7 +710,7 @@
     "pk": 13,
     "fields": {
       "name": "Create Tuple",
-      "action": "create_tuple",
+      "action": "core_create_tuple",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Creates a tuple structure of arbitrary length, by using provided elements.",
@@ -728,7 +728,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "3e5d16f6-acb9-41b4-bc71-e1a71fac47ba",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -755,7 +755,7 @@
       "is_streaming": false,
       "order": 2,
       "uid": "a9a75284-37d6-4520-a30b-30005f08c5d2",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -782,7 +782,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "5e9c83ea-9a53-4f16-bb69-d1bf66140f78",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -791,7 +791,7 @@
     "pk": 16,
     "fields": {
       "name": "String to file",
-      "action": "string_to_file",
+      "action": "core_string_to_file",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Downloads a file containing data or results from the ClowdFlows server.",
@@ -809,7 +809,7 @@
       "is_streaming": false,
       "order": 4,
       "uid": "442f5484-494d-4bd7-b1c2-74c1153dd1fe",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -818,7 +818,7 @@
     "pk": 17,
     "fields": {
       "name": "Filter documents",
-      "action": "split_documents",
+      "action": "core_split_documents",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -836,7 +836,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "261a890d-3c77-4fbf-a462-b873ca3d400e",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -845,7 +845,7 @@
     "pk": 18,
     "fields": {
       "name": "Load file",
-      "action": "load_file",
+      "action": "core_load_file",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Uploads a file to the ClowdFlows server. Outputs the file name on the server.",
@@ -863,7 +863,7 @@
       "is_streaming": false,
       "order": 2,
       "uid": "ff4e5d1a-c09b-4c1c-85e0-190c3b933418",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -872,7 +872,7 @@
     "pk": 19,
     "fields": {
       "name": "Filter integers",
-      "action": "filter_integers",
+      "action": "core_filter_integers",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Filters some integers",
@@ -890,7 +890,7 @@
       "is_streaming": false,
       "order": 4,
       "uid": "cf0af098-719c-4dce-bf75-0b3018eafb03",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -899,7 +899,7 @@
     "pk": 20,
     "fields": {
       "name": "Create String",
-      "action": "create_string",
+      "action": "core_create_string",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Creates a string",
@@ -917,7 +917,7 @@
       "is_streaming": false,
       "order": 2,
       "uid": "1b38bbab-7f89-4469-94cd-2f481f9c61f7",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -944,7 +944,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "42847b88-dc6b-4ced-942a-ad0ab25f3517",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -953,7 +953,7 @@
     "pk": 22,
     "fields": {
       "name": "Load file to string",
-      "action": "load_to_string",
+      "action": "core_load_to_string",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Uploads a file to the server and outputs its contents.",
@@ -971,7 +971,7 @@
       "is_streaming": false,
       "order": 3,
       "uid": "866b596e-0131-43f6-969d-97f43c66ef0d",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -980,7 +980,7 @@
     "pk": 23,
     "fields": {
       "name": "Concatenate Strings",
-      "action": "concatenate_strings",
+      "action": "core_concatenate_strings",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -998,7 +998,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "28c00f15-c6e1-45b7-9825-14fdc9819584",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1007,7 +1007,7 @@
     "pk": 24,
     "fields": {
       "name": "Create Dictionary",
-      "action": "create_dictionary",
+      "action": "core_create_dictionary",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Creates a dictionary structure, by using 'key' and 'value' pairs.",
@@ -1025,7 +1025,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "d9285877-7db7-4540-aaf3-e6349772dac2",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1034,7 +1034,7 @@
     "pk": 25,
     "fields": {
       "name": "Create Range",
-      "action": "create_range",
+      "action": "core_create_range",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Creates a list of values ranging from 0 to n-1, where n is the range length.",
@@ -1052,7 +1052,7 @@
       "is_streaming": false,
       "order": 2,
       "uid": "98e1fec5-e771-4f75-8615-eac6577e64c1",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1061,7 +1061,7 @@
     "pk": 26,
     "fields": {
       "name": "Create Integer",
-      "action": "create_integer",
+      "action": "core_create_integer",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Creates an integer object from a parameter.",
@@ -1079,7 +1079,7 @@
       "is_streaming": false,
       "order": 3,
       "uid": "8b20d4ad-c420-4156-973d-48d6d15934ba",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1106,7 +1106,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "3ddf7c0b-6b63-46f2-9a39-b1270c51b7c1",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1115,7 +1115,7 @@
     "pk": 28,
     "fields": {
       "name": "Ensemble",
-      "action": "ensemble",
+      "action": "core_ensemble",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -1133,7 +1133,7 @@
       "is_streaming": false,
       "order": 4,
       "uid": "e2faf966-57a8-4bd9-af66-bb7921be4431",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1160,7 +1160,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "f07ffb9c-64c9-42dd-809d-5ae8991fbd13",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1169,7 +1169,7 @@
     "pk": 30,
     "fields": {
       "name": "Add multiple integers",
-      "action": "add_multiple",
+      "action": "core_add_multiple",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Adds multiple integers and outputs their sum",
@@ -1187,7 +1187,7 @@
       "is_streaming": false,
       "order": 2,
       "uid": "e327e9ce-0a1d-4dcc-90ac-45ea4fd74707",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1196,7 +1196,7 @@
     "pk": 31,
     "fields": {
       "name": "Display String",
-      "action": "display_string",
+      "action": "core_display_string",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -1214,7 +1214,7 @@
       "is_streaming": false,
       "order": 3,
       "uid": "2c69b211-05fe-49a2-8de1-d38971e75b95",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1223,7 +1223,7 @@
     "pk": 32,
     "fields": {
       "name": "Object viewer",
-      "action": "object_viewer",
+      "action": "core_object_viewer",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Displays any input.",
@@ -1241,7 +1241,7 @@
       "is_streaming": false,
       "order": 5,
       "uid": "9c7ff1bd-6026-4ebd-b44f-ed889a8b0fad",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1268,7 +1268,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "d7f6848d-c01b-429a-88ba-c90741096d10",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1277,7 +1277,7 @@
     "pk": 34,
     "fields": {
       "name": "Pickle object",
-      "action": "pickle_object",
+      "action": "core_pickle_object",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Transform a ClowdFlows (or a Python) object into a format that can be stored.",
@@ -1295,7 +1295,7 @@
       "is_streaming": false,
       "order": 6,
       "uid": "1f6bd626-331e-4ac3-b55f-cec8fcd8fd9e",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1322,7 +1322,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "ac754eed-37a4-48bc-b837-2f3db3f8f547",
-      "package": "base",
+      "package": "cf_core",
       "windows_queue": false
     }
   },
@@ -1331,7 +1331,7 @@
     "pk": 36,
     "fields": {
       "name": "Rule Induction",
-      "action": "rules",
+      "action": "core_rules",
       "wsdl": "",
       "wsdl_method": "",
       "description": "A base rule induction learner. The algorithm follows separate-and-conquer strategy, which has its origins in the AQ family of algorithms (Fuernkranz J.; Separate-and-Conquer Rule Learning, Artificial Intelligence Review 13, 3-54, 1999). Such algorithms search for the optimal rule for the current training set, remove the covered training instances (separate) and repeat the process (conquer) on the remaining data.",
@@ -1349,7 +1349,7 @@
       "is_streaming": false,
       "order": 9,
       "uid": "0ce778a2-b40c-45f1-8383-9327b18fc661",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1358,7 +1358,7 @@
     "pk": 37,
     "fields": {
       "name": "Score estimation (Relief)",
-      "action": "cforange_score_estimation",
+      "action": "orange_score_estimation",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Assesses features\u2019 ability to distinguish between very similar instances from different classes. This scoring method was first developed by Kira and Rendell and then improved by Kononenko.",
@@ -1376,7 +1376,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "d7f0e9b0-aa2a-4cdb-b4a8-cfb3b0bafa43",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1385,7 +1385,7 @@
     "pk": 38,
     "fields": {
       "name": "Add Class Noise",
-      "action": "add_class_noise",
+      "action": "core_add_class_noise",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Adds class noise to a specified percentage of data instances.",
@@ -1403,7 +1403,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "4c603285-3aa7-4b55-8d57-cc8285e212c2",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1412,7 +1412,7 @@
     "pk": 39,
     "fields": {
       "name": "Select Data",
-      "action": "select_data",
+      "action": "core_select_data",
       "wsdl": "",
       "wsdl_method": "",
       "description": "This widget allows the user to select a subset of the data from the input data set based on the condition defined over a set of data\u2019s attributes. Data instances that match the selection rule are placed on the output channel.",
@@ -1430,7 +1430,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "2039c5fe-48a1-426c-b418-f0a16fdf1b18",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1439,7 +1439,7 @@
     "pk": 40,
     "fields": {
       "name": "Orange Data Table to ARFF String",
-      "action": "odt_to_arff",
+      "action": "core_odt_to_arff",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Transforms an orange data table to an arff string.",
@@ -1457,7 +1457,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "e85e8eee-a6c1-464c-ab11-fecf4240fdd0",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1466,7 +1466,7 @@
     "pk": 41,
     "fields": {
       "name": "Area under curve (ROC analysis)",
-      "action": "cforange_auc",
+      "action": "orange_auc",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -1484,7 +1484,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "cc2877f0-65d2-4bc2-9868-261546be1447",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1493,7 +1493,7 @@
     "pk": 42,
     "fields": {
       "name": "Orange Data Table to ARFF File",
-      "action": "string_to_file",
+      "action": "core_string_to_file",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -1511,7 +1511,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "c5a545bb-e0ac-4b73-aa76-4add863e3252",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1520,7 +1520,7 @@
     "pk": 43,
     "fields": {
       "name": "Classification Accuracy",
-      "action": "cforange_classification_accuracy",
+      "action": "orange_classification_accuracy",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Computes classification accuracy, i.e. percentage of matches between predicted and actual class. The function returns a list of classification accuracies of all classifiers tested. If reportSE is set to true, the list will contain tuples with accuracies and standard errors.",
@@ -1538,7 +1538,7 @@
       "is_streaming": false,
       "order": 3,
       "uid": "c3554695-87ec-43a7-8bac-f6738f462a09",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1547,7 +1547,7 @@
     "pk": 44,
     "fields": {
       "name": "Split dataset",
-      "action": "cforange_split_dataset",
+      "action": "orange_split_dataset",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Splits a dataset to a train and test dataset.",
@@ -1565,7 +1565,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "af4010a8-836c-41c7-adf6-50118295cf8e",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1574,7 +1574,7 @@
     "pk": 45,
     "fields": {
       "name": "Brier Score",
-      "action": "cforange_brier_score",
+      "action": "orange_brier_score",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Computes the Brier's score, defined as the average (over test examples) of sumx(t(x)-p(x))^2, where x is a class, t(x) is 1 for the correct class and 0 for the others, and p(x) is the probability that the classifier assigned to the class x.",
@@ -1592,7 +1592,7 @@
       "is_streaming": false,
       "order": 2,
       "uid": "a8e19b70-c295-484c-acca-8ce12c489793",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1601,7 +1601,7 @@
     "pk": 46,
     "fields": {
       "name": "ARFF string to Orange Data Table",
-      "action": "load_dataset_from_arff_string",
+      "action": "core_load_dataset_from_arff_string",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -1619,7 +1619,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "d978d9ba-40dc-427e-b16f-066f13ada8e5",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1628,7 +1628,7 @@
     "pk": 47,
     "fields": {
       "name": "Tree Visualization",
-      "action": "tree_visualization",
+      "action": "core_tree_visualization",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Used to visually represent classification trees.",
@@ -1646,7 +1646,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "39e85968-5f6e-4ac7-802b-5260b406e123",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1655,7 +1655,7 @@
     "pk": 48,
     "fields": {
       "name": "Table Viewer",
-      "action": "table_viewer",
+      "action": "core_table_viewer",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Widget presents Orange Data Table in a spreadsheet format. Widget supports sorting by attribute values (click on the attribute name in the header row).",
@@ -1673,7 +1673,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "5becb9ab-93a8-4811-aa37-66ca85a7c0f3",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1682,7 +1682,7 @@
     "pk": 49,
     "fields": {
       "name": "Prepare Results for PR Visualization",
-      "action": "cforange_prepare_results",
+      "action": "orange_prepare_results",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -1700,7 +1700,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "b16da039-f997-4d78-baa0-26d5ad8661eb",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1709,7 +1709,7 @@
     "pk": 50,
     "fields": {
       "name": "Alter table",
-      "action": "alter_table",
+      "action": "core_alter_table",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Alter individual values in an Orange Data Table.",
@@ -1727,7 +1727,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "6f73d7a0-ed32-4ff8-9743-6a5d0867c693",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1736,7 +1736,7 @@
     "pk": 51,
     "fields": {
       "name": "Naive Bayes",
-      "action": "bayes",
+      "action": "core_bayes",
       "wsdl": "",
       "wsdl_method": "",
       "description": "A Naive Bayes classifier is a probabilistic classifier that estimates conditional probabilities of the dependant variable from training data and uses them for classification of new data instances. The algorithm is very fast for discrete features, but runs slower for continuous features.",
@@ -1754,7 +1754,7 @@
       "is_streaming": false,
       "order": 7,
       "uid": "bf4a4479-b2c3-47b3-b900-be8d39871ecd",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1763,7 +1763,7 @@
     "pk": 52,
     "fields": {
       "name": "Proportion Test",
-      "action": "cforange_proportion_test",
+      "action": "orange_proportion_test",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Splits the data with a number of examples in the learning and the rest in the testing set. The test is repeated for a given number of times (default 10). Division is stratified by default. Function also accepts keyword arguments for randomization and storing classifiers.",
@@ -1781,7 +1781,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "c605a0f4-a3b0-4394-8410-9da8854416a2",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1790,7 +1790,7 @@
     "pk": 53,
     "fields": {
       "name": "Filter table",
-      "action": "filter_table",
+      "action": "core_filter_table",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Filter individual instances in an Orange Data Table.",
@@ -1808,7 +1808,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "53641cf6-8e77-442a-ab4b-016ad52eb36e",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1817,7 +1817,7 @@
     "pk": 54,
     "fields": {
       "name": "Select Attributes Above Threshold",
-      "action": "cforange_atts_above_thresh",
+      "action": "orange_atts_above_thresh",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Constructs and returns a new data set that includes a class and attributes from the list returned by function attMeasure that have the score above or equal to a specified threshold. data is used to pass an original data set. Parameter threshold is optional and defaults to 0.0.",
@@ -1835,7 +1835,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "660c49cb-21ca-4e06-97ca-893946340b7f",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1844,7 +1844,7 @@
     "pk": 55,
     "fields": {
       "name": "Root Mean-squared Error",
-      "action": "cforange_RMSE",
+      "action": "orange_RMSE",
       "wsdl": "",
       "wsdl_method": "",
       "description": "One of the several alternative measures to be used to evaluate the success of numeric prediction.",
@@ -1862,7 +1862,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "dc66f264-14a6-491b-9c39-36bded8f95d0",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1871,7 +1871,7 @@
     "pk": 56,
     "fields": {
       "name": "Support Vector Machine Easy",
-      "action": "svmeasy",
+      "action": "core_svmeasy",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Learning algorithm which helps with the data normalization and parameter tuning.",
@@ -1889,7 +1889,7 @@
       "is_streaming": false,
       "order": 11,
       "uid": "d54a6cee-76d0-4ec6-9aab-556e233be366",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1898,7 +1898,7 @@
     "pk": 57,
     "fields": {
       "name": "Information Score",
-      "action": "cforange_information_score",
+      "action": "orange_information_score",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Computes the information score as defined by Kononenko and Bratko (1991). ",
@@ -1916,7 +1916,7 @@
       "is_streaming": false,
       "order": 7,
       "uid": "5fed0e33-c267-4522-a4ff-faf745e80be6",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1925,7 +1925,7 @@
     "pk": 58,
     "fields": {
       "name": "Example Distance",
-      "action": "cforange_example_distance",
+      "action": "orange_example_distance",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Computes the distances between the examples in the data set. ",
@@ -1943,7 +1943,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "9fb92534-94bf-4a07-a020-c01b20eaa00a",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1952,7 +1952,7 @@
     "pk": 59,
     "fields": {
       "name": "Random Forest",
-      "action": "random_forest",
+      "action": "core_random_forest",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Random forest is a classification technique that, given the set of class-labeled data, builds a set of classification trees. Each tree is developed from a bootstrap sample from the training data. When developing individual trees, an arbitrary subset of attributes is drawn (hence the term \u201crandom\u201d) from which the best attribute for the split is selected. The classification is based on the majority vote from individually developed tree classifiers in the forest.",
@@ -1970,7 +1970,7 @@
       "is_streaming": false,
       "order": 8,
       "uid": "8ac403eb-cf44-41cb-b9a1-84dede03a1d4",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -1979,7 +1979,7 @@
     "pk": 60,
     "fields": {
       "name": "Dataset Discretization",
-      "action": "cforange_discretize",
+      "action": "orange_discretize",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Discretizes continuous attrbutes from input data set.",
@@ -1997,7 +1997,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "ef274f5b-65ed-492f-a127-d32213be23ed",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2006,7 +2006,7 @@
     "pk": 61,
     "fields": {
       "name": "Leave One Out",
-      "action": "cforange_leave_one_out",
+      "action": "orange_leave_one_out",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Performs a leave-one-out experiment with the given list of learners and examples. This is equivalent to performing len(examples)-fold cross validation. Function accepts additional keyword arguments for preprocessing, storing classifiers and verbose output.",
@@ -2024,7 +2024,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "0e9514ce-914a-4dd0-9952-9cd14877c427",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2033,7 +2033,7 @@
     "pk": 62,
     "fields": {
       "name": "Logistic Regression",
-      "action": "logreg",
+      "action": "core_logreg",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Logistic regression is a statistical classification method that fits data to a logistic function. A logistic regression classification model stores estimated values of regression coefficients and their significances, and uses them to predict classes and class probabilities.",
@@ -2051,7 +2051,7 @@
       "is_streaming": false,
       "order": 4,
       "uid": "bb9cbb4e-516d-4856-9ad3-614a7a01cba1",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2060,7 +2060,7 @@
     "pk": 63,
     "fields": {
       "name": "Build Classifier",
-      "action": "build_classifier",
+      "action": "core_build_classifier",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -2078,7 +2078,7 @@
       "is_streaming": false,
       "order": 2,
       "uid": "39809f9a-3742-4ca0-908a-1d8a041261af",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2087,7 +2087,7 @@
     "pk": 64,
     "fields": {
       "name": "Support Vector Machine",
-      "action": "svm",
+      "action": "core_svm",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Support vector machine learner.",
@@ -2105,7 +2105,7 @@
       "is_streaming": false,
       "order": 10,
       "uid": "6b40b000-3e93-4fe4-bb95-f7ea4822eebf",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2114,7 +2114,7 @@
     "pk": 65,
     "fields": {
       "name": "Load Dataset to Orange Data Table",
-      "action": "load_dataset",
+      "action": "core_load_dataset",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -2132,7 +2132,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "776564a9-74ae-4651-8340-c52c055cecbc",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2141,7 +2141,7 @@
     "pk": 66,
     "fields": {
       "name": "C4.5 Tree Learner",
-      "action": "c45_tree",
+      "action": "core_c45_tree",
       "wsdl": "",
       "wsdl_method": "",
       "description": "C4.5 learner by Ross Quinlan, this widget provides a graphical interface to the well-known Quinlan\u2019s C4.5 algorithm for construction of classification tree. ",
@@ -2159,7 +2159,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "0e3f39fd-3807-49d5-aab5-4ae441cd9f75",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2168,7 +2168,7 @@
     "pk": 67,
     "fields": {
       "name": "Attribute distance",
-      "action": "cforange_attribute_distance",
+      "action": "orange_attribute_distance",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Computes the distances between the attributes in the data sets. Don\u2019t confuse it with a similar widget for computing the distances between examples.",
@@ -2186,7 +2186,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "b10997be-0f5f-43e5-9483-3c6575461c73",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2195,7 +2195,7 @@
     "pk": 68,
     "fields": {
       "name": "Orange Data Table to KDIC String",
-      "action": "cforange_odt_to_kdic",
+      "action": "orange_odt_to_kdic",
       "wsdl": "",
       "wsdl_method": "",
       "description": "It generates files for khiops.",
@@ -2213,7 +2213,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "777bee59-4e3f-4818-91f4-78d9c020d622",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2222,7 +2222,7 @@
     "pk": 69,
     "fields": {
       "name": "Orange Data Table to Prd and Fct",
-      "action": "cforange_odt_to_prd_fct",
+      "action": "orange_odt_to_prd_fct",
       "wsdl": "",
       "wsdl_method": "",
       "description": "It transforms a Orange Data Table into the Prd and Fct files used by Tertius, 1BC and 1BC2 widget. Its input is a Database context widget.",
@@ -2240,7 +2240,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "70718b14-851b-40ed-9091-3e83a95bee5e",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2249,7 +2249,7 @@
     "pk": 70,
     "fields": {
       "name": "Apply Classifier",
-      "action": "apply_classifier",
+      "action": "core_apply_classifier",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -2267,7 +2267,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "00e860b0-d62d-4e1d-8f58-0a1755c0f0e1",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2276,7 +2276,7 @@
     "pk": 71,
     "fields": {
       "name": "Lookup Learner",
-      "action": "lookup_learner",
+      "action": "core_lookup_learner",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Lookup classifiers predict classes by looking into stored lists of cases. A learner sorts the data instances and merges those with the same feature values.",
@@ -2294,7 +2294,7 @@
       "is_streaming": false,
       "order": 5,
       "uid": "1781ee2a-f353-42b4-96d4-3379329c984e",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2303,7 +2303,7 @@
     "pk": 72,
     "fields": {
       "name": "Select best N attributes",
-      "action": "cforange_best_natts",
+      "action": "orange_best_natts",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Constructs and returns a new data set that includes a class and only N best attributes from a list scores. data is used to pass an original data set.",
@@ -2321,7 +2321,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "68ce4c2e-baf7-4a2e-843b-3b5622c20448",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2330,7 +2330,7 @@
     "pk": 73,
     "fields": {
       "name": "UCI Dataset to Orange Data Table",
-      "action": "uci_to_odt",
+      "action": "core_uci_to_odt",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -2348,7 +2348,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "4e8683ae-c571-413c-a592-2093de96e8d1",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2357,7 +2357,7 @@
     "pk": 74,
     "fields": {
       "name": "Root Relative Squared Error",
-      "action": "cforange_RRSE",
+      "action": "orange_RRSE",
       "wsdl": "",
       "wsdl_method": "",
       "description": "One of the several alternative measures to be used to evaluate the success of numeric prediction.",
@@ -2375,7 +2375,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "c9ecd12e-eaff-41b6-b104-dff7fb60b124",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2384,7 +2384,7 @@
     "pk": 75,
     "fields": {
       "name": "Mean Squared Error",
-      "action": "cforange_MSE",
+      "action": "orange_MSE",
       "wsdl": "",
       "wsdl_method": "",
       "description": "One of the several alternative measures to be used to evaluate the success of numeric prediction.",
@@ -2402,7 +2402,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "c527ea0f-336b-4334-8288-bce4e742e043",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2411,7 +2411,7 @@
     "pk": 76,
     "fields": {
       "name": "Mean Absolute Error",
-      "action": "cforange_MAE",
+      "action": "orange_MAE",
       "wsdl": "",
       "wsdl_method": "",
       "description": "One of the several alternative measures to be used to evaluate the success of numeric prediction.",
@@ -2429,7 +2429,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "feffec1f-247b-4740-9ddc-df549c5fbaf6",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2438,7 +2438,7 @@
     "pk": 77,
     "fields": {
       "name": "Confusion Matrix",
-      "action": "cforange_confusion_matrix",
+      "action": "orange_confusion_matrix",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Confusion Matrix gives the number/proportion of examples from one class classified in to another (or same) class. Besides that, selecting elements of the matrix feeds the corresponding examples onto the output signal. This way, one can observe which specific examples were misclassified in a certain way.",
@@ -2456,7 +2456,7 @@
       "is_streaming": false,
       "order": 4,
       "uid": "5cab835b-82f8-4146-a4d0-ff3b3f923395",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2465,7 +2465,7 @@
     "pk": 78,
     "fields": {
       "name": "Confusion Matrix Computations",
-      "action": "cforange_confusion_matrix_computations",
+      "action": "orange_confusion_matrix_computations",
       "wsdl": "",
       "wsdl_method": "",
       "description": "With the confusion matrix defined in terms of positive and negative classes, you can also compute the sensitivity [TP/(TP+FN)], specificity [TN/(TN+FP)], positive predictive value [TP/(TP+FP)] and negative predictive value [TN/(TN+FN)]. In information retrieval, positive predictive value is called precision (the ratio of the number of relevant records retrieved to the total number of irrelevant and relevant records retrieved), and sensitivity is called recall (the ratio of the number of relevant records retrieved to the total number of relevant records in the database). The harmonic mean of precision and recall is called an F-measure, where, depending on the ratio of the weight between precision and recall is implemented as F1 [2*precision*recall/(precision+recall)] or, for a general case, Falpha [(1+alpha)*precision*recall / (alpha*precision + recall)].",
@@ -2483,7 +2483,7 @@
       "is_streaming": false,
       "order": 5,
       "uid": "7ac99069-f563-4580-a0de-2aa79b47ff4b",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2492,7 +2492,7 @@
     "pk": 79,
     "fields": {
       "name": "Classification Tree",
-      "action": "class_tree",
+      "action": "core_class_tree",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Classification Tree Learner. ",
@@ -2510,7 +2510,7 @@
       "is_streaming": false,
       "order": 3,
       "uid": "29b5871f-1829-4af6-8463-c6515e2010c6",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2519,7 +2519,7 @@
     "pk": 80,
     "fields": {
       "name": "Cross Validation",
-      "action": "cforange_cross_validation",
+      "action": "orange_cross_validation",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Returns the object stored in results, which essentially stores the probabilities and class values of the instances that were used as test cases.",
@@ -2537,7 +2537,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "51906007-2471-4869-89f9-f3f805358d13",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2546,7 +2546,7 @@
     "pk": 81,
     "fields": {
       "name": "Majority Learner",
-      "action": "majority_learner",
+      "action": "core_majority_learner",
       "wsdl": "",
       "wsdl_method": "",
       "description": "A Learner that returns the majority class, disregarding the example\u2019s attributes. Accuracy of classifiers is often compared with the \u201cdefault accuracy\u201d, that is, the accuracy of a classifier which classifies all instances to the majority class. The training of such classifier consists of computing the class distribution and its modus. This \u201clearning algorithm\u201d will most often be used as a baseline, that is, to determine if some other learning algorithm provides any information about the class.",
@@ -2564,7 +2564,7 @@
       "is_streaming": false,
       "order": 6,
       "uid": "f11eaa13-d94b-40e1-adfb-a811ae36bc2d",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2573,7 +2573,7 @@
     "pk": 82,
     "fields": {
       "name": "Cross Validation (multiple learners)",
-      "action": "cforange_multiple_cross_validation",
+      "action": "orange_multiple_cross_validation",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -2591,7 +2591,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "6c168f2e-e47f-409a-97c1-58d50fbbec4d",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2600,7 +2600,7 @@
     "pk": 83,
     "fields": {
       "name": "Correct Class Average Probability",
-      "action": "cforange_average_probability",
+      "action": "orange_average_probability",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Computes the average probability assigned to the correct class.",
@@ -2618,7 +2618,7 @@
       "is_streaming": false,
       "order": 6,
       "uid": "e21925ad-fdc3-487d-944e-5eb03caa2350",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2627,7 +2627,7 @@
     "pk": 84,
     "fields": {
       "name": "Select Attributes",
-      "action": "select_attrs",
+      "action": "core_select_attrs",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Select Attributes widget is used to manually compose your data domain, that is, to decide which attributes will be used and how. Orange distinguishes between ordinary attributes, an (optional) class attributes and meta attributes.",
@@ -2645,7 +2645,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "7b3455ff-5b2a-4c51-aa09-38dab4dfc2dc",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2654,7 +2654,7 @@
     "pk": 85,
     "fields": {
       "name": "Orange Data Table to CSV File",
-      "action": "string_to_file",
+      "action": "core_string_to_file",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -2672,7 +2672,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "dae920fc-c301-4285-9707-9aa8dbb9b9f7",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2681,7 +2681,7 @@
     "pk": 86,
     "fields": {
       "name": "Relative Squared Error",
-      "action": "cforange_RSE",
+      "action": "orange_RSE",
       "wsdl": "",
       "wsdl_method": "",
       "description": "One of the several alternative measures to be used to evaluate the success of numeric prediction.",
@@ -2699,7 +2699,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "0d32c3a7-1f94-4414-92f0-bb81a9152636",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2708,7 +2708,7 @@
     "pk": 87,
     "fields": {
       "name": "k-Nearest Neighbours",
-      "action": "knn",
+      "action": "core_knn",
       "wsdl": "",
       "wsdl_method": "",
       "description": "The nearest neighbors algorithm is one of the most basic, lazy machine learning algorithms. The learner only stores the training data, and the classifier makes predictions based on the instances most similar to the data instance being classified.",
@@ -2726,7 +2726,7 @@
       "is_streaming": false,
       "order": 12,
       "uid": "f669618e-108c-4636-8ce5-ec04b26f4642",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2735,7 +2735,7 @@
     "pk": 88,
     "fields": {
       "name": "CN2 Rule Learner",
-      "action": "cn2",
+      "action": "core_cn2",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Use this widget to learn a set of if-then rules from data. The algorithm is based on CN2 algorithm.",
@@ -2753,7 +2753,7 @@
       "is_streaming": false,
       "order": 2,
       "uid": "766ef980-6622-4168-b4c5-60c5001dba8b",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2762,7 +2762,7 @@
     "pk": 89,
     "fields": {
       "name": "R-squared",
-      "action": "cforange_R2",
+      "action": "orange_R2",
       "wsdl": "",
       "wsdl_method": "",
       "description": "One of the several alternative measures to be used to evaluate the success of numeric prediction.",
@@ -2780,7 +2780,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "2299e615-4d72-4db7-9b32-3566b903c749",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2789,7 +2789,7 @@
     "pk": 90,
     "fields": {
       "name": "Orange Data Table to TAB File",
-      "action": "string_to_file",
+      "action": "core_string_to_file",
       "wsdl": "",
       "wsdl_method": "",
       "description": "",
@@ -2807,7 +2807,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "6f475ead-0c0e-4b77-bc1a-ccfa7614962c",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2816,7 +2816,7 @@
     "pk": 91,
     "fields": {
       "name": "Filter ReliefF",
-      "action": "cforange_filter_relieff",
+      "action": "orange_filter_relieff",
       "wsdl": "",
       "wsdl_method": "",
       "description": "Takes the data set data and a measure for score of attributes measure. Repeats the process of estimating attributes and removing the worst attribute if its measure is lower than margin. Stops when no attribute score is below this margin. The default for measure is relief(k=20, m=50), and margin defaults to 0.0.",
@@ -2834,7 +2834,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "7547eb6d-e83d-4033-b0cb-1e8319c2508f",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },
@@ -2843,7 +2843,7 @@
     "pk": 92,
     "fields": {
       "name": "Hierarchical clustering",
-      "action": "cforange_hierarchical_clustering",
+      "action": "orange_hierarchical_clustering",
       "wsdl": "",
       "wsdl_method": "",
       "description": "The widget computes hierarchical clustering of arbitrary types of objects from the matrix of distances between them and shows the corresponding diagram. If the distances apply to examples, the widget offers some special functionality (adding cluster indices, outputting examples...).",
@@ -2861,7 +2861,7 @@
       "is_streaming": false,
       "order": 1,
       "uid": "12b0d57d-1cbc-4e9d-8087-2dcd8ced2a27",
-      "package": "cforange",
+      "package": "cf_orange",
       "windows_queue": false
     }
   },

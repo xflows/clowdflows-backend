@@ -66,7 +66,7 @@ def call_webservice(input_dict):
         return output_dict
     return results
 
-def multiply_integers(input_dict):
+def core_multiply_integers(input_dict):
     product = 1
     for i in input_dict['integers']:
         product = product*int(i)
