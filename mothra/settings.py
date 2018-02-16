@@ -142,7 +142,6 @@ LOGGING = {
 }
 
 USE_CONCURRENCY = False
-
 INSTALLED_APPS_DEFAULT = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -162,10 +161,17 @@ INSTALLED_APPS_DEFAULT = (
     'discover_runner',
     'rest_framework',
     'rest_framework.authtoken',
+    'djoser',
     'rest_framework_docs',
     'corsheaders',
     'channels'
 )
+
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': 'password-reset/{uid}/{token}',
+    'PASSWORD_RESET_CONFIRM_RETYPE': False,
+    'SERIALIZERS': {},
+}
 
 INSTALLED_APPS_WORKFLOWS_SUB = ()
 INSTALLED_APPS_EXTERNAL_PACKAGES = ()
@@ -182,8 +188,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
     ),
     'PAGINATE_BY': None,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),

@@ -1,8 +1,8 @@
 from django.contrib.auth import authenticate
-from django.contrib.auth import logout
 from django.db.models import Q
 from django.http import HttpResponse, Http404
-from rest_framework import viewsets, permissions
+
+from rest_framework import viewsets, permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes, detail_route, list_route
 
@@ -17,12 +17,12 @@ def login_response(request, user):
     request.user = user
     user = UserSerializer(request.user, context={'request': request})
     return json.dumps({
-        'status': 'ok',
-        'token': request.user.auth_token.key,
+        'auth_token': request.user.auth_token.key,
         'user': user.data
     })
 
 
+#required as djoser doesn't have an option to automatically login after registration
 @api_view(['POST', ])
 @permission_classes((permissions.AllowAny,))
 def user_register(request):
@@ -34,43 +34,56 @@ def user_register(request):
         try:
             user = User.objects.create_user(username, password=password, email=email)
         except:
-            return HttpResponse(json.dumps({'status': 'error', 'message': 'Username or email already registered'}),
-                                content_type="application/json")
+            return HttpResponse(json.dumps({'message': 'Username or email already registered'}),
+                                content_type="application/json",status=400, )
 
         authenticate(username=username, password=password)
         token, _ = Token.objects.get_or_create(user=user)
     else:
-        return HttpResponse(json.dumps({'status': 'error', 'message': 'All fields are required'}),
-                            content_type="application/json")
+        return HttpResponse(json.dumps({'message': 'All fields are required'}),
+                            content_type="application/json",status=400)
 
     return HttpResponse(login_response(request, user), content_type="application/json")
 
-
-@api_view(['POST', ])
-@permission_classes((permissions.AllowAny,))
-def user_login(request):
-    username = request.data.get('username', None)
-    password = request.data.get('password', None)
-
-    user = authenticate(username=username, password=password)
-    if user:
-        if user.is_active:
-            token, _ = Token.objects.get_or_create(user=user)
-            return HttpResponse(login_response(request, user), content_type="application/json")
-        else:
-            return HttpResponse(json.dumps({'status': 'error', 'message': 'Disabled user'}),
-                                content_type="application/json")
-    else:
-        return HttpResponse(json.dumps({'status': 'error', 'message': 'Incorrect username or password'}),
-                            content_type="application/json")
-
-
-@api_view(['POST', ])
-@permission_classes((permissions.IsAuthenticated,))
-def user_logout(request):
-    request.user.auth_token.delete()
-    logout(request)
-    return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
+#
+# @api_view(['POST', ])
+# @permission_classes((permissions.AllowAny,))
+# def user_login(request):
+#     username = request.data.get('username', None)
+#     password = request.data.get('password', None)
+#
+#     user = authenticate(username=username, password=password)
+#     if user:
+#         if user.is_active:
+#             token, _ = Token.objects.get_or_create(user=user)
+#             return HttpResponse(login_response(request, user), content_type="application/json")
+#         else:
+#             return HttpResponse(json.dumps({'status': 'error', 'message': 'Disabled user'}),
+#                                 content_type="application/json")
+#     else:
+#         return HttpResponse(json.dumps({'status': 'error', 'message': 'Incorrect username or password'}),
+#                             content_type="application/json")
+#
+#
+# @api_view(['POST', ])
+# @permission_classes((permissions.IsAuthenticated,))
+# def user_logout(request):
+#     request.user.auth_token.delete()
+#     logout(request)
+#     return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")
+#
+#
+# @api_view(['POST', ])
+# @permission_classes((permissions.AllowAny,))
+# def user_send_password_reset_email(request):
+#     email = request.data.get('email', None)
+#     try:
+#         user=  User.objects.get(email= email)
+#         return HttpResponse(login_response(request, user), content_type="application/json")
+#     except ObjectDoesNotExist:
+#         return HttpResponse(json.dumps({'status': 'error', 'message': 'No user with such email in the database.'}),
+#                             content_type="application/json")
+#     # settings.EMAIL.password_reset(request, context).send([user.email])
 
 
 @api_view(['GET', ])
@@ -85,6 +98,10 @@ def recommender_model(request):
         'recomm_for_abstract_input_id': recommender_maps[1]
     }
     return HttpResponse(json.dumps(recommender), content_type="application/json")
+
+
+
+
 
 
 @api_view(['GET', ])
