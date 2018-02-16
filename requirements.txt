@@ -20,3 +20,4 @@ django-cors-headers==1.1.0
 drfdocs==0.0.11
 channels==1.1.8
 git+http://github.com/xflows/cf_core#egg=cf_core
+djoser==1.1.5
