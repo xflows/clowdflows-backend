@@ -42,31 +42,28 @@ class BaseAPITestCase(APITestCase):
 
 class SupportingAPITests(BaseAPITestCase):
     def test_register(self):
-        url = reverse('api-user-register')
+        url = reverse('user-create')
         response = self.client.post(url, {
             'username': 'testuser3',
             'password': '123',
             'email': 'testuser3@testdomain.com'
         })
-        data = response.json()
-        self.assertEqual(data['status'], 'ok')
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(User.objects.filter(username='testuser3').count(), 1)
 
     def test_login(self):
-        url = reverse('api-user-login')
+        url = reverse('token-create')
         response = self.client.post(url, {
             'username': 'testuser',
             'password': '123'
         })
-        data = response.json()
-        self.assertEqual(data['status'], 'ok')
+        self.assertEqual(response.status_code, 200)
 
     def test_logout(self):
-        url = reverse('api-user-logout')
+        url = reverse('token-destroy')
         self._login()
-        response = self.client.post(url)
-        data = response.json()
-        self.assertEqual(data['status'], 'ok')
+        response = self.client.post(url) # HTTP_AUTHORIZATION="Token %s" % auth_token)
+        self.assertEqual(response.status_code, 204)
 
     def test_widget_library(self):
         url = reverse('widget-library-list')
@@ -196,9 +193,9 @@ class WorkflowAPITests(BaseAPITestCase):
         self._login()
 
         response = self.client.post(url, format="json")
-        data = response.json()
+        # data = response.json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(data['status'], 'ok')
+        # self.assertEqual(data['status'], 'ok')
 
         workflow = Workflow.objects.get(pk=TEST_WORKFLOW_USERS_PK)
         for widget in workflow.widgets.all():
