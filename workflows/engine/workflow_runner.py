@@ -150,6 +150,7 @@ class WorkflowRunner():
 
                 for_input_widget.finished = True
                 self.run_all_unfinished_widgets()
+            self.save()
         elif self.is_cross_validation():
             cv_input_widget = None
             cv_output_widget = None
@@ -272,12 +273,14 @@ class WorkflowRunner():
 
                 cv_input_widget.finished=True # set the input widget as finished
                 self.run_all_unfinished_widgets()
+            self.save()
         else:
             self.run_all_unfinished_widgets()
-        self.save()
+        # self.save()
 
         if self.representing_widget:
             self.representing_widget.set_as_finished()
+            self.representing_widget.save()
 
     def save(self):
         for w in self.widgets:

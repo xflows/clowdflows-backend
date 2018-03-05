@@ -39,10 +39,10 @@ class WidgetViewSet(viewsets.ModelViewSet):
     def reset(self, request, pk=None):
         widget = self.get_object()
         try:
-            widget.reset()
+            #widget.reset()
             descendants = widget.descendants_to_reset()
             for widget_pk in descendants:
-                Widget.objects.get(pk=widget_pk).reset()
+                Widget.objects.get(pk=widget_pk).reset() #TODO this is probably performed twice for each widget
         except:
             return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem resetting the widget'}),
                                 content_type="application/json")
@@ -168,12 +168,12 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 if w.abstract_widget.interactive and run_and_interact:
                     w.running = True
                     w.interaction_waiting = True
-                    w.save() #required in order to save the inputs' values
+                    w.save() #required in order to set the above values
                     data = json.dumps(
                         {'status': 'interactive', 'message': 'Widget \'{}\' needs your attention.'.format(w.name),
                          'widget_id': w.id})
                 elif w.abstract_widget.visualization_view != '':
-                    w.save() #required in order to save the inputs' values
+                    # w.save() #required in order to save the inputs' values => already triggered by the widget runner
                     data = json.dumps(
                         {'status': 'visualize', 'message': 'Visualizing widget \'{}\'.'.format(w.name),
                          'widget_id': w.id})

@@ -73,10 +73,10 @@ def core_multiply_integers(input_dict):
     output_dict={'integer':product}
     return output_dict
 
-def filter_integers(input_dict):
+def core_filter_integers(input_dict): #todo move to cf_core
     return input_dict
     
-def filter_integers_post(postdata,input_dict,output_dict):
+def core_filter_integers_post(postdata,input_dict,output_dict): #todo move to cf_core
     try:
         output_dict['integers'] = postdata['integer']
     except:
@@ -118,10 +118,6 @@ def select_attrs(input_dict):
 def select_data(input_dict):
     return input_dict
 
-
-
-def alter_table(input_dict):
-    return {'altered_data' : None}
 
 def tree_visualization(input_dict):
     return{}

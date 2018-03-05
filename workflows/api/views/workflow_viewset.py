@@ -93,7 +93,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         workflow = self.get_object()
         try:
             WorkflowRunner(workflow).run()
-        except:
+        except EnvironmentError: #temp
             return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem running workflow'}),
                                 content_type="application/json")
         return HttpResponse(json.dumps({'status': 'ok'}), content_type="application/json")

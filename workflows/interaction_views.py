@@ -9,6 +9,6 @@ module_importer.import_all_packages_libs("interaction_views",setattr_local)
 def test_interaction(request,input_dict,output_dict,widget):
     return render(request, 'interactions/test_interaction.html',{'widget':widget})
 
-def filter_integers(request,input_dict,output_dict,widget):
+def core_filter_integers(request,input_dict,output_dict,widget): #todo move to cf_core
     return render(request, 'interactions/filter_integers.html',{'widget':widget,'integers':input_dict['integers']})
     

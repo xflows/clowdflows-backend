@@ -72,13 +72,13 @@ class Widget(models.Model):
         self.running = False
         self.error = False
         self.finished = True
-        send_finished_notification(Widget, self)
+        #send_finished_notification(Widget, self)
 
     def set_as_faulty(self):
         self.error=True
         self.running=False
         self.finished=False
-        send_finished_notification(Widget, self)
+        #send_finished_notification(Widget, self)
 
 
     def update_input_output_order(self):
@@ -346,5 +346,6 @@ def send_finished_notification(sender, instance, **kwargs):
     }
     Group("workflow-{}".format(instance.workflow.pk)).send({
         'text': json.dumps({'status': status, 'position': position, 'widget_pk': instance.pk})
-    })
+    }, immediately=True)
+    a=5
 
