@@ -1,3 +1,4 @@
+import logging
 import random
 
 
@@ -7,6 +8,8 @@ from workflows.engine import ValueNotSet
 from workflows.engine.widget_runner import WidgetRunner
 from workflows.models import *
 from collections import defaultdict
+
+from workflows.push_logger import PushLogger, PushHandler, JsonPushFormatter
 
 
 class WorkflowRunner():
@@ -110,20 +113,30 @@ class WorkflowRunner():
         return runnable
 
     def run_all_unfinished_widgets(self):
+        logger = logging.getLogger()
+        logger.setLevel(logging.INFO)
+
+        handler = PushHandler(self.workflow.id)
         runnable_widgets = self.runnable_widgets()
+
         while len(runnable_widgets)>0:
             print(runnable_widgets)
 
             for w in runnable_widgets:
+                handler.setFormatter(JsonPushFormatter(widget=w))
+                logger.addHandler(handler)
+                # logging.error("tstiram")
                 try:
                     if w.type == 'subprocess':
                         WorkflowRunner(w.workflow_link, parent_workflow_runner=self,representing_widget=w).run()
                     else:
                         WidgetRunner(w,self.inputs_per_widget_id[w.id],self.outputs_per_widget_id[w.id],self).run()
-                except NotImplementedError as c:
+                except Exception as c:
                     w.set_as_faulty()
                     self.save()
+                    logging.error("Error: %s" % str(c))
                     raise c
+                logger.removeHandler(handler)
             runnable_widgets = self.runnable_widgets()
 
     def run(self):

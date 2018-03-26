@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -72,12 +73,14 @@ class Widget(models.Model):
         self.running = False
         self.error = False
         self.finished = True
+        logging.success("Widget executed successfully.")
         #send_finished_notification(Widget, self)
 
     def set_as_faulty(self):
         self.error=True
         self.running=False
         self.finished=False
+        logging.error("Widget didn't execute successfully.")
         #send_finished_notification(Widget, self)
 
 
@@ -344,8 +347,8 @@ def send_finished_notification(sender, instance, **kwargs):
         'x': int(instance.x),
         'y': int(instance.y)
     }
-    Group("workflow-{}".format(instance.workflow.pk)).send({
-        'text': json.dumps({'status': status, 'position': position, 'widget_pk': instance.pk})
+    Group("editor-{}".format(instance.workflow.pk)).send({
+        'text': json.dumps({'type': 'widget','status': status, 'position': position, 'widget_pk': instance.pk})
     }, immediately=True)
-    a=5
+    a=10
 

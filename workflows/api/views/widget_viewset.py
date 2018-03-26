@@ -194,8 +194,9 @@ class WidgetViewSet(viewsets.ModelViewSet):
                 o.value = None
                 o.save()
             data = json.dumps({'status': 'error',
-                               'message': 'Error occurred when trying to execute widget \'{}\': {}'.format(w.name,
-                                                                                                           str(e))})
+                               'message': 'The above error halted the execution of the selected subworkflow.'
+            #                   trying to execute widget \'{}\': {}'.format(w.name, str(e))
+            })
         return HttpResponse(data, 'application/javascript')
 
     @detail_route(methods=['get'], url_path='visualize', permission_classes=[IsAdminOrSelf, ])
