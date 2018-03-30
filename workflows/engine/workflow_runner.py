@@ -9,7 +9,7 @@ from workflows.engine.widget_runner import WidgetRunner
 from workflows.models import *
 from collections import defaultdict
 
-from workflows.push_logger import PushLogger, PushHandler, JsonPushFormatter
+from workflows.push_logger import PushHandler, JsonPushFormatter
 
 
 class WorkflowRunner():
