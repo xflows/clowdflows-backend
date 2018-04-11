@@ -82,7 +82,9 @@ class Widget(models.Model):
         self.finished=False
         logging.error("Widget didn't execute successfully.")
         #send_finished_notification(Widget, self)
-
+    def set_as_running(self):
+        self.running=True
+        send_finished_notification(Widget, self) #required to be sent manually as widget save is not called explicitly
 
     def update_input_output_order(self):
         for i, input in enumerate(self.inputs.all()):

@@ -17,10 +17,6 @@ def add_multiple(input_dict):
         output_dict['sum'] = float(i)+output_dict['sum']
     return output_dict
 
-def load_file(input_dict):
-    return input_dict
-    
-
 
 def call_webservice(input_dict):
     from services.webservice import WebService

@@ -35,6 +35,19 @@ urlpatterns = [
     # url(r'^reset/done/$', auth_views.password_reset_complete),
 ]
 
+#load urls.py from imported packages
+packageUrls = {}
+
+from workflows import module_importer
+def set_package_url(name, value, package):
+    if name == 'urlpatterns':
+        packageUrls[package] = value
+
+module_importer.import_all_packages_libs("urls",set_package_url)
+urlpatterns += [url(r'^workflows/' + pck.replace('.','-') + '/', include(packageUrls[pck])) for pck in packageUrls ]
+
+
+
 ## debug stuff to serve static media
 if DEBUG:
     urlpatterns += [

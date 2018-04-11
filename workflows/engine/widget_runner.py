@@ -16,7 +16,8 @@ class WidgetRunner():
         # save inputs? if savable and workflow_runner.parent_workflow_runner is None
 
     def run(self):
-        self.widget.running = True
+        if not self.workflow_runner.parent_workflow_runner:
+            self.widget.set_as_running()
         new_value_per_variable = {}
 
         """ subprocesses and regular widgets get treated here """
