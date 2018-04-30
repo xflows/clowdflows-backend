@@ -18,6 +18,8 @@ class WorkflowRunner():
         self.connections = workflow.connections.all()
         self.widgets = workflow.get_runnable_widgets(last_runnable_widget_id=final_widget and final_widget.id)
 
+        self.runner_type=self.set_runner_type()
+
         #used for storing results
         self.input_id_to_input= {}
         self.output_id_to_output= {}
@@ -53,17 +55,20 @@ class WorkflowRunner():
         self.parent_workflow_runner = parent_workflow_runner
         self.representing_widget = representing_widget
 
-    def is_for_loop(self):
+    def set_runner_type(self):
         for w in self.widgets:
             if w.type=='for_input':
-                return True
-        return False
+                return "for_loop"
+            elif w.type == 'cv_input':
+                return "cross_validation"
+        return "standard"
+
+    def is_for_loop(self):
+        return self.runner_type=="for_loop"
 
     def is_cross_validation(self):
-        for w in self.widgets:
-            if w.type=='cv_input':
-                return True
-        return False
+        return self.runner_type=="cross_validation"
+
 
     def cleanup(self):
         for w in self.widgets:
@@ -163,7 +168,8 @@ class WorkflowRunner():
 
                 for_input_widget.finished = True
                 self.run_all_unfinished_widgets()
-            self.save()
+            self.save()  # in order to save widgets inputs/outputs only in the last iteration
+
         elif self.is_cross_validation():
             cv_input_widget = None
             cv_output_widget = None
@@ -286,14 +292,18 @@ class WorkflowRunner():
 
                 cv_input_widget.finished=True # set the input widget as finished
                 self.run_all_unfinished_widgets()
-            self.save()
+            self.save()  # in order to save widgets inputs/outputs only in the last fold
         else:
             self.run_all_unfinished_widgets()
-        # self.save()
+            # self.save() #saving of widgets was moved to end of the WidgetRunner's run method, for instant push notifications
 
         if self.representing_widget:
             self.representing_widget.set_as_finished()
-            self.representing_widget.save()
+            # self.representing_widget.save()
+            self.representing_widget.save_with_inputs_and_outputs(force_update=True,
+                inputs=[self.parent_workflow_runner.input_id_to_input[i.id] for i in self.parent_workflow_runner.inputs_per_widget_id[self.representing_widget.id]],
+                outputs=[self.parent_workflow_runner.output_id_to_output[i.id] for i in self.parent_workflow_runner.outputs_per_widget_id[self.representing_widget.id]])
+
 
     def save(self):
         for w in self.widgets:

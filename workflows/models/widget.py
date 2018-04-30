@@ -149,72 +149,72 @@ class Widget(models.Model):
             d['outputs'].append(o.export())
         return d
 
-    def recommended_input_widgets(self):
-        return [i for i in self.calc_recomm_inp() if i]
-
-    def recommended_output_widgets(self):
-        return [o for o in self.calc_recomm_out() if o]
-
-    def calc_recomm_inp(self):
-        num_recomm = 10
-
-        # Self[Widget] has FK to abstract_widget [AbstractWidget]
-        # [AbstractInput] has FK to [AbstractWidget]
-
-        aw = self.abstract_widget
-
-        """ Get abswidg.inputs for this widget """
-        ainputs = AbstractInput.objects.filter(widget=aw)
-
-        recomm_dict = {}  # key: w.name, val: sum(counts)
-
-        for ainp in ainputs:
-            if not ainp.parameter:
-                """ Get recomm for all inputs of this abswidg """
-                rarr = Recommender.objects.filter(inp=ainp)
-                rarr = sorted(rarr, key=lambda r: r.count, reverse=True)[:num_recomm]
-                for r in rarr:
-                    # print "  widget:" + str( r.out.widget.name ) + " (out:" + str( r.out.name ) + ")  count: " + str( r.count )
-                    if not (r.out.widget.name in recomm_dict):
-                        recomm_dict[r.out.widget.name] = 0
-
-                    recomm_dict[r.out.widget.name] += r.count
-
-        # convert to tuple and sort; result: list of tuples
-        recomm_lt = sorted(list(recomm_dict.items()), key=lambda el: el[1], reverse=True)
-        # print aw.name + ".recomm_inp: " + str(recomm_lt)
-        recomm_l = [el[0] for el in recomm_lt]
-        return recomm_l
-        res = str(":::".join(recomm_l))
-        return res
-
-    def calc_recomm_out(self):
-        num_recomm = 10
-        aw = self.abstract_widget
-
-        """ Get abswidg.inputs for this widget """
-        aoutputs = AbstractOutput.objects.filter(widget=aw)
-
-        recomm_dict = {}  # key: w.name, val: sum(counts)
-
-        for aout in aoutputs:
-            """ Get recomm for all outputs of this abswidg """
-            rarr = Recommender.objects.filter(out=aout)
-            rarr = sorted(rarr, key=lambda r: r.count, reverse=True)[:num_recomm]
-            for r in rarr:
-                # print "  widget:" + str( r.inp.widget.name ) + " (out:" + str( r.inp.name ) + ")  count: " + str( r.count )
-                if not (r.inp.widget.name in recomm_dict):
-                    recomm_dict[r.inp.widget.name] = 0
-
-                recomm_dict[r.inp.widget.name] += r.count
-
-        # convert to tuple and sort; result: list of tuples
-        recomm_lt = sorted(list(recomm_dict.items()), key=lambda el: el[1], reverse=True)
-        # print aw.name + ".recomm_out: " + str(recomm_lt)
-        recomm_l = [el[0] for el in recomm_lt]
-        return recomm_l
-        res = str(":::".join(recomm_l))
-        return res
+    # def recommended_input_widgets(self):
+    #     return [i for i in self.calc_recomm_inp() if i]
+    #
+    # def recommended_output_widgets(self):
+    #     return [o for o in self.calc_recomm_out() if o]
+    #
+    # def calc_recomm_inp(self):
+    #     num_recomm = 10
+    #
+    #     # Self[Widget] has FK to abstract_widget [AbstractWidget]
+    #     # [AbstractInput] has FK to [AbstractWidget]
+    #
+    #     aw = self.abstract_widget
+    #
+    #     """ Get abswidg.inputs for this widget """
+    #     ainputs = AbstractInput.objects.filter(widget=aw)
+    #
+    #     recomm_dict = {}  # key: w.name, val: sum(counts)
+    #
+    #     for ainp in ainputs:
+    #         if not ainp.parameter:
+    #             """ Get recomm for all inputs of this abswidg """
+    #             rarr = Recommender.objects.filter(inp=ainp)
+    #             rarr = sorted(rarr, key=lambda r: r.count, reverse=True)[:num_recomm]
+    #             for r in rarr:
+    #                 # print "  widget:" + str( r.out.widget.name ) + " (out:" + str( r.out.name ) + ")  count: " + str( r.count )
+    #                 if not (r.out.widget.name in recomm_dict):
+    #                     recomm_dict[r.out.widget.name] = 0
+    #
+    #                 recomm_dict[r.out.widget.name] += r.count
+    #
+    #     # convert to tuple and sort; result: list of tuples
+    #     recomm_lt = sorted(list(recomm_dict.items()), key=lambda el: el[1], reverse=True)
+    #     # print aw.name + ".recomm_inp: " + str(recomm_lt)
+    #     recomm_l = [el[0] for el in recomm_lt]
+    #     return recomm_l
+    #     res = str(":::".join(recomm_l))
+    #     return res
+    #
+    # def calc_recomm_out(self):
+    #     num_recomm = 10
+    #     aw = self.abstract_widget
+    #
+    #     """ Get abswidg.inputs for this widget """
+    #     aoutputs = AbstractOutput.objects.filter(widget=aw)
+    #
+    #     recomm_dict = {}  # key: w.name, val: sum(counts)
+    #
+    #     for aout in aoutputs:
+    #         """ Get recomm for all outputs of this abswidg """
+    #         rarr = Recommender.objects.filter(out=aout)
+    #         rarr = sorted(rarr, key=lambda r: r.count, reverse=True)[:num_recomm]
+    #         for r in rarr:
+    #             # print "  widget:" + str( r.inp.widget.name ) + " (out:" + str( r.inp.name ) + ")  count: " + str( r.count )
+    #             if not (r.inp.widget.name in recomm_dict):
+    #                 recomm_dict[r.inp.widget.name] = 0
+    #
+    #             recomm_dict[r.inp.widget.name] += r.count
+    #
+    #     # convert to tuple and sort; result: list of tuples
+    #     recomm_lt = sorted(list(recomm_dict.items()), key=lambda el: el[1], reverse=True)
+    #     # print aw.name + ".recomm_out: " + str(recomm_lt)
+    #     recomm_l = [el[0] for el in recomm_lt]
+    #     return recomm_l
+    #     res = str(":::".join(recomm_l))
+    #     return res
 
     # ========================================================================
 

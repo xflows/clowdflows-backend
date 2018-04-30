@@ -78,7 +78,9 @@ class WidgetRunner():
         # assign outputs and connected inputs
         self.assign_outputs(self.widget_outputs, new_value_per_variable, self.workflow_runner)
 
-        if not self.workflow_runner.parent_workflow_runner: #is a widget which is not part of a subprocess
+        # save widgets inputs and outputs unless in a for loop or cross-validation
+        if not self.workflow_runner.parent_workflow_runner or \
+                self.workflow_runner.parent_workflow_runner.runner_type=="standard":
             self.widget.save_with_inputs_and_outputs(self.widget_inputs,self.widget_outputs,force_update=False)
 
     @staticmethod  # TODO could this method also use __init__ and WorkflowRunner
