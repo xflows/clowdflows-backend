@@ -50,7 +50,7 @@ def import_package(package_name, writer, external=False):
         deprecated_widgets_files = os.listdir(deprecated_widgets_directory)
     except:
         deprecated_widgets_files = []
-    widget_files = os.listdir(widgets_directory)
+    widget_files = [f for f in os.listdir(widgets_directory) if f[-5:]==".json"]
 
     if os.path.exists(categories_directory):
         category_files = os.listdir(categories_directory)
