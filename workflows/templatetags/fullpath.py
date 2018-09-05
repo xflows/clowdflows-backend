@@ -10,3 +10,9 @@ def static_fullpath(request, path):
     host = request.get_host()
     static_url = settings.STATIC_URL
     return protocol + host + static_url + path
+
+@register.simple_tag
+def fullpath(request, path):
+    protocol = 'https://' if request.is_secure() else 'http://'
+    host = request.get_host()
+    return protocol + host + path

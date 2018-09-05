@@ -1,4 +1,5 @@
 import logging
+import numpy
 import random
 
 
@@ -249,9 +250,12 @@ class WorkflowRunner():
                 if 'Labels' in document_corpus.features:
                     labels = document_corpus.get_document_labels()
                     # print "Seed:"+str(input_seed)
-                    stf = StratifiedKFold(labels, n_folds=outer_input_fold, random_state=outer_input_seed)
+                    skf = StratifiedKFold(n_splits=2)
+                    stf=skf.split(numpy.zeros(len(labels)), labels)
+                    # stf = StratifiedKFold(labels, n_splits=outer_input_fold, random_state=outer_input_seed)
                 else:
-                    stf = KFold(len(document_corpus.documents), n_folds=outer_input_fold, random_state=outer_input_seed)
+                    skf = KFold(n_splits=outer_input_fold, random_state=outer_input_seed)
+                    stf = skf.split(numpy.zeros(len(document_corpus.documents)))
 
                 folds = [(list(train_index), list(test_index)) for train_index, test_index in stf]
             else:

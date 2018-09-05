@@ -42,7 +42,7 @@ class WidgetViewSet(viewsets.ModelViewSet):
             #widget.reset()
             descendants = widget.descendants_to_reset()
             for widget_pk in descendants:
-                Widget.objects.get(pk=widget_pk).reset() #TODO this is probably performed twice for each widget
+                Widget.objects.get(pk=widget_pk).reset_with_inputs_and_outputs() #TODO this is probably performed twice for each widget
         except:
             return HttpResponse(json.dumps({'status': 'error', 'message': 'Problem resetting the widget'}),
                                 content_type="application/json")
@@ -160,9 +160,10 @@ class WidgetViewSet(viewsets.ModelViewSet):
             if w.type == 'for_input' or w.type == 'for_output':
                 raise Exception("You can't run for loops like this. Please run the containing widget.")
 
-            w.finished = False
-            w.save()
-            w.run(False)
+            w.reset()
+            # w.finished = False
+            # w.save()
+            w.run()
 
             if w.abstract_widget:
                 if w.abstract_widget.interactive and run_and_interact:

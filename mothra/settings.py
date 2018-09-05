@@ -178,7 +178,7 @@ INSTALLED_APPS_EXTERNAL_PACKAGES = ()
 
 # TEST_RUNNER = 'discover_runner.DiscoverRunner'
 
-USE_WINDOWS_QUEUE = True
+USE_WINDOWS_QUEUE = False
 
 import djcelery
 

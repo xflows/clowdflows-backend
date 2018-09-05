@@ -273,15 +273,12 @@ class Widget(models.Model):
         except ObjectDoesNotExist:
             pass
 
-    def run(self,_):
+    def run(self):
         from workflows.engine import WorkflowRunner
         WorkflowRunner(self.workflow,final_widget=self).run()  #run with ancestors
 
 
     def reset(self):
-        self.inputs.filter(parameter=False).update(value=None)
-        self.outputs.update(value=None)
-
         self.finished = False
         self.error = False
         self.running = False
@@ -290,6 +287,12 @@ class Widget(models.Model):
         self.save()
         if self.type == 'subprocess':
             self.subunfinish()
+
+    def reset_with_inputs_and_outputs(self):
+        self.inputs.filter(parameter=False).update(value=None)
+        self.outputs.update(value=None)
+
+        self.reset()
 
     def descendants_to_reset(self):
         """ Method resets all the widget connections/descendants. """
