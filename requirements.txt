@@ -1,4 +1,4 @@
-Django==1.11.6
+Django==1.11.20
 Pillow==4.3.0
 https://github.com/pysimplesoap/pysimplesoap/archive/master.zip
 PySimpleSOAP==1.16
