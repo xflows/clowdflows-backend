@@ -1,15 +1,18 @@
 language: python
 python:
   - 3.7
+env:
+  - DATABASE_URL=sqlite://test.db
 notifications:
   email: false
   slack:
     secure: RFgCRPKEyTlQ1ncKbjblRvx5hvBljC82eZQj+naOfBJdu/RIMJcWz7RAfF82mG9wYcKl2u8BbKMt6mFy9Izb96sMY1Q0jFbUHFKCOXM22pu0G+m7tvhxezHAkODZKaCnzmy/vU4+LWgjI11Z1GSSoJdkvxYmSi/fmZKjR0Qd/awmbEzgdofCn3dl9Di/UDaVriYBEZrH4dqwPGc/9U+msdtQDCVrWkwbBscaFyVVEQZaNbELAlpaMIILB2HuDbHM+m0EBPj/twpQv89TVY05nIG+UvL4SWvtiMyj9uCgdVfItOIW7NgAcUI5L21D/JeX9Nolq2rLnvCEW/btKvZQ98ZzRxQZIZqo2C3f26yolwusxccEKx4JKvKQp7JpbcGKgKO10dNqVNRhmTxESIte4YUs6OED8qx/g5YQL0N8ryA5ahXHMzGbNf6qaHLPs/ua3w0nGXE4gdCPZZsujku9fyxIwOYP8cCxjbQ6dMZuAhc3WjKM7YTMrnlP4Xz9S+WSt3OvDZ6KDH0hK4BJSPhlx3ILI9efxV8wflMwnqTd8RxlQllap2B/Y/tTYHqkg8t2uej5g3RZHZp/UNFaijB5KEc7edIJw/mwmRLlnBWwUZ9rmu8UfE6x8IWiw8Ha5FkuFeKObRqc1JmDLFbiOo4eSu/Pa3l+fHD6cn/cJA+8xMo=
 before_install:
   - pip install pipenv
-  - pipenv install
   - pip install coverage
   - pip install coveralls
+install:
+  - pipenv install
 script:
   - coverage run python manage.py test
 after_success:
