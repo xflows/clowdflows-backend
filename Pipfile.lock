@@ -325,11 +325,11 @@
         },
         "gunicorn": {
             "hashes": [
-                "sha256:1d8012b859f4cd9e45753f1ccb33a94df1ab9e1b7af4f81ac871680b4042b08b",
-                "sha256:5c6f119298dd692ba49d83ea351aeefdb63d33e32179d91d173d942525115890"
+                "sha256:1904bb2b8a43658807108d59c3f3d56c2b6121a701161de0ddf9ad140073c626",
+                "sha256:cd4a810dd51bf497552cf3f863b575dabd73d6ad6a91075b65936b151cbf4f9c"
             ],
             "index": "pypi",
-            "version": "==20.0.3"
+            "version": "==20.0.4"
         },
         "httplib2": {
             "hashes": [
@@ -580,10 +580,10 @@
         },
         "pygments": {
             "hashes": [
-                "sha256:a1cfe41228f8eee128bc841f25e625e2ea8b7c5f2835be76b5b6e1f0f2e2730c",
-                "sha256:cdc7a45df8c489a965948fb4d26d8411927bae48771519c61ebca88d076a5aae"
+                "sha256:83ec6c6133ca6b529b7ff5aa826328fd14b5bb02a58c37f4f06384e96a0f94ab",
+                "sha256:b7949de3d396836085fea596998b135a22610bbcc4f2abfe9e448e44cbc58388"
             ],
-            "version": "==2.5.0"
+            "version": "==2.5.1"
         },
         "pyhamcrest": {
             "hashes": [
