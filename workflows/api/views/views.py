@@ -6,7 +6,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes, detail_route, list_route
 
-from mothra.local_settings import FILES_FOLDER, PACKAGE_TREE
+from django.conf import settings
 from services.webservice import WebService
 from workflows.api.permissions import IsAdminOrSelf
 from workflows.api.serializers import *
@@ -111,7 +111,7 @@ def widget_library(request):
         'widgets', 'widgets__inputs', 'widgets__outputs', 'widgets__inputs__options', 'children')
     hierarchy = []
     category_ids_already_added = []
-    for category in PACKAGE_TREE:
+    for category in settings.PACKAGE_TREE:
         filtered_categories = categories.filter(Q(widgets__package__in=category['packages']) | Q(
             children__widgets__package__in=category['packages'])).distinct()
         category_ids_already_added.extend([c.id for c in filtered_categories])
@@ -185,7 +185,7 @@ class InputViewSet(viewsets.ModelViewSet):
     def upload(self, request, pk=None):
         input = self.get_object()
         try:
-            destination = FILES_FOLDER + str(input.widget.workflow.id) + '/' + request.FILES['file'].name
+            destination = settings.FILES_FOLDER + str(input.widget.workflow.id) + '/' + request.FILES['file'].name
             ensure_dir(destination)
             destination_file = open(destination, 'wb')
             for chunk in request.FILES['file'].chunks():

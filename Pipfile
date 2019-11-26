@@ -28,6 +28,9 @@ gunicorn = "*"
 redis = "*"
 asgi-redis = "==1.4.3"
 daphne = "==1.4.2"
+django-environ = "*"
+numpy = "*"
+ipython = "*"
 
 [requires]
 python_version = "3.7"

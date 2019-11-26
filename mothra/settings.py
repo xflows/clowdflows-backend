@@ -1,20 +1,21 @@
-# Global settings for mothra project.
-import django.conf.global_settings as DEFAULT_SETTINGS
 import os
-from datetime import timedelta
+import environ
+
+env = environ.Env()
 
 PROJECT_DIR = os.path.dirname(__file__)
 PUBLIC_DIR = os.path.join(PROJECT_DIR, 'public')
 BACKUP_DIR = os.path.join(PROJECT_DIR, 'backup')
 
-DEBUG = False
+DEBUG = env.bool("DEBUG", False)
 
-SECRET_KEY = '7du*6g0lg)0a!ba+a$ehk)xt)x%rxgb$i1&amp;133sdmdqjcgihb*'
+# https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
+SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 ADMINS = (
-    ('Anze', 'anze.vavpetic@ijs.si'),
-    ('Janez', 'janez.kranjc@ijs.si'),
-    ('Matic', 'matic.perovsek@ijs.si')
+    # ('Anze', 'anze.vavpetic@ijs.si'),
+    # ('Janez', 'janez.kranjc@ijs.si'),
+    # ('Matic', 'matic.perovsek@ijs.si')
 )
 
 MANAGERS = ADMINS
@@ -141,7 +142,6 @@ LOGGING = {
     }
 }
 
-USE_CONCURRENCY = False
 INSTALLED_APPS_DEFAULT = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -172,11 +172,6 @@ DJOSER = {
     'PASSWORD_RESET_CONFIRM_RETYPE': False,
     'SERIALIZERS': {},
 }
-
-INSTALLED_APPS_WORKFLOWS_SUB = ()
-INSTALLED_APPS_EXTERNAL_PACKAGES = ()
-
-# TEST_RUNNER = 'discover_runner.DiscoverRunner'
 
 USE_WINDOWS_QUEUE = False
 
@@ -255,13 +250,44 @@ CHANNEL_LAYERS = {
     },
 }
 
-try:
-    LOCAL_SETTINGS
-except NameError:
-    try:
-        from .local_settings import *
-    except ImportError:
-        pass
+DATABASES = {"default": env.db("DATABASE_URL")}
+
+USE_CONCURRENCY = False
+
+FILES_FOLDER = os.path.join(PUBLIC_DIR, 'files/')
+
+INSTALLED_APPS_WORKFLOWS_SUB = (
+    'workflows.base',
+)
+
+PACKAGE_TREE = [# {"name": "Utility", "packages": ['cf_core'], "order": 1000}
+                # {"name": "Relational data mining","packages": ['rdm.db','rdm.wrappers'],"order": 1 }
+                ]
+
+INSTALLED_APPS_EXTERNAL_PACKAGES = tuple([p for packages in PACKAGE_TREE for p in packages['packages']])
+
+BROKER_URL = 'django://'
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+USE_WINDOWS_QUEUE = False
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+# https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
+SECRET_KEY = env("DJANGO_SECRET_KEY")
+
+# https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["*"])
+
+if DEBUG:
+    INTERNAL_IPS = type(str('c'), (), {'__contains__': lambda *a: True})()
 
 INSTALLED_APPS = \
     INSTALLED_APPS_DEFAULT + \
