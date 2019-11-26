@@ -8,6 +8,7 @@ env:
     - PIPENV_VENV_IN_PROJECT=1
     - PIPENV_IGNORE_VIRTUALENVS=1
     - DATABASE_URL=sqlite://test.db
+    - DJANGO_SECRET_KEY=test
 notifications:
   email: false
   slack:
