@@ -5,8 +5,6 @@ env:
   global:
     - PIP_CACHE_DIR=$HOME/.cache/pip
     - PIPENV_CACHE_DIR=$HOME/.cache/pipenv
-    - PIPENV_VENV_IN_PROJECT=1
-    - PIPENV_IGNORE_VIRTUALENVS=1
     - DATABASE_URL=sqlite://test.db
     - DJANGO_SECRET_KEY=test
 notifications:
