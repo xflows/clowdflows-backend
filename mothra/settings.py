@@ -260,7 +260,7 @@ INSTALLED_APPS_WORKFLOWS_SUB = (
     'workflows.base',
 )
 
-PACKAGE_TREE = [# {"name": "Utility", "packages": ['cf_core'], "order": 1000}
+PACKAGE_TREE = [{"name": "Utility", "packages": ['cf_core'], "order": 1000}
                 # {"name": "Relational data mining","packages": ['rdm.db','rdm.wrappers'],"order": 1 }
                 ]
 

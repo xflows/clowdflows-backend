@@ -31,6 +31,7 @@ daphne = "==1.4.2"
 django-environ = "*"
 numpy = "*"
 ipython = "*"
+cf-core = {git = "http://github.com/xflows/cf_core"}
 
 [requires]
 python_version = "3.7"

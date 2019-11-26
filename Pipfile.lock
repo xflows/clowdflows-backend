@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d37a0f0aa2450373ba63b5ded2bb472b93c701b2641d60077f1cea863a25bbbf"
+            "sha256": "ecd8f6a0db3b82a108f05766621f958b690e03c5d6e5a43c5d2790ab8f4bd266"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -121,6 +121,10 @@
                 "sha256:fd7c7c74727ddcf00e9acd26bba8da604ffec95bf1c2144e67aff7a8b50e6cef"
             ],
             "version": "==2019.9.11"
+        },
+        "cf-core": {
+            "git": "http://github.com/xflows/cf_core",
+            "ref": "2cf5bcc9b8cc02958c5c2da33441062a9be1f42b"
         },
         "cffi": {
             "hashes": [
