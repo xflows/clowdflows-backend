@@ -2,7 +2,12 @@ language: python
 python:
   - 3.7
 env:
-  - DATABASE_URL=sqlite://test.db
+  global:
+    - PIP_CACHE_DIR=$HOME/.cache/pip
+    - PIPENV_CACHE_DIR=$HOME/.cache/pipenv
+    - PIPENV_VENV_IN_PROJECT=1
+    - PIPENV_IGNORE_VIRTUALENVS=1
+    - DATABASE_URL=sqlite://test.db
 notifications:
   email: false
   slack:
@@ -17,3 +22,8 @@ script:
   - coverage run manage.py test
 after_success:
   - coveralls
+cache:
+  directories:
+    - $PIP_CACHE_DIR
+    - $PIPENV_CACHE_DIR
+
