@@ -17,7 +17,7 @@ RUN apk add --no-cache \
 COPY ./Pipfile /usr/src/app/Pipfile
 COPY ./Pipfile.lock /usr/src/app/Pipfile.lock
 
-RUN apk add --no-cache --virtual .build-deps build-base linux-headers && \
+RUN apk add --no-cache --virtual .build-deps build-base linux-headers git && \
                        pip install --upgrade pip && \
                        pip install pipenv && \
                        pip install psycopg2 && \
