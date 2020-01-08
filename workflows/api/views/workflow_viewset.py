@@ -3,6 +3,7 @@ from django.db.models import Q, Max
 from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.permissions import IsAuthenticated
 
 from workflows.api.permissions import IsAdminOrSelf
 from workflows.api.serializers import *
@@ -80,10 +81,12 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             # )
         return workflows
 
-    @detail_route(methods=['post'], url_path='copy', permission_classes=[IsAdminOrSelf, ])
+    @detail_route(methods=['post'], url_path='copy', permission_classes=[IsAuthenticated])
     def copy(self, request, pk=None):
-        orig_w = self.get_object()
-        new_workflow= orig_w.copy(request.user)
+        workflow = self.get_object()
+        if workflow.user == request.user or workflow.public: # Safety measure to prevent the copying of private wfs
+            orig_w = self.get_object()
+            new_workflow= orig_w.copy(request.user)
 
         return HttpResponse(json.dumps({'id': new_workflow.id}), content_type="application/json")
 
