@@ -1,4 +1,6 @@
-FROM python:3.7-alpine
+FROM python:3.7-stretch
+
+RUN apt update && apt install -y netcat
 
 # set environment varibles
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -7,22 +9,13 @@ ENV PYTHONUNBUFFERED 1
 # set work directory
 WORKDIR /usr/src/app
 
-RUN apk add --no-cache \
-            # Pillow deps
-            jpeg-dev zlib-dev \
-            # Psycopg2 deps
-            postgresql-dev \
-            openssl-dev libffi-dev
-
 COPY ./Pipfile /usr/src/app/Pipfile
 COPY ./Pipfile.lock /usr/src/app/Pipfile.lock
 
-RUN apk add --no-cache --virtual .build-deps build-base linux-headers git && \
-                       pip install --upgrade pip && \
-                       pip install pipenv && \
-                       pip install psycopg2 && \
-                       pipenv install --system --dev && \
-                       apk del .build-deps
+RUN pip install --upgrade pip && \
+    pip install pipenv && \
+    pip install psycopg2 && \
+    pipenv install --system --dev
 
 COPY . /usr/src/app/
 
