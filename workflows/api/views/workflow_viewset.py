@@ -43,7 +43,14 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         if self.action == 'list' or preview:
             user = self.request.user
             user_only = self.request.GET.get('user', '0') == '1'
-
+            
+            # Filter according to search term
+            search_term = self.request.GET.get('search', '')
+            search_filters = Q(user__username__icontains=search_term) | \
+                Q(name__icontains=search_term) | \
+                Q(description__icontains=search_term)
+            workflows = workflows.filter(search_filters)
+            
             # Do not display subprocesses in lists
             show_sub = self.request.GET.get('sub', '0') == '1'
             if not show_sub:
