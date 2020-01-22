@@ -44,10 +44,16 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             user = self.request.user
             user_only = self.request.GET.get('user', '0') == '1'
 
+            # Do not display subprocesses in lists
+            show_sub = self.request.GET.get('sub', '0') == '1'
+            if not show_sub:
+                workflows = workflows.filter(widget=None)
+
             if user_only:
                 filters = Q(user=user)
             else:
-                filters = Q(user=user) | Q(public=True)
+                # filters = Q(user=user) | Q(public=True)
+                filters = Q(public=True)
             workflows = workflows.filter(filters).prefetch_related('connections')
             if preview:
                 workflows = workflows.prefetch_related("widgets", "connections__output", "connections__input") \
