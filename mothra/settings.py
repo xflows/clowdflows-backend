@@ -10,7 +10,7 @@ BACKUP_DIR = os.path.join(PROJECT_DIR, 'backup')
 DEBUG = env.bool("DEBUG", False)
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
-SECRET_KEY = env("DJANGO_SECRET_KEY")
+SECRET_KEY = env("DJANGO_SECRET_KEY", default="q8e7qoq2OWN@*W@@OW*Y&H@KSUYQG@&#^T!I@(*WUJSIQ&YWG@BYU!^FGVS2")
 
 ADMINS = (
     # ('Anze', 'anze.vavpetic@ijs.si'),
@@ -251,7 +251,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-DATABASES = {"default": env.db("DATABASE_URL")}
+DATABASES = {"default": env.db("DATABASE_URL", default="sqlite:///mothra.db")}
 
 USE_CONCURRENCY = False
 
@@ -280,9 +280,6 @@ CACHES = {
         'LOCATION': 'unique-snowflake',
     }
 }
-
-# https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
-SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["*"])
