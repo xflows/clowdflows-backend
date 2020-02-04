@@ -1,5 +1,6 @@
 import os
 import environ
+from packages.packages import PACKAGE_TREE
 
 env = environ.Env()
 
@@ -260,10 +261,6 @@ FILES_FOLDER = os.path.join(PUBLIC_DIR, 'files/')
 INSTALLED_APPS_WORKFLOWS_SUB = (
     'workflows.base',
 )
-
-PACKAGE_TREE = [{"name": "Utility", "packages": ['cf_core'], "order": 1000}
-                # {"name": "Relational data mining","packages": ['rdm.db','rdm.wrappers'],"order": 1 }
-                ]
 
 INSTALLED_APPS_EXTERNAL_PACKAGES = tuple([p for packages in PACKAGE_TREE for p in packages['packages']])
 

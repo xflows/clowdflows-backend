@@ -12,7 +12,9 @@ then
 fi
 if [ "$MIGRATE" = "true" ]
 then
+    pip install -r packages/package_requirements.txt
     python manage.py migrate
+    python manage.py import_all
 fi
 
 exec "$@"
