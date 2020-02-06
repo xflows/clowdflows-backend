@@ -8,7 +8,7 @@ PROJECT_DIR = os.path.dirname(__file__)
 PUBLIC_DIR = os.path.join(PROJECT_DIR, 'public')
 BACKUP_DIR = os.path.join(PROJECT_DIR, 'backup')
 
-DEBUG = env.bool("DEBUG", False)
+DEBUG = env.bool("DEBUG", True)
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="q8e7qoq2OWN@*W@@OW*Y&H@KSUYQG@&#^T!I@(*WUJSIQ&YWG@BYU!^FGVS2")
