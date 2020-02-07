@@ -188,7 +188,6 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.BasicAuthentication',
     ),
     'PAGINATE_BY': None,
-    'PAGE_SIZE': 5,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }

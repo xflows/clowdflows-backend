@@ -5,7 +5,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticated
 
-from workflows.api.pagination import WorkflowPagination
 from workflows.api.permissions import IsAdminOrSelf
 from workflows.api.serializers import *
 from workflows.engine import WorkflowRunner
@@ -24,7 +23,6 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSelf,)
     model = Workflow
     filter_fields = ('public',)
-    pagination_class = WorkflowPagination
 
     def get_serializer_class(self):
         preview = self.request.GET.get('preview', '0') == '1'
