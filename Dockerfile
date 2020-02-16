@@ -15,7 +15,7 @@ COPY ./Pipfile.lock /usr/src/app/Pipfile.lock
 RUN pip install --upgrade pip && \
     pip install pipenv && \
     pip install psycopg2 && \
-    pipenv install --system --dev
+    pip install -r requirements.txt
 
 COPY . /usr/src/app/
 

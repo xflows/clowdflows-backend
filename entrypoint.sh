@@ -6,15 +6,15 @@ then
       sleep 3
     done
 fi
-if [ "$COLLECTSTATIC" = "true" ]
-then
-    python manage.py collectstatic --noinput
-fi
 if [ "$MIGRATE" = "true" ]
 then
     pip install -r packages/requirements.txt
     python manage.py migrate
     python manage.py import_all
+fi
+if [ "$COLLECTSTATIC" = "true" ]
+then
+    python manage.py collectstatic --noinput
 fi
 
 exec "$@"
