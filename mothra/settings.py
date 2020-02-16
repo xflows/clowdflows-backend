@@ -240,16 +240,25 @@ CELERY_RESULT_BACKEND = 'amqp'
 CELERY_TASK_RESULT_EXPIRES = 18000
 CELERY_TIMEZONE = 'UTC'
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
-        # "BACKEND": "asgi_redis.RedisChannelLayer",
-        # "CONFIG": {
-        #    "hosts": [("localhost", 6379)],
-        # },
-        "ROUTING": "mothra.routing.channel_routing",
-    },
-}
+REDIS_LAYER = env.bool("REDIS_LAYER", False)
+
+if REDIS_LAYER:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "asgiref.inmemory.ChannelLayer",
+            "ROUTING": "mothra.routing.channel_routing",
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "asgi_redis.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [(env("REDIS_HOST", default="localhost"), env("REDIS_PORT", default=6379))],
+            },
+            "ROUTING": "mothra.routing.channel_routing",
+        },
+    }
 
 DATABASES = {"default": env.db("DATABASE_URL", default="sqlite:///mothra.db")}
 
