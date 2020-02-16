@@ -136,10 +136,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        #'django.db.backends': {
+        # 'django.db.backends': {
         #    'level': 'DEBUG',
-            # 'handlers': ['console'],
-        #}
+        # 'handlers': ['console'],
+        # }
     }
 }
 
@@ -153,7 +153,7 @@ INSTALLED_APPS_DEFAULT = (
     'django.contrib.admin',
     'django_extensions',
     'django.contrib.humanize',
-    #'orderable_inlines',
+    # 'orderable_inlines',
     'workflows',
     'picklefield',
     'streams',
@@ -245,17 +245,17 @@ REDIS_LAYER = env.bool("REDIS_LAYER", False)
 if REDIS_LAYER:
     CHANNEL_LAYERS = {
         "default": {
-            "BACKEND": "asgiref.inmemory.ChannelLayer",
+            "BACKEND": "asgi_redis.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [(env("REDIS_HOST", default="localhost"), env("REDIS_PORT", default=6379))],
+            },
             "ROUTING": "mothra.routing.channel_routing",
         },
     }
 else:
     CHANNEL_LAYERS = {
         "default": {
-            "BACKEND": "asgi_redis.RedisChannelLayer",
-            "CONFIG": {
-                "hosts": [(env("REDIS_HOST", default="localhost"), env("REDIS_PORT", default=6379))],
-            },
+            "BACKEND": "asgiref.inmemory.ChannelLayer",
             "ROUTING": "mothra.routing.channel_routing",
         },
     }
