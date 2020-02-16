@@ -9,8 +9,7 @@ ENV PYTHONUNBUFFERED 1
 # set work directory
 WORKDIR /usr/src/app
 
-COPY ./Pipfile /usr/src/app/Pipfile
-COPY ./Pipfile.lock /usr/src/app/Pipfile.lock
+COPY ./requirements.txt /usr/src/app/requirements.txt
 
 RUN pip install --upgrade pip && \
     pip install pipenv && \
