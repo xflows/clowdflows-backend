@@ -1,5 +1,7 @@
 #!/bin/sh
 
+pip install -r packages/requirements.txt
+
 if [ "$WAIT_FOR_POSTGRES" = "true" ]
 then
     while ! nc -z $SQL_HOST $SQL_PORT; do
@@ -8,7 +10,6 @@ then
 fi
 if [ "$MIGRATE" = "true" ]
 then
-    pip install -r packages/requirements.txt
     python manage.py migrate
     python manage.py import_all
 fi
