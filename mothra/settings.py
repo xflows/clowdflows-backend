@@ -136,10 +136,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        #'django.db.backends': {
+        # 'django.db.backends': {
         #    'level': 'DEBUG',
-            # 'handlers': ['console'],
-        #}
+        # 'handlers': ['console'],
+        # }
     }
 }
 
@@ -153,7 +153,7 @@ INSTALLED_APPS_DEFAULT = (
     'django.contrib.admin',
     'django_extensions',
     'django.contrib.humanize',
-    #'orderable_inlines',
+    # 'orderable_inlines',
     'workflows',
     'picklefield',
     'streams',
@@ -188,7 +188,6 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.BasicAuthentication',
     ),
     'PAGINATE_BY': None,
-    'PAGE_SIZE': 5,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
@@ -241,16 +240,25 @@ CELERY_RESULT_BACKEND = 'amqp'
 CELERY_TASK_RESULT_EXPIRES = 18000
 CELERY_TIMEZONE = 'UTC'
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
-        # "BACKEND": "asgi_redis.RedisChannelLayer",
-        # "CONFIG": {
-        #    "hosts": [("localhost", 6379)],
-        # },
-        "ROUTING": "mothra.routing.channel_routing",
-    },
-}
+REDIS_LAYER = env.bool("REDIS_LAYER", False)
+
+if REDIS_LAYER:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "asgi_redis.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [(env("REDIS_HOST", default="localhost"), env("REDIS_PORT", default=6379))],
+            },
+            "ROUTING": "mothra.routing.channel_routing",
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "asgiref.inmemory.ChannelLayer",
+            "ROUTING": "mothra.routing.channel_routing",
+        },
+    }
 
 DATABASES = {"default": env.db("DATABASE_URL", default="sqlite:///mothra.db")}
 
