@@ -12,7 +12,7 @@ amqp==1.4.9
 django-celery==3.1.17
 ladon==0.8.9
 django-discover-runner==1.0.0
-liac-arff==2.0.1
+liac-arff
 networkx==1.9.1
 djangorestframework==3.4.0
 django-filter==1.0.4
