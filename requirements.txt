@@ -26,4 +26,3 @@ numpy==1.17.4
 ipython
 redis==2.10.6
 gunicorn==20.0.4
-msgpack-python==0.5.6
