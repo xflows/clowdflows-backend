@@ -292,8 +292,7 @@ ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["*"])
 if DEBUG:
     INTERNAL_IPS = type(str('c'), (), {'__contains__': lambda *a: True})()
 
-if env.bool("HTTPS", False):
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 INSTALLED_APPS = \
     INSTALLED_APPS_DEFAULT + \
