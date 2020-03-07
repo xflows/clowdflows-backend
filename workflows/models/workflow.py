@@ -9,6 +9,11 @@ from workflows.models.input import Input
 from workflows.models.connection import Connection
 from workflows.models.widget import Widget
 
+# copy iz workflow_viewset - smetenje?
+# move somewhere else
+def next_order(inputs_or_outputs):
+    m = inputs_or_outputs.aggregate(models.Max('order'))
+    return m['order__max'] + 1 if m['order__max'] else 1
 
 class Workflow(models.Model):
     name = models.CharField(max_length=200, default='Untitled workflow')  # a field
@@ -146,7 +151,6 @@ class Workflow(models.Model):
         return self.widgets.filter(id__in=self.get_runnable_widget_ids(last_runnable_widget_id=last_runnable_widget_id))\
             .select_related('abstract_widget').prefetch_related('inputs','outputs')
 
-
     def add_normal_subprocess(self, start_x=0, start_y=0):
         new_w = Workflow()
         new_w.name = "Untitled widget"
@@ -167,6 +171,81 @@ class Workflow(models.Model):
         w.defered_outputs = w.outputs.defer("value").all()
         w.defered_inputs = w.inputs.defer("value").all()
         return new_w, w
+
+    def add_normal_subprocess_input(self):
+        workflow = self
+        if workflow.widget == None:
+            # This workflow is not a subprocess
+            return None
+        else:
+            widget = Widget()
+            widget.workflow = workflow
+            widget.x = 50
+            y = 50
+            while workflow.widgets.filter(y=y, x=widget.x).count() > 0:
+                y = y + 100
+            widget.y = y
+            widget.name = 'Input'
+            widget.type = 'input'
+            widget.save()
+            variable_name = 'Input' + str(widget.pk)
+            output = Output()
+            output.name = 'Input'
+            output.short_name = 'inp'
+            output.variable = variable_name
+            output.widget = widget
+            output.save()
+            input = Input()
+            input.widget = workflow.widget
+            input.name = 'Input'
+            input.short_name = 'inp'
+            input.variable = variable_name
+            input.inner_output = output
+            input.order = next_order(workflow.widget.inputs)
+            input.save()
+            output.outer_input = input
+            output.save()
+            widget.defered_outputs = widget.outputs.defer("value").all()
+            widget.defered_inputs = widget.inputs.defer("value").all()
+            # input widget, input widget's output
+            return widget, output
+
+    def add_normal_subprocess_output(self):
+        workflow = self
+        if workflow.widget == None:
+            return None
+        else:
+            widget = Widget()
+            widget.workflow = workflow
+            widget.x = 50
+            y = 50
+            while workflow.widgets.filter(y=y, x=widget.x).count() > 0:
+                y = y + 100
+            widget.y = y
+            widget.name = 'Output'
+            widget.type = 'output'
+            widget.save()
+            variable_name = 'Output' + str(widget.pk)
+            input = Input()
+            input.name = 'Output'
+            input.short_name = 'out'
+            input.variable = variable_name
+            input.widget = widget
+            input.save()
+            output = Output()
+            output.widget = workflow.widget
+            output.name = 'Output'
+            output.short_name = 'out'
+            output.variable = variable_name
+            output.inner_input = input
+            output.order = next_order(workflow.widget.outputs)
+            output.save()
+            input.outer_output = output
+            input.save()
+            widget.defered_outputs = widget.outputs.defer("value").all()
+            widget.defered_inputs = widget.inputs.defer("value").all()
+            # output widget, output widget's input
+            return widget, input
 
     def rename(self, new_name):
         self.name = new_name
