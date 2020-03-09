@@ -404,7 +404,8 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     def merge_into_subprocess(self, request, pk=None):
         workflow = self.get_object()
         ids = request.data
-        widgets = workflow.widgets.filter(id__in=ids)
+        widgets = workflow.widgets.filter(id__in=ids).exclude(type='input').exclude(type='output')
+        # Edge case: exclude i/o widgets when selected
 
         if len(widgets) < 1:
             return HttpResponse(status=400)
