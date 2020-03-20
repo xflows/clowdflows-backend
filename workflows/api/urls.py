@@ -6,6 +6,9 @@ from workflows.api import views
 
 router = routers.DefaultRouter()
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
 router.register(r'inputs', views.InputViewSet, base_name='input')
 router.register(r'abstract_inputs', views.AbstractInputViewSet, base_name='abstractinput')
 router.register(r'abstract_outputs', views.AbstractOutputViewSet, base_name='abstractoutput')
@@ -32,5 +35,6 @@ urlpatterns = [
    # url(r'^api-token-auth/', drf_views.obtain_auth_token),
    url(r'^auth/', include('djoser.urls')),
    url(r'^auth/', include('djoser.urls.authtoken')),
+   url(r'^sentry-error/', trigger_error),
 
 ]
