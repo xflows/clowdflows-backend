@@ -1,6 +1,8 @@
 import os
 import environ
 from packages.packages import PACKAGE_TREE
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 env = environ.Env()
 
@@ -307,6 +309,15 @@ if DEBUG:
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SENTRY_DSN = env("SENTRY_DSN", default="")
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        send_default_pii=True
+    )
 
 INSTALLED_APPS = \
     INSTALLED_APPS_DEFAULT + \
