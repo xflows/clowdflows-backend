@@ -32,6 +32,7 @@ django-environ = "*"
 numpy = "*"
 ipython = "*"
 cf-core = {git = "http://github.com/xflows/cf_core"}
+sentry-sdk = "*"
 
 [requires]
 python_version = "3.7"
