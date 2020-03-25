@@ -11,6 +11,8 @@ from workflows.api.serializers import *
 from workflows.engine import WorkflowRunner
 from workflows.forms import ImportForm
 
+from collections import deque
+
 
 def next_order(inputs_or_outputs):
     m = inputs_or_outputs.aggregate(Max('order'))
@@ -144,35 +146,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             data = json.dumps({'message': message, 'status': 'error'})
             return HttpResponse(data, 'application/json')
         else:
-            widget = Widget()
-            widget.workflow = workflow
-            widget.x = 50
-            y = 50
-            while workflow.widgets.filter(y=y, x=widget.x).count() > 0:
-                y = y + 100
-            widget.y = y
-            widget.name = 'Input'
-            widget.type = 'input'
-            widget.save()
-            variable_name = 'Input' + str(widget.pk)
-            output = Output()
-            output.name = 'Input'
-            output.short_name = 'inp'
-            output.variable = variable_name
-            output.widget = widget
-            output.save()
-            input = Input()
-            input.widget = workflow.widget
-            input.name = 'Input'
-            input.short_name = 'inp'
-            input.variable = variable_name
-            input.inner_output = output
-            input.order = next_order(workflow.widget.inputs)
-            input.save()
-            output.outer_input = input
-            output.save()
-            widget.defered_outputs = widget.outputs.defer("value").all()
-            widget.defered_inputs = widget.inputs.defer("value").all()
+            widget, output = workflow.add_normal_subprocess_input()
             widget_data = WidgetSerializer(widget, context={'request': request}).data
             return HttpResponse(json.dumps(widget_data), 'application/json')
 
@@ -184,35 +158,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             data = json.dumps({'message': message, 'status': 'error'})
             return HttpResponse(data, 'application/json')
         else:
-            widget = Widget()
-            widget.workflow = workflow
-            widget.x = 50
-            y = 50
-            while workflow.widgets.filter(y=y, x=widget.x).count() > 0:
-                y = y + 100
-            widget.y = y
-            widget.name = 'Output'
-            widget.type = 'output'
-            widget.save()
-            variable_name = 'Output' + str(widget.pk)
-            input = Input()
-            input.name = 'Output'
-            input.short_name = 'out'
-            input.variable = variable_name
-            input.widget = widget
-            input.save()
-            output = Output()
-            output.widget = workflow.widget
-            output.name = 'Output'
-            output.short_name = 'out'
-            output.variable = variable_name
-            output.inner_input = input
-            output.order = next_order(workflow.widget.outputs)
-            output.save()
-            input.outer_output = output
-            input.save()
-            widget.defered_outputs = widget.outputs.defer("value").all()
-            widget.defered_inputs = widget.inputs.defer("value").all()
+            widget, input = workflow.add_normal_subprocess_output()
             widget_data = WidgetSerializer(widget, context={'request': request}).data
             return HttpResponse(json.dumps(widget_data), 'application/json')
 
@@ -454,3 +400,112 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             data = json.dumps({'message': message, 'status': 'error'})
             return HttpResponse(data, 'application/json')
         return HttpResponse(json.dumps({'status': 'ok', 'stream_id': s.pk}), content_type="application/json")
+
+    # Merge provided widgets into a new subprocess
+    @detail_route(methods=['post'], url_path='merge')
+    def merge_into_subprocess(self, request, pk=None):
+        workflow = self.get_object()
+        ids = request.data
+        wf_widgets = workflow.widgets
+        widgets = wf_widgets.filter(id__in=ids).exclude(type='input').exclude(type='output')
+        # Edge case: exclude i/o widgets when selected
+
+        if len(widgets) < 1:
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'No widgets selected'}),
+                                            content_type="application/json")
+        
+        connections = workflow.connections \
+            .select_related('input__widget').select_related('output__widget')
+
+        # check if selection is contiguous
+
+        selected_conn = connections.filter(Q(input__widget__in=widgets) | Q(output__widget__in=widgets))
+
+        input_conn_w = []
+        illegal_sel = False
+        for c in selected_conn:
+                w = c.input.widget
+                input_conn_w.append(w)
+        for c in selected_conn:
+                w = c.output.widget
+                if (w not in widgets) and (w in input_conn_w):
+                    illegal_sel = True
+        
+        if illegal_sel:
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'Selected widgets must be connected'}),
+                                            content_type="application/json")
+
+        # create an empty subprocess
+        new_x = sum([w.x for w in widgets]) / len(widgets)
+        new_y = sum([w.y for w in widgets]) / len(widgets)
+
+        subprocess_workflow, subprocess_widget = workflow.add_normal_subprocess(start_x=new_x, start_y=new_y) 
+        if not (subprocess_workflow and subprocess_widget):
+            return HttpResponse(status=400)
+
+        new_connections = []
+
+        for c in connections:
+            # move internal connection to new wf
+            if (c.input.widget in widgets) and (c.output.widget in widgets):
+                c.workflow = subprocess_workflow
+                c.save()
+
+            # split bordering input connections
+            elif (c.input.widget in widgets):
+                widget, w_output = subprocess_workflow.add_normal_subprocess_input()
+                if not widget:
+                    return HttpResponse(status=400)
+                widget.x = c.output.widget.x
+                widget.y = c.output.widget.y
+                widget.save()
+
+                inner_c = Connection()
+                inner_c.output = w_output
+                inner_c.input = c.input
+                inner_c.workflow = subprocess_workflow
+                inner_c.save()
+
+                outer_c = Connection()
+                outer_c.output = c.output
+                outer_c.input = w_output.outer_input
+                outer_c.workflow = workflow
+                outer_c.save()
+                new_connections.append(outer_c)
+
+                c.delete()
+
+            # split bordering output connections
+            elif (c.output.widget in widgets):
+                widget, w_input = subprocess_workflow.add_normal_subprocess_output()
+                if not widget:
+                    return HttpResponse(status=400)
+                widget.x = c.input.widget.x
+                widget.y = c.input.widget.y
+                widget.save()
+
+                inner_c = Connection()
+                inner_c.output = c.output
+                inner_c.input = w_input
+                inner_c.workflow = subprocess_workflow
+                inner_c.save()
+
+                outer_c = Connection()
+                outer_c.output = w_input.outer_output
+                outer_c.input = c.input
+                outer_c.workflow = workflow
+                outer_c.save()
+                new_connections.append(outer_c)
+
+                c.delete()
+
+        widgets.update(workflow=subprocess_workflow)
+
+        subprocess_widget.name = "New merged subprocess"
+        subprocess_widget.save()
+
+        widget_data = WidgetSerializer(subprocess_widget, context={'request': request}).data
+        connections_data = [ConnectionSerializer(c, context={'request': request}).data for c in new_connections]
+
+        response_data = {"widget": widget_data, "connections": connections_data}
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
