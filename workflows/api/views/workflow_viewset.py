@@ -11,6 +11,8 @@ from workflows.api.serializers import *
 from workflows.engine import WorkflowRunner
 from workflows.forms import ImportForm
 
+from collections import deque
+
 
 def next_order(inputs_or_outputs):
     m = inputs_or_outputs.aggregate(Max('order'))
@@ -404,19 +406,34 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     def merge_into_subprocess(self, request, pk=None):
         workflow = self.get_object()
         ids = request.data
-        widgets = workflow.widgets.filter(id__in=ids).exclude(type='input').exclude(type='output')
+        wf_widgets = workflow.widgets
+        widgets = wf_widgets.filter(id__in=ids).exclude(type='input').exclude(type='output')
         # Edge case: exclude i/o widgets when selected
 
         if len(widgets) < 1:
-            return HttpResponse(status=400)
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'No widgets selected'}),
+                                            content_type="application/json")
         
         connections = workflow.connections \
             .select_related('input__widget').select_related('output__widget')
 
-        # a je to kej hitrej?
-        # whole_inside = connections.filter(input__widget__in=widgets, output__widget__in=widgets)
-        # input_inside = connections.filter(input__widget__in=widgets, output__widget__in=widgets)
-        # output_inside = connections.filter(input__widget__in=widgets, output__widget__in=widgets)
+        # check if selection is contiguous
+
+        selected_conn = connections.filter(Q(input__widget__in=widgets) | Q(output__widget__in=widgets))
+
+        input_conn_w = []
+        illegal_sel = False
+        for c in selected_conn:
+                w = c.input.widget
+                input_conn_w.append(w)
+        for c in selected_conn:
+                w = c.output.widget
+                if (w not in widgets) and (w in input_conn_w):
+                    illegal_sel = True
+        
+        if illegal_sel:
+            return HttpResponse(json.dumps({'status': 'error', 'message': 'Selected widgets must be connected'}),
+                                            content_type="application/json")
 
         # create an empty subprocess
         new_x = sum([w.x for w in widgets]) / len(widgets)
