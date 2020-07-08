@@ -78,10 +78,17 @@ class Workflow(models.Model):
     def can_be_streaming(self):
         """ Method checks if workflow can be streamed. Check if there is at least one widget with
         the flag abstract_widget__is_streaming on True.  """
-        if self.widgets.filter(abstract_widget__is_streaming=True).count() > 0:
-            return True
-        else:
+        try:
+            self._prefetched_objects_cache['widgets']
+            for widget in self.widgets.all():
+                if widget.abstract_widget.is_streaming:
+                    return True
             return False
+        except (AttributeError, KeyError):
+            if self.widgets.filter(abstract_widget__is_streaming=True).count() > 0:
+                return True
+            else:
+                return False
 
     def is_for_loop(self):
         """ Method checks if workflow is a for loop. Checks if at least one widget is

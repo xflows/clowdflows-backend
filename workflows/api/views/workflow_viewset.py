@@ -38,7 +38,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        workflows = Workflow.objects.order_by('pk').prefetch_related('widget', 'user')
+        workflows = Workflow.objects.order_by('pk').prefetch_related('widget', 'user', 'widgets__abstract_widget', 'stream')
         preview = self.request.GET.get('preview', '0') == '1'
         if self.action == 'list' or preview:
             user = self.request.user
@@ -63,7 +63,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
                 filters = Q(public=True)
             workflows = workflows.filter(filters).prefetch_related('connections')
             if preview:
-                workflows = workflows.prefetch_related("widgets", "connections__output", "connections__input") \
+                workflows = workflows.prefetch_related("widgets", "connections__output", "connections__input", "stream") \
                     .defer("connections__output__value", "connections__input__value")
         elif self.action == "retrieve":
             workflows = Workflow.objects.prefetch_related('widget', 'user') \

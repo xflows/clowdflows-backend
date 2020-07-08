@@ -54,3 +54,9 @@ if DEBUG:
         url(r'^media/(?P<path>.*)$', serve,
             {'document_root': STATIC_DOC_ROOT}),
    ]
+
+if DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        url('^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

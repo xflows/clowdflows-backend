@@ -84,6 +84,7 @@ STATICFILES_FINDERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -166,7 +167,8 @@ INSTALLED_APPS_DEFAULT = (
     'djoser',
     'rest_framework_docs',
     'corsheaders',
-    'channels'
+    'channels',
+    'debug_toolbar',
 )
 
 DJOSER = {
