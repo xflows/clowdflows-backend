@@ -12,7 +12,6 @@ WORKDIR /usr/src/app
 COPY ./requirements.txt /usr/src/app/requirements.txt
 
 RUN pip install --upgrade pip && \
-    pip install pipenv && \
     pip install psycopg2 && \
     pip install -r requirements.txt
 
