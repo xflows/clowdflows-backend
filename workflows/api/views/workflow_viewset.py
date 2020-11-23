@@ -61,10 +61,13 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             else:
                 # filters = Q(user=user) | Q(public=True)
                 filters = Q(public=True)
-            workflows = workflows.filter(filters).prefetch_related('connections')
+            workflows = workflows.filter(filters)
             if preview:
-                workflows = workflows.prefetch_related("widgets", "connections__output", "connections__input", "stream") \
-                    .defer("connections__output__value", "connections__input__value")
+                workflows = workflows.prefetch_related("widgets", Prefetch("connections", queryset=Connection.objects.select_related(
+                    "output", "input"
+                ).defer("output__value","input__value")), "stream")
+            else:
+                workflows = workflows.prefetch_related('connections')
         elif self.action == "retrieve":
             workflows = Workflow.objects.prefetch_related('widget', 'user') \
                 .prefetch_related("connections", "connections__output", "connections__input") \
