@@ -179,7 +179,7 @@ def get_workflow_preview(request, obj):
         widget.norm_x = (x / normalized_max_x) * max_width
         widget.norm_y = (y / normalized_max_y) * max_height
         normalized_values[widget.id] = (widget.norm_x, widget.norm_y)
-    for c in obj.connections.select_related("output", "input").defer("output__value", "input__value").all():
+    for c in obj.connections.all():
         if not (c.output.widget_id, c.input.widget_id) in obj.pairs:
             obj.pairs.append((c.output.widget_id, c.input.widget_id))
     for pair in obj.pairs:
