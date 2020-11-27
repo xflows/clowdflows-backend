@@ -285,6 +285,7 @@ FILES_FOLDER = os.path.join(PUBLIC_DIR, 'files/')
 
 INSTALLED_APPS_WORKFLOWS_SUB = (
     'workflows.base',
+    'workflows.cf_scraping',
 )
 
 INSTALLED_APPS_EXTERNAL_PACKAGES = tuple([p for packages in PACKAGE_TREE for p in packages['packages']])
