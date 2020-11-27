@@ -2,6 +2,7 @@ from django.conf.urls import include, url
 from mothra.settings import LOGIN_URL
 from mothra.settings import DEBUG, STATIC_DOC_ROOT
 
+import workflows.views
 import django.contrib.auth.views as auth_views
 from django.views.static import serve
 
@@ -45,6 +46,7 @@ def set_package_url(name, value, package):
 
 module_importer.import_all_packages_libs("urls",set_package_url)
 urlpatterns += [url(r'^workflows/' + pck.replace('.','-') + '/', include(packageUrls[pck])) for pck in packageUrls ]
+urlpatterns += [url(r'^workflows/widget-iframe/(?P<widget_id>[0-9]+)/$', workflows.views.widget_iframe, name='widget iframe'),]
 
 
 
