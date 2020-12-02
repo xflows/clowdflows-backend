@@ -207,8 +207,14 @@ class Workflow(models.Model):
 
 
 
-def copy_workflow(old, user, parent_widget_conversion={}, parent_input_conversion={}, parent_output_conversion={},
+def copy_workflow(old, user, parent_widget_conversion=None, parent_input_conversion=None, parent_output_conversion=None,
                   parent_widget=None):
+    if parent_widget_conversion is None:
+        parent_widget_conversion = {}
+    if parent_input_conversion is None:
+        parent_input_conversion = {}
+    if parent_output_conversion is None:
+        parent_output_conversion = {}
     w = Workflow()
     if parent_widget is None:
         w.name = old.name + " (copy)"
@@ -238,6 +244,7 @@ def copy_workflow(old, user, parent_widget_conversion={}, parent_input_conversio
         new_widget.interaction_waiting = widget.interaction_waiting
         new_widget.type = widget.type
         new_widget.progress = widget.progress
+        new_widget.save_results = widget.save_results
         new_widget.save()
         widget_conversion[widget.id] = new_widget.id
         for input in widget.inputs.all():
