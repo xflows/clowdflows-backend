@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Prefetch
 
 from workflows.models.option import Option
 from workflows.models.output import Output
@@ -9,6 +10,7 @@ from workflows.models.input import Input
 from workflows.models.connection import Connection
 from workflows.models.widget import Widget
 
+from django.db import connection as db_connection
 
 class Workflow(models.Model):
     name = models.CharField(max_length=200, default='Untitled workflow')  # a field
@@ -231,7 +233,12 @@ def copy_workflow(old, user, parent_widget_conversion=None, parent_input_convers
     widget_conversion = {}
     input_conversion = {}
     output_conversion = {}
-    for widget in old.widgets.all():
+    input_value_copy = {}
+    output_value_copy = {}
+    for widget in old.widgets.all().prefetch_related(Prefetch('inputs',
+                                                              queryset=Input.objects.defer('value').prefetch_related('options')),
+                                                     Prefetch('outputs',
+                                                              queryset=Output.objects.defer('value'))):
         new_widget = Widget()
         new_widget.workflow = w
         new_widget.x = widget.x
@@ -257,7 +264,7 @@ def copy_workflow(old, user, parent_widget_conversion=None, parent_input_convers
             new_input.widget = new_widget
             new_input.required = input.required
             new_input.parameter = input.parameter
-            new_input.value = input.value
+            # new_input.value = input.value
             new_input.order = input.order
             new_input.multi_id = input.multi_id
             # inner_output nikol ne nastavlamo
@@ -267,6 +274,7 @@ def copy_workflow(old, user, parent_widget_conversion=None, parent_input_convers
                     new_input.outer_output = Output.objects.get(pk=parent_output_conversion[input.outer_output.id])
             new_input.parameter_type = input.parameter_type
             new_input.save()
+            input_value_copy[input.id] = new_input.id
             for option in input.options.all():
                 new_option = Option()
                 new_option.input = new_input
@@ -286,7 +294,7 @@ def copy_workflow(old, user, parent_widget_conversion=None, parent_input_convers
             new_output.variable = output.variable
             new_output.abstract_output_id = output.abstract_output_id
             new_output.widget = new_widget
-            new_output.value = output.value
+            # new_output.value = output.value
             new_output.order = output.order
             # inner input nikol ne nastavlamo
             # outer input in njemu spremenimo inner output
@@ -294,6 +302,8 @@ def copy_workflow(old, user, parent_widget_conversion=None, parent_input_convers
                 if not output.outer_input is None:
                     new_output.outer_input = Input.objects.get(pk=parent_input_conversion[output.outer_input.id])
             new_output.save()
+            output_value_copy[output.id] = new_output.id
+
             if not parent_widget is None:
                 if not output.outer_input is None:
                     new_output.outer_input.inner_output = new_output
@@ -305,6 +315,18 @@ def copy_workflow(old, user, parent_widget_conversion=None, parent_input_convers
         new_connection.output = Output.objects.get(pk=output_conversion[connection.output.id])
         new_connection.input = Input.objects.get(pk=input_conversion[connection.input.id])
         new_connection.save()
+    for old_input_id, new_input_id in input_value_copy.items():
+        with db_connection.cursor() as cursor:
+            cursor.execute(
+                "UPDATE workflows_input SET value = (SELECT value FROM workflows_input where ID = {source_id}) WHERE id = {target_id}".format(
+                    source_id=old_input_id,
+                    target_id=new_input_id))
+    for old_output_id, new_output_id in output_value_copy.items():
+        with db_connection.cursor() as cursor:
+            cursor.execute(
+                "UPDATE workflows_output SET value = (SELECT value FROM workflows_output where ID = {source_id}) WHERE id = {target_id}".format(
+                    source_id=old_output_id,
+                    target_id=new_output_id))
     for widget in old.widgets.filter(type='subprocess'):
         # tuki mormo vse subprocesse zrihtat
         copy_workflow(widget.workflow_link, user, widget_conversion, input_conversion, output_conversion,
