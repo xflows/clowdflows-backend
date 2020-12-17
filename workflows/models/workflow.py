@@ -312,8 +312,8 @@ def copy_workflow(old, user, parent_widget_conversion=None, parent_input_convers
     for connection in old.connections.all():
         new_connection = Connection()
         new_connection.workflow = w
-        new_connection.output = Output.objects.get(pk=output_conversion[connection.output.id])
-        new_connection.input = Input.objects.get(pk=input_conversion[connection.input.id])
+        new_connection.output_id = output_conversion[connection.output.id]
+        new_connection.input_id = input_conversion[connection.input.id]
         new_connection.save()
     for old_input_id, new_input_id in input_value_copy.items():
         with db_connection.cursor() as cursor:
