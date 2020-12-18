@@ -3,6 +3,7 @@ from collections import defaultdict
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Prefetch
+from django.utils import timezone
 
 from workflows.models.option import Option
 from workflows.models.output import Output
@@ -21,6 +22,7 @@ class Workflow(models.Model):
     widget = models.OneToOneField('Widget', related_name="workflow_link", blank=True, null=True)
     template_parent = models.ForeignKey('Workflow', blank=True, null=True, default=None, on_delete=models.SET_NULL)
     staff_pick = models.BooleanField(default=False)
+    copy_time = models.IntegerField(default=0)
 
     def import_from_json(self, json_data, input_conversion, output_conversion):
         self.name = json_data['name']
@@ -211,6 +213,7 @@ class Workflow(models.Model):
 
 def copy_workflow(old, user, parent_widget_conversion=None, parent_input_conversion=None, parent_output_conversion=None,
                   parent_widget=None):
+    tic = timezone.now()
     if parent_widget_conversion is None:
         parent_widget_conversion = {}
     if parent_input_conversion is None:
@@ -331,4 +334,8 @@ def copy_workflow(old, user, parent_widget_conversion=None, parent_input_convers
         # tuki mormo vse subprocesse zrihtat
         copy_workflow(widget.workflow_link, user, widget_conversion, input_conversion, output_conversion,
                       Widget.objects.get(pk=widget_conversion[widget.id]))
+    toc = timezone.now()
+    delta = toc - tic
+    old.copy_time = delta.seconds
+    old.save(update_fields=['copy_time', ])
     return w
