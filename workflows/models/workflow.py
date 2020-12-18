@@ -271,7 +271,7 @@ def copy_workflow(old, user, parent_widget_conversion=None, parent_input_convers
             # outer_output in njemu spremenimo inner input
             if not parent_widget is None:
                 if not input.outer_output is None:
-                    new_input.outer_output = Output.objects.get(pk=parent_output_conversion[input.outer_output.id])
+                    new_input.outer_output_id = parent_output_conversion[input.outer_output.id]
             new_input.parameter_type = input.parameter_type
             new_input.save()
             input_value_copy[input.id] = new_input.id
@@ -312,8 +312,8 @@ def copy_workflow(old, user, parent_widget_conversion=None, parent_input_convers
     for connection in old.connections.all():
         new_connection = Connection()
         new_connection.workflow = w
-        new_connection.output_id = output_conversion[connection.output.id]
-        new_connection.input_id = input_conversion[connection.input.id]
+        new_connection.output_id = output_conversion[connection.output_id]
+        new_connection.input_id = input_conversion[connection.input_id]
         new_connection.save()
     for old_input_id, new_input_id in input_value_copy.items():
         with db_connection.cursor() as cursor:
