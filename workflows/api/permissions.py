@@ -11,9 +11,6 @@ class IsAdminOrSelf(permissions.BasePermission):
                 serializer = view.serializer_class(data=request.data)
                 serializer.is_valid()
                 workflow = serializer.validated_data['workflow']
-                if request.GET.get('preview', '0') == '1':
-                    if workflow.public:
-                        return True
                 return workflow.user == request.user
             if view.model == Workflow and 'staff_pick' in request.data:
                 return request.user.is_staff
@@ -27,6 +24,8 @@ class IsAdminOrSelf(permissions.BasePermission):
 
             # Allow only editing of the user's workflow objects
             if isinstance(obj, Workflow):
+                if obj.public and request.GET.get('preview','0') == '1':
+                    return True
                 return obj.user == request.user
             if isinstance(obj, Widget):
                 return obj.workflow.user == request.user
