@@ -15,7 +15,7 @@ ladon==0.8.9
 django-discover-runner==1.0.0
 liac-arff
 networkx==1.9.1
-djangorestframework==3.4.0
+djangorestframework==3.11.2
 django-filter==1.0.4
 django-cors-headers==1.1.0
 drfdocs==0.0.11
