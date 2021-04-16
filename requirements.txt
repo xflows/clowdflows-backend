@@ -1,5 +1,5 @@
 Django==1.11.28
-django-debug-toolbar==1.11
+django-debug-toolbar==1.11.1
 pytz==2019.3
 Pillow==7.0.0
 PySimpleSOAP==1.16.2
