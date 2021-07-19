@@ -12,7 +12,7 @@ WORKDIR /usr/src/app
 COPY ./requirements.txt /usr/src/app/requirements.txt
 
 RUN pip install --upgrade pip && \
-    pip install psycopg2 && \
+    pip install "psycopg2==2.8.6" && \
     pip install -r requirements.txt
 
 COPY . /usr/src/app/
