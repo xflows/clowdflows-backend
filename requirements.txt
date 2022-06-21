@@ -23,7 +23,7 @@ channels==1.1.8
 djoser==1.1.5
 asgi-redis==1.4.3
 django-environ==0.4.5
-numpy==1.17.4
+numpy==1.22.0
 ipython
 redis==2.10.6
 gunicorn==20.0.4
