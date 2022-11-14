@@ -1,80 +1,71 @@
-# Local installation of the Mothra project #
+# ClowdFlows3 backend
+
+This document describes how to setup ClowdFlows3 backend without Docker. 
+For a Docker-based installation please use [this repository](https://github.com/xflows/cf3.ijs.si)
+as a template.
+
+
+Please note that a working ClowdFlows3 installation also requires the frontend which 
+is available [here (clowdflows-webapp)](https://github.com/xflows/clowdflows-webapp).
+
+
+
 ## Prerequisites ##
 
-- python >= 2.5
-- pip
-- virtualenv/wrapper (optional)
-- python headers if you're compiling Pillow from source: you need the `python-dev` package on debian systems
+- python 3.6 or newer (3.7.15 is recommended)
 
-## Installation ##
-### Creating the environment ###
-Create a virtual python environment for the project.
-If you're not using virtualenv or virtualenvwrapper you may skip this step.
 
-#### For virtualenvwrapper ####
-```bash
-mkvirtualenv --no-site-packages mothra-env
-```
+## Steps
 
-#### For virtualenv ####
-```bash
-virtualenv --no-site-packages mothra-env
-cd mothra-env
-source bin/activate
-```
+### Create a virtual environment ###
 
-### Clone the code ###
-Obtain the url to your git repository.
 
 ```bash
-git clone git@source.ijs.si:kt/mothra.git
+python -m venv cf-venv
 ```
+
+### Get the code ###
+
+```bash
+git clone  https://github.com/xflows/clowdflows-backend.git
+```
+
 
 ### Install requirements ###
+
 ```bash
-cd mothra
+cd clowdflows-backend
 pip install -r requirements.txt
 ```
 
+
 ### Configure project ###
-```bash
-cp mothra/__local_settings.py mothra/local_settings.py
-vi mothra/local_settings.py
-```
 
-### Enable workflow packages ###
-Uncomment the packages that you need in `mothra/local_settings.py` in the `INSTALLED_APPS_WORKFLOWS_SUB` tuple.
+Edit `clowdflows-backend/mothra/settings.py` if needed. Note that by default, SQLite is used.
+It is advised to replace it with Postgres for better performance. 
+Find and modify Django's `DATABASES` variable in this file as described in [this guide](https://docs.djangoproject.com/en/1.11/ref/databases/).
 
-### Sync database ###
-Say "no" to creating a super-user when prompted. You'll create the user after migrations.
+
+### Prepare the  database
 
 ```bash
-python manage.py syncdb --noinput
-```
-
-### Migrate database ###
-```bash
+source cf-venv/bin/activate
 python manage.py migrate
-```
-
-### Create super-user ###
-```bash
+python manage.py import_all
+python manage.py collectstatic --noinput
 python manage.py createsuperuser
 ```
 
-### Import packages ###
-```bash
-python manage.py import_all
-```
 
-## Running ##
+### Run the development server ##
+
 ```bash
 python manage.py runserver
 ```
 
-## Running with debugger ##
-```bash
-python manage.py runserver_plus
-```
+If the frontend server is already running with default configuration, you can open [http://localhost:8080/](http://localhost:8080/) and log in using admin credentials.
 
-Open browser to http://127.0.0.1:8000
+
+### Extra: Enable workflow packages ###
+
+Install any extra ClowdFlows3 packages and add corresponding entries into the `packages/packages.py`. 
