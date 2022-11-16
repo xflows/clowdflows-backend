@@ -80,7 +80,8 @@ def export_package(package_name,writer,dest_folder=None):
         raise CommandError("You must provide a destination folder when exporting external packages.")
     
     if not external and dest_folder:
-        raise CommandError("You can't use a custom destination folder when exporting local packages.")
+        print('WARNING: ignoring custom destination because this is a local package.')
+        #raise CommandError("You can't use a custom destination folder when exporting local packages.")
 
     if 'workflows.'+package_name not in settings.INSTALLED_APPS and not external:
         raise CommandError("Package not found in INSTALLED_APPS.")
