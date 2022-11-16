@@ -23,6 +23,9 @@ class Workflow(models.Model):
     template_parent = models.ForeignKey('Workflow', blank=True, null=True, default=None, on_delete=models.SET_NULL)
     staff_pick = models.BooleanField(default=False)
     copy_time = models.IntegerField(default=0)
+    creation_time = models.DateTimeField(auto_now_add=True, editable=False, null=True, blank=True)
+    last_modified = models.DateTimeField(auto_now=True, editable=False, null=True, blank=True)
+
 
     def import_from_json(self, json_data, input_conversion, output_conversion):
         self.name = json_data['name']
